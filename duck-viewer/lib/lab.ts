@@ -465,7 +465,33 @@ export class LabClient {
   }
   close() {
     this.closed = true;
-    this.ws?.close();
+    if (this.reconnectTimer !== null) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+
+    const ws = this.ws;
+    this.ws = null;
+    this.connected = false;
+    this.lastFrameAt = 0;
+    if (!ws) return;
+
+    // Detach the disposed client immediately: no late frame/status callback
+    // may escape, and an old close event must not schedule a reconnect.
+    ws.onmessage = null;
+    ws.onclose = null;
+    ws.onerror = null;
+
+    if (ws.readyState === WebSocket.CONNECTING) {
+      // Closing a CONNECTING socket makes Chromium warn during React Strict
+      // Mode mount/cleanup/remount probe. Let the handshake finish, then
+      // close before this abandoned socket can deliver anything.
+      ws.onopen = () => ws.close();
+    } else {
+      ws.onopen = null;
+      if (ws.readyState === WebSocket.OPEN) ws.close();
+      // CLOSING/CLOSED sockets already have their shutdown in flight/done.
+    }
   }
 }
 

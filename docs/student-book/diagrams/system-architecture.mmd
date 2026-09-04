@@ -1,0 +1,23 @@
+%%{init: {"htmlLabels": false, "theme": "base", "themeVariables": {"fontSize": "20px", "fontFamily": "Arial", "primaryColor": "#e8f1fb", "primaryBorderColor": "#24557a", "lineColor": "#354a5f", "secondaryColor": "#eef7e8", "tertiaryColor": "#fff4dd"}, "flowchart": {"htmlLabels": false, "wrappingWidth": 500, "curve": "basis", "nodeSpacing": 38, "rankSpacing": 52}}}%%
+flowchart LR
+  subgraph Tracked["Tracked in this<br/>workspace"]
+    ML["microduck_local<br/>Python 3.12, MuJoCo, SB3 PPO"]
+    LAB["duck-lab<br/>FastAPI + WebSocket"]
+    VIEW["duck-viewer<br/>Next.js + React Three Fiber"]
+  end
+  subgraph Upstream["Sibling upstream<br/>checkouts, gitignored here"]
+    RL["microduck_rl<br/>MJCF + official GPU sim2real stack"]
+    ROBOT["microduck<br/>Robot runtime + shipped ONNX policies"]
+  end
+  USER["Learner / browser"]
+  HW["Physical Microduck<br/>14 XL330 servos, IMU, 50 Hz"]
+
+  RL -->|"MJCF scenes and final<br/>retraining target"| ML
+  ROBOT -->|"reference ONNX<br/>policies"| ML
+  ML -->|"policy.onnx with baked<br/>normalizer"| LAB
+  LAB -->|"GET /scene,<br/>WS poses at<br/>about 25 Hz"| VIEW
+  VIEW -->|"teach, assign,<br/>animate, capture"| LAB
+  USER <--> VIEW
+  ML -.->|"prototype design only"| RL
+  RL -->|"officially retrained<br/>ONNX"| HW
+  ROBOT --> HW

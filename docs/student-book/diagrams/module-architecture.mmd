@@ -1,0 +1,39 @@
+%%{init: {"htmlLabels": false, "theme": "base", "themeVariables": {"fontSize": "18px", "fontFamily": "Arial", "primaryColor": "#e8f1fb", "primaryBorderColor": "#24557a", "lineColor": "#354a5f", "secondaryColor": "#eef7e8", "tertiaryColor": "#fff4dd"}, "flowchart": {"htmlLabels": false, "wrappingWidth": 500, "curve": "basis", "nodeSpacing": 32, "rankSpacing": 46}}}%%
+flowchart TB
+  CONTRACT["contract.py<br/>61 observations, 14 actions, timing, poses"]
+  WALK["walk_env.py<br/>MicroduckWalkEnv"]
+  BEH["behaviors/<br/>Behavior, RewardTerm, BehaviorEnv, curricula"]
+  VEC["vec_env.py<br/>ForkVecEnv + shared mjModel"]
+  HP["ppo_hparams.py<br/>rollout and batch constants"]
+  SYM["symmetry.py<br/>FastActorCriticPolicy + SymmetryPPO"]
+  TRAIN["train.py<br/>train-walk"]
+  TB["train_behavior.py<br/>train-behavior + live snapshots"]
+  EXPORT["export_onnx.py<br/>normalizer + deterministic actor"]
+  EVAL["eval_onnx.py<br/>fall and tracking metrics"]
+  RENDER["render_rollout.py<br/>MP4 + diagnostic contact sheet"]
+  VIZ["viz_server.py<br/>duck-lab HTTP, WS, teach orchestration"]
+  MOTION["motion.py<br/>keyframe clips + 50 Hz phase"]
+  UI["duck-viewer<br/>Viewer, TeachPanel, AnimPanel, RecordPanel"]
+
+  CONTRACT --> WALK
+  CONTRACT --> SYM
+  CONTRACT --> EXPORT
+  WALK --> BEH
+  WALK --> VEC
+  HP --> TRAIN
+  HP --> TB
+  HP --> SYM
+  VEC --> TRAIN
+  VEC --> TB
+  SYM --> TRAIN
+  SYM --> TB
+  BEH --> TB
+  MOTION --> BEH
+  TRAIN --> EXPORT
+  TB --> EXPORT
+  EXPORT --> EVAL
+  EXPORT --> RENDER
+  EXPORT --> VIZ
+  BEH --> VIZ
+  MOTION --> VIZ
+  VIZ <--> UI

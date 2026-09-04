@@ -1,0 +1,1 @@
+uv run duck-lab ./policies/alpha_walking.onnx

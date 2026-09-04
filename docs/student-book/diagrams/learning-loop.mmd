@@ -1,0 +1,19 @@
+%%{init: {"htmlLabels": false, "theme": "base", "themeVariables": {"fontSize": "19px", "fontFamily": "Arial", "primaryColor": "#e8f1fb", "primaryBorderColor": "#24557a", "lineColor": "#354a5f", "secondaryColor": "#eef7e8", "tertiaryColor": "#fff4dd"}, "flowchart": {"htmlLabels": false, "wrappingWidth": 500, "curve": "basis", "nodeSpacing": 36, "rankSpacing": 46}}}%%
+flowchart LR
+  Q["1. State a visible,<br/>observable skill"]
+  TEST["2. Lock invariants<br/>with tests"]
+  TRAIN["3. Train a short<br/>smoke run"]
+  EXPORT["4. Export deterministic<br/>ONNX + normalizer"]
+  EVAL["5. Evaluate metrics<br/>and null controls"]
+  LOOK["6. Render video +<br/>contact sheet and look"]
+  DIAG{"Does any rollout<br/>do the target motion?"}
+  PHYS["No: fix exploration<br/>with physics/spawn curriculum"]
+  REWARD["Yes, but wrong shape:<br/>fix bounded reward terms"]
+  SCALE["7. Seed-matched run at<br/>useful step count"]
+  GPU["8. Port environment design<br/>to microduck_rl and retrain"]
+
+  Q --> TEST --> TRAIN --> EXPORT --> EVAL --> LOOK --> DIAG
+  DIAG -->|"No"| PHYS --> TEST
+  DIAG -->|"Sometimes"| REWARD --> TEST
+  DIAG -->|"Reliably"| SCALE --> LOOK
+  SCALE --> GPU

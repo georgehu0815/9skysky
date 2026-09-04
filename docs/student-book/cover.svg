@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1275" height="1650" viewBox="0 0 1275 1650">
+  <defs>
+    <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#080b12" stop-opacity="0.38"/>
+      <stop offset="0.52" stop-color="#080b12" stop-opacity="0.56"/>
+      <stop offset="1" stop-color="#080b12" stop-opacity="0.88"/>
+    </linearGradient>
+  </defs>
+  <image x="0" y="0" width="1275" height="1650" xlink:href="cover-background.png" preserveAspectRatio="xMidYMid slice"/>
+  <rect x="0" y="0" width="1275" height="1650" fill="url(#shade)"/>
+  <rect x="88" y="90" width="1099" height="1470" rx="28" fill="none" stroke="#ffffff" stroke-opacity="0.28" stroke-width="3"/>
+  <text x="637.5" y="250" text-anchor="middle" fill="#9be38f" font-family="Menlo, Monaco, monospace" font-size="42" font-weight="700" letter-spacing="8">MICRODUCK LAB</text>
+  <line x1="430" y1="305" x2="845" y2="305" stroke="#f4b66c" stroke-width="5"/>
+  <text x="637.5" y="560" text-anchor="middle" fill="#ffffff" font-family="Helvetica, Arial, sans-serif" font-size="116" font-weight="700">STUDENT</text>
+  <text x="637.5" y="685" text-anchor="middle" fill="#ffffff" font-family="Helvetica, Arial, sans-serif" font-size="116" font-weight="700">BOOK</text>
+  <text x="637.5" y="790" text-anchor="middle" fill="#d8deea" font-family="Helvetica, Arial, sans-serif" font-size="30" letter-spacing="2">BIPED ROBOTICS · REINFORCEMENT LEARNING</text>
+  <text x="637.5" y="835" text-anchor="middle" fill="#d8deea" font-family="Helvetica, Arial, sans-serif" font-size="30" letter-spacing="2">POLICY EVALUATION · VISUALIZATION</text>
+  <g transform="translate(637.5 1400)">
+    <text x="0" y="0" text-anchor="middle" fill="#b9c2d2" font-family="Helvetica, Arial, sans-serif" font-size="28" letter-spacing="5">AUTHOR</text>
+    <text x="0" y="72" text-anchor="middle" fill="#ffffff" font-family="Helvetica, Arial, sans-serif" font-size="52" font-weight="600">George Hu</text>
+  </g>
+</svg>

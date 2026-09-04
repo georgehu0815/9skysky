@@ -75,7 +75,30 @@ uv run --with pytest pytest tests/        # contract tests, should be all green
 
 # train your first walking policy (a few minutes on an M-series Mac)
 uv run train-walk --envs 32 --steps 3_000_000 --run-name first-gait
+-----------------------------------------
+| rollout/                |             |
+|    ep_len_mean          | 340         |
+|    ep_rew_mean          | 850         |
+| time/                   |             |
+|    fps                  | 16256       |
+|    iterations           | 211         |
+|    time_elapsed         | 106         |
+|    total_timesteps      | 1728512     |
+| train/                  |             |
+|    approx_kl            | 0.027882561 |
+|    clip_fraction        | 0.272       |
+|    clip_range           | 0.2         |
+|    entropy_loss         | -4.7        |
+|    explained_variance   | 0.831       |
+|    learning_rate        | 0.001       |
+|    loss                 | 471         |
+|    n_updates            | 1050        |
+|    policy_gradient_loss | -0.0178     |
+|    std                  | 0.339       |
+|    value_loss           | 550         |
+-----------------------------------------
 uv run export-walk runs/first-gait
+/microduck_local/runs/first-gait/policy.onnx 
 uv run eval-walk runs/first-gait/policy.onnx
 
 # fire up the lab + viewer
