@@ -1090,12 +1090,15 @@ function LiveTraining({
 
 export function TeachPanel({
   clientRef,
+  variant = "overlay",
 }: {
   clientRef: React.MutableRefObject<LabClient | null>;
+  variant?: "overlay" | "embedded";
 }) {
+  const embedded = variant === "embedded";
   // Collapsed by default, like the PolicyPanel above it — persisted after
   // the first open.
-  const [open, setOpen] = useState(() => loadJSON("teachOpen", false));
+  const [open, setOpen] = useState(() => embedded || loadJSON("teachOpen", false));
   const [wide, setWide] = useState(() => loadJSON("teachWide", false));
   const policyOpen = usePolicyOpen();
   const [msgs, setMsgs] = useState<Msg[]>(() => {
@@ -1127,8 +1130,12 @@ export function TeachPanel({
   const histJob = useRef("");
   const logRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => saveJSON("teachOpen", open), [open]);
-  useEffect(() => saveJSON("teachWide", wide), [wide]);
+  useEffect(() => {
+    if (!embedded) saveJSON("teachOpen", open);
+  }, [embedded, open]);
+  useEffect(() => {
+    if (!embedded) saveJSON("teachWide", wide);
+  }, [embedded, wide]);
   useEffect(() => saveJSON("teachMsgs", msgs.slice(-MSG_CAP)), [msgs]);
 
   // Poll the streamed frame for training progress + one-shot events.
@@ -1407,38 +1414,45 @@ export function TeachPanel({
   }, []);
 
   const panel: React.CSSProperties = {
-    position: "absolute",
+    position: embedded ? "relative" : "absolute",
     // Above the ducks' floating DOM labels (drei Html, zIndexRange [10, 0]).
     zIndex: 20,
-    right: 14,
-    bottom: 14,
+    right: embedded ? "auto" : 14,
+    bottom: embedded ? "auto" : 14,
     // Wide mode makes room for full recipe sentences beside the sliders. The
     // extra min() terms cap it responsively: the bottom-center Controls pad is
     // 118px wide, so its right edge sits at 50vw + 59px — our left edge
     // (100vw - 14px - width) stays right of it for any viewport width.
-    width: wide ? "min(560px, 44vw, 50vw - 80px)" : 320,
+    width: embedded
+      ? "100%"
+      : wide
+        ? "min(560px, calc(100cqw - 28px))"
+        : "min(320px, calc(100cqw - 28px))",
     // Complementary to the PolicyPanel's NOMINAL cap (min(40vh, 380px)) plus
     // margins, so the two right-column panels can never overlap — but when
     // that panel is collapsed to its pill, reclaim the space and grow tall.
     // Stays keyed to that constant, never to the policy panel's measured
     // height: policies sizes itself off OUR measured height (lib/ui.ts), and
     // measuring each other both ways would make the pair oscillate.
-    maxHeight: policyOpen
-      ? "calc(100vh - min(40vh, 380px) - 56px)"
-      : "calc(100vh - 100px)",
+    maxHeight: embedded
+      ? "none"
+      : policyOpen
+        ? "calc(100cqh - min(40cqh, 380px) - 56px)"
+        : "calc(100cqh - 100px)",
+    height: embedded ? "100%" : "auto",
     display: "flex",
     flexDirection: "column",
-    background: "rgba(14, 16, 20, 0.86)",
-    border: "1px solid rgba(255,255,255,0.09)",
-    borderRadius: 10,
+    background: embedded ? "transparent" : "rgba(14, 16, 20, 0.86)",
+    border: embedded ? "0" : "1px solid rgba(255,255,255,0.09)",
+    borderRadius: embedded ? 0 : 10,
     color: "#e8e6e1",
     fontFamily: mono,
     fontSize: 12,
     lineHeight: 1.5,
-    backdropFilter: "blur(6px)",
+    backdropFilter: embedded ? "none" : "blur(6px)",
   };
 
-  if (!open)
+  if (!open && !embedded)
     return (
       <button
         ref={teachSizeRef}
@@ -1459,7 +1473,7 @@ export function TeachPanel({
   return (
     // data-teach-ui doubles as the PolicyPanel's drop target: a policy chip
     // dropped (or armed-clicked) anywhere on this panel loads its run here.
-    <div ref={teachSizeRef} style={panel} data-teach-ui>
+    <div ref={embedded ? undefined : teachSizeRef} style={panel} data-teach-ui>
       <div
         style={{
           padding: "8px 12px", fontWeight: 700, fontSize: 13,
@@ -1484,26 +1498,30 @@ export function TeachPanel({
         >
           🗑
         </button>
-        <button
-          onClick={() => setWide((w) => !w)}
-          title={wide ? "back to the narrow panel" : "widen the panel — full recipe sentences"}
-          style={{
-            background: "none", border: "none", color: "#8b93a3",
-            cursor: "pointer", fontFamily: mono, fontSize: 12, padding: "0 4px",
-          }}
-        >
-          {wide ? "⤡" : "⤢"}
-        </button>
-        <button
-          onClick={() => setOpen(false)}
-          title="collapse"
-          style={{
-            background: "none", border: "none", color: "#8b93a3",
-            cursor: "pointer", fontFamily: mono, fontSize: 12, padding: "0 4px",
-          }}
-        >
-          —
-        </button>
+        {!embedded && (
+          <>
+            <button
+              onClick={() => setWide((w) => !w)}
+              title={wide ? "back to the narrow panel" : "widen the panel — full recipe sentences"}
+              style={{
+                background: "none", border: "none", color: "#8b93a3",
+                cursor: "pointer", fontFamily: mono, fontSize: 12, padding: "0 4px",
+              }}
+            >
+              {wide ? "⤡" : "⤢"}
+            </button>
+            <button
+              onClick={() => setOpen(false)}
+              title="collapse"
+              style={{
+                background: "none", border: "none", color: "#8b93a3",
+                cursor: "pointer", fontFamily: mono, fontSize: 12, padding: "0 4px",
+              }}
+            >
+              —
+            </button>
+          </>
+        )}
       </div>
 
       <div ref={logRef} style={{ overflowY: "auto", padding: "8px 12px", flex: 1 }}>

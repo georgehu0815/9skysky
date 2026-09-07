@@ -447,12 +447,17 @@ function DeleteDialog({
 
 export function PolicyPanel({
   clientRef,
+  variant = "overlay",
+  active = true,
 }: {
   clientRef: React.MutableRefObject<LabClient | null>;
+  variant?: "overlay" | "embedded";
+  active?: boolean;
 }) {
+  const embedded = variant === "embedded";
   // Starts collapsed to its pill: the scene, not the roster, is the first
   // thing to see. The choice is persisted, so a user who opens it keeps it.
-  const [open, setOpen] = useState(() => loadJSON("policyOpen", false));
+  const [open, setOpen] = useState(() => embedded || loadJSON("policyOpen", false));
   // Per-section collapse, toggled by clicking a group heading. Persisted like
   // the panel itself. An active filter overrides it (all matches stay
   // visible) — a hit hiding inside a collapsed section would look like the
@@ -497,9 +502,10 @@ export function PolicyPanel({
   const start = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
+    if (embedded) return;
     saveJSON("policyOpen", open);
     setPolicyOpen(open); // lets the TeachPanel reclaim the vertical space
-  }, [open]);
+  }, [embedded, open]);
 
   // "/" anywhere jumps to the filter box — expanding the panel first when
   // it's collapsed, since there is nothing to focus otherwise. Ignored while
@@ -507,6 +513,7 @@ export function PolicyPanel({
   // holding a modifier, so it can't eat a real "/" keystroke.
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
+      if (!active) return;
       if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
       const t = e.target as HTMLElement | null;
       if (t?.closest("input, textarea, select, [contenteditable='true']")) return;
@@ -522,7 +529,7 @@ export function PolicyPanel({
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, []);
+  }, [active]);
 
   useEffect(() => {
     if (!focusTick) return; // nothing asked for focus yet
@@ -859,7 +866,7 @@ export function PolicyPanel({
     </div>
   );
 
-  if (!open)
+  if (!open && !embedded)
     return (
       <button
         data-policy-ui
@@ -889,13 +896,13 @@ export function PolicyPanel({
       <div
         data-policy-ui
         style={{
-          position: "absolute",
+          position: embedded ? "relative" : "absolute",
           // Above the ducks' floating DOM labels (drei Html, zIndexRange
           // [10, 0]) — labels must never scribble over the chip list.
           zIndex: 20,
-          right: 14,
-          top: 14,
-          width: 230,
+          right: embedded ? "auto" : 14,
+          top: embedded ? "auto" : 14,
+          width: embedded ? "100%" : "min(230px, calc(100cqw - 28px))",
           // Grow to fill the column: take everything the TeachPanel below
           // isn't using. Chrome to subtract = 14px top inset + 14px gap +
           // teach's 14px bottom inset + our own 2px of border (maxHeight is
@@ -905,19 +912,22 @@ export function PolicyPanel({
           // below and never from our measured height, so this stays a
           // one-way dependency — that cap is also the fallback until teach
           // reports in (SSR and first paint).
-          maxHeight: teachHeight
-            ? `calc(100vh - ${Math.round(teachHeight) + 44}px)`
-            : "min(40vh, 380px)",
+          maxHeight: embedded
+            ? "none"
+            : teachHeight
+              ? `calc(100cqh - ${Math.round(teachHeight) + 44}px)`
+              : "min(40cqh, 380px)",
+          height: embedded ? "100%" : "auto",
           display: "flex",
           flexDirection: "column",
-          background: "rgba(14, 16, 20, 0.82)",
-          border: "1px solid rgba(255,255,255,0.09)",
-          borderRadius: 10,
+          background: embedded ? "transparent" : "rgba(14, 16, 20, 0.82)",
+          border: embedded ? "0" : "1px solid rgba(255,255,255,0.09)",
+          borderRadius: embedded ? 0 : 10,
           color: "#e8e6e1",
           fontFamily: mono,
           fontSize: 12,
           lineHeight: 1.55,
-          backdropFilter: "blur(6px)",
+          backdropFilter: embedded ? "none" : "blur(6px)",
           overflow: "hidden",
         }}
       >
@@ -948,24 +958,26 @@ export function PolicyPanel({
           >
             ↻
           </button>
-          <button
-            onClick={() => setOpen(false)}
-            title="collapse"
-            style={{
-              // keep clear of the Next.js dev-tools badge that floats in
-              // this corner during development
-              marginRight: 30,
-              background: "none",
-              border: "none",
-              color: "#8b93a3",
-              cursor: "pointer",
-              fontFamily: mono,
-              fontSize: 12,
-              padding: "0 4px",
-            }}
-          >
-            —
-          </button>
+          {!embedded && (
+            <button
+              onClick={() => setOpen(false)}
+              title="collapse"
+              style={{
+                // keep clear of the Next.js dev-tools badge that floats in
+                // this corner during development
+                marginRight: 30,
+                background: "none",
+                border: "none",
+                color: "#8b93a3",
+                cursor: "pointer",
+                fontFamily: mono,
+                fontSize: 12,
+                padding: "0 4px",
+              }}
+            >
+              —
+            </button>
+          )}
         </div>
 
         {/* Filter box. Sits between the header and the scrolling list so it

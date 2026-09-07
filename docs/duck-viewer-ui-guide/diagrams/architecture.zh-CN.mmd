@@ -1,0 +1,40 @@
+%%{init: {"flowchart": {"htmlLabels": false}}}%%
+flowchart TB
+  Panels["浏览器 · 操作面板<br/>HUD · Policies · Guide · Teach · Animate · Capture"]
+  Client["浏览器 · 实验室客户端<br/>REST 和 WebSocket"]
+  Scene["浏览器 · THREE.JS 场景<br/>react-three-fiber 画布"]
+
+  API["DUCK-LAB · REST API<br/>GET /scene · GET /policies<br/>teach · joints · capture API"]
+  Stream["DUCK-LAB · WEBSOCKET /ws<br/>姿态 · 命令 · 重置 · 名单变更"]
+  Runtime["DUCK-LAB · 实时运行时<br/>每只可见鸭子一个 MuJoCo 环境<br/>和一个 ONNX 会话"]
+  Trainer["DUCK-LAB · 训练器子进程<br/>进度和实时策略快照"]
+  Capture["DUCK-LAB · 捕获管线<br/>ffmpeg 转换为 MP4 和 GIF"]
+
+  Shipped["策略来源<br/>microduck/policies<br/>随附 ONNX 策略"]
+  Runs["策略来源<br/>microduck_local/runs<br/>导出和检查点"]
+  Outputs["捕获输出<br/>microduck_local/captures<br/>PNG 下载 · MP4 · GIF"]
+
+  Panels --> Client
+  Client --> Scene
+  Panels --> Scene
+  Client -->|"HTTP GET /scene · /policies"| API
+  Client -->|"HTTP POST teach · joints · captures"| API
+  Client <-->|"ws://127.0.0.1:8788/ws"| Stream
+  API --> Runtime
+  Stream <--> Runtime
+  API --> Trainer
+  Trainer -->|"实时快照"| Runtime
+  API --> Capture
+  Shipped --> Runtime
+  Runs --> Runtime
+  Trainer --> Runs
+  Capture --> Outputs
+
+  classDef browser fill:#e8f1fb,stroke:#286090,color:#142433,stroke-width:2px,font-size:20px;
+  classDef service fill:#eef7ea,stroke:#4f7b42,color:#172514,stroke-width:2px,font-size:20px;
+  classDef source fill:#fff4df,stroke:#9a6b20,color:#35250d,stroke-width:2px,font-size:20px;
+  classDef output fill:#f4eafa,stroke:#75428c,color:#2c1735,stroke-width:2px,font-size:20px;
+  class Panels,Scene,Client browser;
+  class API,Stream,Runtime,Trainer,Capture service;
+  class Shipped,Runs source;
+  class Outputs output;

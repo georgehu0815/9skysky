@@ -6,6 +6,7 @@
     "dev": "next dev -p ${PORT:-63317}",
     "build": "next build",
     "start": "next start",
+    "test": "node --test lib/*.test.mjs",
     "lint": "eslint"
   },
   "dependencies": {

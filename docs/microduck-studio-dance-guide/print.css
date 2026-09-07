@@ -1,0 +1,212 @@
+@page {
+  size: Letter;
+  margin: 0.68in 0.7in 0.7in;
+  @bottom-center {
+    content: "Microduck Studio Dance Guide  |  " counter(page);
+    color: #607080;
+    font-size: 8pt;
+  }
+}
+
+:root {
+  --ink: #18222d;
+  --muted: #526474;
+  --line: #cbd5df;
+  --soft: #f3f7f8;
+  --mint: #1d7554;
+  --amber: #9a5a00;
+}
+
+html {
+  color: var(--ink);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 10pt;
+  line-height: 1.45;
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  color: #102b24;
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+h1 {
+  border-bottom: 2px solid var(--mint);
+  font-size: 25pt;
+  margin: 0 0 18pt;
+  padding-bottom: 8pt;
+}
+
+h2 {
+  border-bottom: 1px solid var(--line);
+  font-size: 17pt;
+  margin-top: 24pt;
+  padding-bottom: 4pt;
+}
+
+h3 {
+  font-size: 12.5pt;
+  margin-top: 17pt;
+}
+
+p,
+li {
+  orphans: 3;
+  widows: 3;
+}
+
+a {
+  color: var(--mint);
+  text-decoration: none;
+}
+
+blockquote {
+  background: #eef7f2;
+  border-left: 4px solid var(--mint);
+  margin: 12pt 0;
+  padding: 8pt 11pt;
+}
+
+blockquote p {
+  margin: 0;
+}
+
+code {
+  background: #edf1f4;
+  border-radius: 3px;
+  color: #243746;
+  font-family: Menlo, Consolas, monospace;
+  font-size: 8.5pt;
+  padding: 1px 3px;
+}
+
+pre {
+  background: #111923;
+  border-radius: 5px;
+  color: #eef5f2;
+  font-family: Menlo, Consolas, monospace;
+  font-size: 7.7pt;
+  line-height: 1.42;
+  overflow-wrap: anywhere;
+  padding: 9pt;
+  white-space: pre-wrap;
+}
+
+pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+figure {
+  break-inside: avoid;
+  margin: 14pt auto 18pt;
+  page-break-inside: avoid;
+  text-align: center;
+}
+
+figure img {
+  border: 1px solid #b9c5cf;
+  border-radius: 4px;
+  display: block;
+  height: auto;
+  margin: 0 auto;
+  max-height: 6.6in;
+  max-width: 100%;
+}
+
+figcaption {
+  color: var(--muted);
+  font-size: 8.5pt;
+  line-height: 1.35;
+  margin-top: 5pt;
+  text-align: left;
+}
+
+img {
+  height: auto;
+  max-height: 5.8in;
+  max-width: 100%;
+}
+
+p:has(> img) {
+  break-after: avoid;
+  margin-bottom: 4pt;
+  page-break-after: avoid;
+  text-align: center;
+}
+
+p:has(> img) + p {
+  break-before: avoid;
+  color: var(--muted);
+  font-size: 8.5pt;
+  line-height: 1.35;
+  margin-top: 0;
+  page-break-before: avoid;
+}
+
+table {
+  border-collapse: collapse;
+  font-size: 8.7pt;
+  margin: 10pt 0 14pt;
+  width: 100%;
+}
+
+thead {
+  display: table-header-group;
+}
+
+tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+th {
+  background: #173c32;
+  color: white;
+  font-weight: 600;
+  text-align: left;
+}
+
+th,
+td {
+  border: 1px solid var(--line);
+  padding: 5pt 6pt;
+  vertical-align: top;
+}
+
+tbody tr:nth-child(even) {
+  background: var(--soft);
+}
+
+ul,
+ol {
+  padding-left: 20pt;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+#TOC {
+  background: var(--soft);
+  border: 1px solid var(--line);
+  padding: 12pt 16pt;
+}
+
+#TOC > ul {
+  columns: 2;
+  column-gap: 22pt;
+}
+
+#TOC li {
+  break-inside: avoid;
+  margin-bottom: 3pt;
+}

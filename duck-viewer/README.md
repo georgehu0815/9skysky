@@ -44,7 +44,11 @@ native scrolling), **A/D** slide, **W/S·↑↓** dolly, **←/→** orbit, **Q/
 rise/fall, **Shift+R** reset view — all held keys move smoothly (velocity × dt).
 The one non-camera key is **R**, which **restarts the sim** (`{"reset": true}`
 to the lab): every duck's episode drops back to step zero at the same moment,
-which is what makes a side-by-side comparison legible. **Clicking a duck**
+which is what makes a side-by-side comparison legible. The render view also
+has a compact **Camera** navigator: press and hold its orbit, move,
+raise/lower, and zoom controls; use home to reset only the view; use the
+separate amber restart control to reset every simulation. It supports mouse,
+touch, and keyboard focus and can be collapsed. **Clicking a duck**
 (or its HUD row) **selects it** — amber floor ring + highlighted row — and
 **Delete/Backspace removes it** (same `remove_duck` message as the row's ✕);
 **Esc** or an empty-floor click deselects. Selection uses the same projected
@@ -129,6 +133,14 @@ the UI deliberately doesn't expose them.)
 Panel states, chat history, and the camera persist in localStorage; the duck
 roster itself persists server-side (`microduck_local/lab-state.json`) across
 lab restarts.
+
+## Studio RLX API checks
+
+`npm test` runs isolated Node tests for RLX commands, run-owned telemetry and evaluation state, cancelled-process callbacks, and UI verdict projection. The tests use the installed TypeScript compiler and mocked subprocess/artifact I/O; they do not train policies or modify run artifacts. `npm run build` verifies the Next.js application.
+
+Studio's Smoke profile evaluates only the pipeline (`--evaluation-mode pipeline`, four control steps). Full selects `--evaluation-mode skill`; Swing uses 1,200 control steps (24 seconds). The editable `swingMinSpanDeg` recipe field defaults to 150° symmetric total span, requiring at least 75° in each direction, complete episodes, valid geometry, and tensioned strings. Evaluation starts still; training assistance settings do not become evaluation assistance.
+
+The API saves the Python report, including its source hash, actual evaluation settings, pipeline and skill verdicts, alongside `evaluation_request` containing the submitted normalized recipe, evaluation mode, horizon, and Swing target. The UI displays the saved scope and target and uses evaluator verdicts; finite output or a pipeline pass never establishes Swing skill. Export requires a checkpoint and sends the export parser's required recipe plus checkpoint/output arguments, without environment flags. Switching runs clears in-memory evidence; evaluating or rendering the same run preserves its training history. Cancelled or superseded process callbacks cannot publish results into a newer job.
 
 ## Notes for future work
 

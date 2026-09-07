@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Microduck Lab",
-  description: "Live Three.js viewer for Microduck training runs",
+  title: "Microduck Studio",
+  description: "Train, evaluate, inspect, and export Microduck policies locally",
 };
 
 export default function RootLayout({
@@ -10,7 +11,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body style={{ margin: 0, background: "#101216" }}>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

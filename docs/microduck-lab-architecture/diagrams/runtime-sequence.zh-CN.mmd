@@ -1,0 +1,37 @@
+sequenceDiagram
+  autonumber
+  actor User as 操作员
+  participant Browser as Duck Viewer
+  participant API as FastAPI 路由
+  participant WS as WebSocket /ws
+  participant LabLoop as 50 Hz lab_loop
+  participant Duck as Duck 与环境
+  participant Job as TrainingJob
+  participant Trainer as train_behavior
+  User->>Browser: 打开 http://127.0.0.1:63317
+  Browser->>API: GET /scene
+  API-->>Browser: meshes、geoms、bodies
+  Browser->>API: GET /policies
+  API-->>Browser: pollen、runs、checkpoints
+  Browser->>WS: 建立连接
+  loop 每 20 ms
+    LabLoop->>Duck: 设置命令、推理、env.step
+    Duck-->>LabLoop: 姿态与遥测
+  end
+  loop 每 2 个 tick
+    LabLoop-->>WS: 以 25 Hz 产生 Frame
+    WS-->>Browser: cmd、ducks、stats、training、events
+  end
+  User->>Browser: 分配、生成或重置
+  Browser->>WS: assign、spawn_duck 或 reset
+  WS->>Duck: 热切换、创建或重置
+  User->>Browser: 教授行为
+  Browser->>API: POST /teach
+  API->>Job: 创建课程任务与预览 Duck
+  Job->>Trainer: 启动含 32 个环境的子进程
+  loop 配置的快照周期
+    Trainer-->>Job: progress.jsonl 与原子 live.onnx
+    LabLoop->>Job: 约以 1 Hz 轮询
+    Job->>Duck: trainee 与 helper 热加载快照
+    LabLoop-->>Browser: 含更新训练状态的 Frame
+  end

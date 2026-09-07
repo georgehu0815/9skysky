@@ -10,7 +10,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
-import { duckRowKeys, LabClient, fetchScene, type DuckFrame, type Scene } from "@/lib/lab";
+import {
+  duckRowKeys,
+  LabClient,
+  fetchScene,
+  type DuckFrame,
+  type Frame,
+  type Scene,
+} from "@/lib/lab";
 import { assignDrag, nearestDuck, type AssignTarget } from "@/lib/assign";
 import {
   cameraKeyDown,
@@ -36,6 +43,7 @@ import { PolicyPanel } from "./PolicyPanel";
 import { TeachPanel } from "./TeachPanel";
 import { pushToast, Toasts } from "./Toasts";
 import { AnimPanel } from "./AnimPanel";
+import { CameraNavigator } from "./CameraNavigator";
 import { RecordPanel } from "./RecordPanel";
 import { PoseDuck } from "./PoseDuck";
 
@@ -145,6 +153,7 @@ const HOME_CAM = { p: [1.2, 0.7, 1.4] as const, t: [0, 0.12, 0] as const };
 function CameraKeys() {
   const controls = useThree((s) => s.controls) as unknown as ControlsLike | null;
   const camera = useThree((s) => s.camera);
+  const wasMoving = useRef(false);
   const sph = useMemo(() => new THREE.Spherical(), []);
   const offset = useMemo(() => new THREE.Vector3(), []);
   const right = useMemo(() => new THREE.Vector3(), []);
@@ -165,10 +174,24 @@ function CameraKeys() {
       controls.target.set(...HOME_CAM.t);
       camera.lookAt(controls.target);
       controls.update?.();
+      saveJSON("camera", {
+        p: camera.position.toArray(),
+        t: controls.target.toArray(),
+      });
       return;
     }
     const held = heldMotions();
-    if (!held.size && swipePx === 0) return;
+    if (!held.size && swipePx === 0) {
+      if (wasMoving.current) {
+        saveJSON("camera", {
+          p: camera.position.toArray(),
+          t: controls.target.toArray(),
+        });
+        wasMoving.current = false;
+      }
+      return;
+    }
+    wasMoving.current = true;
     const dt = Math.min(dtRaw, 0.05); // tab-stall guard: no teleport frames
 
     offset.copy(camera.position).sub(controls.target);
@@ -411,7 +434,25 @@ function AssignTargets({ client }: { client: LabClient }) {
   return null;
 }
 
-export default function Viewer() {
+export interface ViewerProps {
+  layout?: "fullscreen" | "studio";
+  showAnimationTools?: boolean;
+  showPolicyTools?: boolean;
+  showTeachTools?: boolean;
+  onClientReady?: (client: LabClient | null) => void;
+  onConnectionChange?: (connected: boolean) => void;
+  onFrame?: (frame: Frame | null) => void;
+}
+
+export default function Viewer({
+  layout = "fullscreen",
+  showAnimationTools = true,
+  showPolicyTools = true,
+  showTeachTools = true,
+  onClientReady,
+  onConnectionChange,
+  onFrame,
+}: ViewerProps) {
   const [scene, setScene] = useState<Scene | null>(null);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -419,19 +460,40 @@ export default function Viewer() {
   const [savedCam] = useState(loadSavedCamera);
   const clientRef = useRef<LabClient | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const onClientReadyRef = useRef(onClientReady);
+  const onConnectionChangeRef = useRef(onConnectionChange);
+  const onFrameRef = useRef(onFrame);
 
   useEffect(() => {
-    const client = new LabClient(setConnected);
+    onClientReadyRef.current = onClientReady;
+    onConnectionChangeRef.current = onConnectionChange;
+    onFrameRef.current = onFrame;
+  }, [onClientReady, onConnectionChange, onFrame]);
+
+  useEffect(() => {
+    let disposed = false;
+    let retryTimer: number | null = null;
+    const client = new LabClient((nextConnected) => {
+      if (disposed) return;
+      setConnected(nextConnected);
+      onConnectionChangeRef.current?.(nextConnected);
+    });
     clientRef.current = client;
+    onClientReadyRef.current?.(client);
+    const publishFrame = window.setInterval(() => {
+      onFrameRef.current?.(client.frame ? { ...client.frame } : null);
+    }, 250);
     const load = () =>
       fetchScene()
         .then((s) => {
+          if (disposed) return;
           setScene(s);
           setError(null);
         })
         .catch(() => {
+          if (disposed) return;
           setError("duck-lab server not reachable on :8788 — start it with `uv run duck-lab …`");
-          setTimeout(load, 2000);
+          retryTimer = window.setTimeout(load, 2000);
         });
     load();
 
@@ -474,6 +536,15 @@ export default function Viewer() {
     // starts its episode at the same moment. The view reset yields to Shift+R.
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const root = rootRef.current;
+      if (
+        layout === "studio" &&
+        root &&
+        !root.contains(e.target as Node) &&
+        !root.contains(document.activeElement)
+      ) {
+        return;
+      }
       // A dialog owns the keyboard while it is open. isTyping() is not enough:
       // a dialog that focuses a button (both of ours do) would still let
       // Backspace remove the selected duck and `r` reset every episode behind
@@ -587,13 +658,19 @@ export default function Viewer() {
     rootRef.current?.focus({ preventScroll: true });
 
     return () => {
+      disposed = true;
+      if (retryTimer != null) window.clearTimeout(retryTimer);
       window.removeEventListener("keydown", onKeyDown, true);
       window.removeEventListener("keyup", onKeyUp, true);
       window.removeEventListener("blur", onBlur);
       window.removeEventListener("wheel", onWheel, true);
+      window.clearInterval(publishFrame);
+      onFrameRef.current?.(null);
+      onConnectionChangeRef.current?.(false);
+      onClientReadyRef.current?.(null);
       client.close();
     };
-  }, []);
+  }, [layout]);
 
   // Clicking the stage re-grabs focus for the wrapper; clicks on real
   // interactive elements (pad buttons, future chat input) keep their focus.
@@ -630,7 +707,16 @@ export default function Viewer() {
       tabIndex={0}
       onPointerDown={refocus}
       onClick={selectAt}
-      style={{ position: "fixed", inset: 0, background: "#101216", outline: "none" }}
+      data-viewer-layout={layout}
+      style={{
+        position: layout === "fullscreen" ? "fixed" : "absolute",
+        inset: 0,
+        minHeight: 0,
+        background: "#101216",
+        outline: "none",
+        overflow: "hidden",
+        containerType: "size",
+      }}
     >
       <Canvas
         dpr={[1, 1.5]}
@@ -682,9 +768,14 @@ export default function Viewer() {
       </Canvas>
       <Hud clientRef={clientRef} connected={connected} error={error} />
       <RecordPanel clientRef={clientRef} />
-      <PolicyPanel clientRef={clientRef} />
-      <TeachPanel clientRef={clientRef} />
-      <AnimPanel />
+      <CameraNavigator
+        clientRef={clientRef}
+        connected={connected}
+        defaultOpen={layout === "studio"}
+      />
+      {showPolicyTools && <PolicyPanel clientRef={clientRef} />}
+      {showTeachTools && <TeachPanel clientRef={clientRef} />}
+      {showAnimationTools && <AnimPanel />}
       <Toasts clientRef={clientRef} />
     </div>
   );

@@ -1,0 +1,41 @@
+flowchart TB
+  U[Operator and researcher]
+  subgraph W[Microduck Lab workspace]
+
+    V[Duck Viewer<br/>Next.js at 63317]
+    B[Duck Lab backend<br/>FastAPI at 8788]
+    T[Training subprocess<br/>SB3 PPO]
+    P[(Policy and run artifacts<br/>runs, policies, clips, captures)]
+    F[(Local settings and roster<br/>lab-state, teach-weights, HF token)]
+  end
+  subgraph C[Training compute]
+    E[32 fork vector workers<br/>MuJoCo environments]
+  end
+  subgraph UP[Upstream boundaries]
+
+    R[microduck_rl<br/>Official GPU sim2real stack]
+    M[microduck<br/>Robot runtime and shipped policies]
+    H[Microduck hardware<br/>14 servos, IMU, 50 Hz]
+  end
+  U -->|localhost browser| V
+  V <-->|REST and WebSocket /ws| B
+  B -->|launch and monitor| T
+  T <-->|shared memory and semaphores| E
+  B <--> P
+  B <--> F
+  T --> P
+  P -->|prototype design and ONNX evidence| R
+  R -->|retrained deployable ONNX| M
+  M -->|61 observations, 14 actions| H
+  classDef user fill:#FFF4D6,stroke:#B7791F,color:#102A43
+  classDef front fill:#E8F3FF,stroke:#2F80ED,color:#102A43
+  classDef back fill:#E8FFF5,stroke:#219653,color:#102A43
+  classDef train fill:#F3E8FF,stroke:#805AD5,color:#102A43
+  classDef store fill:#F7FAFC,stroke:#486581,color:#102A43
+  classDef upstream fill:#FFE8E8,stroke:#C53030,color:#102A43
+  class U user
+  class V front
+  class B back
+  class T,E train
+  class P,F store
+  class R,M,H upstream

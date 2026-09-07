@@ -77,7 +77,7 @@ function pickMime(): string | null {
 // No `left` here — the component computes it per render: centered, but never
 // under the top-left HUD panel (see the layout block in RecordPanel).
 const panelStyle: React.CSSProperties = {
-  position: "fixed",
+  position: "absolute",
   top: 10,
   zIndex: 20,
   display: "flex",
@@ -122,25 +122,25 @@ export function RecordPanel({
   const timersRef = useRef<number[]>([]);
   const [, bump] = useState(0); // re-render tick for the elapsed timer
 
-  // Layout inputs for the HUD-dodging `left` computed at the bottom: the
-  // HUD's live right edge, this panel's own width, and the window width.
+  // Layout inputs for the HUD-dodging `left` computed at the bottom. HUD
+  // geometry is viewport-relative, while this panel is viewer-relative.
   const hudRight = useHudRight();
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const [panelW, setPanelW] = useState(220);
-  const [winW, setWinW] = useState(() =>
-    typeof window === "undefined" ? 1200 : window.innerWidth
-  );
-  useEffect(() => {
-    const onResize = () => setWinW(window.innerWidth);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+  const [hostRect, setHostRect] = useState({ left: 0, width: 1200 });
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    setPanelW(el.offsetWidth);
-    const ro = new ResizeObserver(() => setPanelW(el.offsetWidth));
+    const host = el.parentElement;
+    const measure = () => {
+      setPanelW(el.offsetWidth);
+      const rect = host?.getBoundingClientRect();
+      if (rect) setHostRect({ left: rect.left, width: rect.width });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
     ro.observe(el);
+    if (host) ro.observe(host);
     return () => ro.disconnect();
   }, []);
 
@@ -353,9 +353,13 @@ export function RecordPanel({
   // (long duck names) used to reach right beneath these buttons. The HUD
   // publishes its right edge (useHudRight); slide right of it when centering
   // would collide, and keep a margin from the right edge as a backstop.
-  const centered = (winW - panelW) / 2;
+  const centered = (hostRect.width - panelW) / 2;
+  const localHudRight = Math.max(0, hudRight - hostRect.left);
   const left = Math.round(
-    Math.min(Math.max(centered, hudRight + 12), Math.max(12, winW - panelW - 12))
+    Math.min(
+      Math.max(centered, localHudRight + 12),
+      Math.max(12, hostRect.width - panelW - 12)
+    )
   );
   return (
     <div ref={wrapRef} data-policy-ui style={{ ...panelStyle, left }}>

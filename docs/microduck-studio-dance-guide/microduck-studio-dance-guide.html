@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Microduck Lab" />
+  <meta name="dcterms.date" content="2026-09-06" />
+  <title>Microduck Studio Dance Guide</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="/Volumes/ExternalSSD/geoagent/microduck-lab/docs/microduck-studio-dance-guide/print.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Microduck Studio Dance Guide</h1>
+<p class="subtitle">Teach, animate, train, evaluate, and prepare a
+policy handoff</p>
+<p class="author">Microduck Lab</p>
+<p class="date">2026-09-06</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#start-here" id="toc-start-here"><span
+class="toc-section-number">1</span> Start here</a></li>
+<li><a href="#the-answer-first-clip-or-commands"
+id="toc-the-answer-first-clip-or-commands"><span
+class="toc-section-number">2</span> The answer first: clip or
+commands?</a></li>
+<li><a href="#choose-the-correct-dance-path"
+id="toc-choose-the-correct-dance-path"><span
+class="toc-section-number">3</span> Choose the correct dance
+path</a></li>
+<li><a href="#the-complete-workflow"
+id="toc-the-complete-workflow"><span class="toc-section-number">4</span>
+The complete workflow</a></li>
+<li><a href="#end-to-end-data-flow" id="toc-end-to-end-data-flow"><span
+class="toc-section-number">5</span> End-to-end data flow</a>
+<ul>
+<li><a href="#required-input-data" id="toc-required-input-data"><span
+class="toc-section-number">5.1</span> Required input data</a></li>
+<li><a href="#data-consumed-at-each-control-step"
+id="toc-data-consumed-at-each-control-step"><span
+class="toc-section-number">5.2</span> Data consumed at each control
+step</a></li>
+<li><a href="#output-data" id="toc-output-data"><span
+class="toc-section-number">5.3</span> Output data</a></li>
+</ul></li>
+<li><a href="#four-ideas-to-understand-first"
+id="toc-four-ideas-to-understand-first"><span
+class="toc-section-number">6</span> Four ideas to understand first</a>
+<ul>
+<li><a href="#animation-is-the-demonstration"
+id="toc-animation-is-the-demonstration"><span
+class="toc-section-number">6.1</span> Animation is the
+demonstration</a></li>
+<li><a href="#a-policy-is-the-learned-controller"
+id="toc-a-policy-is-the-learned-controller"><span
+class="toc-section-number">6.2</span> A policy is the learned
+controller</a></li>
+<li><a href="#ppo-is-practice-not-playback"
+id="toc-ppo-is-practice-not-playback"><span
+class="toc-section-number">6.3</span> PPO is practice, not
+playback</a></li>
+<li><a href="#duration-has-four-different-meanings"
+id="toc-duration-has-four-different-meanings"><span
+class="toc-section-number">6.4</span> Duration has four different
+meanings</a></li>
+</ul></li>
+<li><a href="#first-exercise-play-the-packaged-dance"
+id="toc-first-exercise-play-the-packaged-dance"><span
+class="toc-section-number">7</span> First exercise: play the packaged
+dance</a></li>
+<li><a href="#animate-a-dance-motif"
+id="toc-animate-a-dance-motif"><span class="toc-section-number">8</span>
+Animate a dance motif</a>
+<ul>
+<li><a href="#create-the-clip" id="toc-create-the-clip"><span
+class="toc-section-number">8.1</span> Create the clip</a></li>
+<li><a href="#starter-four-second-motif"
+id="toc-starter-four-second-motif"><span
+class="toc-section-number">8.2</span> Starter four-second motif</a></li>
+<li><a href="#animation-checklist" id="toc-animation-checklist"><span
+class="toc-section-number">8.3</span> Animation checklist</a></li>
+</ul></li>
+<li><a href="#teach-the-saved-animation"
+id="toc-teach-the-saved-animation"><span
+class="toc-section-number">9</span> Teach the saved animation</a>
+<ul>
+<li><a href="#practice-budget" id="toc-practice-budget"><span
+class="toc-section-number">9.1</span> Practice budget</a></li>
+<li><a href="#reward-controls" id="toc-reward-controls"><span
+class="toc-section-number">9.2</span> Reward controls</a></li>
+</ul></li>
+<li><a href="#use-the-training-tab" id="toc-use-the-training-tab"><span
+class="toc-section-number">10</span> Use the Training tab</a>
+<ul>
+<li><a href="#reward-history" id="toc-reward-history"><span
+class="toc-section-number">10.1</span> Reward history</a></li>
+<li><a href="#the-two-training-buttons"
+id="toc-the-two-training-buttons"><span
+class="toc-section-number">10.2</span> The two training buttons</a></li>
+<li><a href="#smoke-versus-full-training"
+id="toc-smoke-versus-full-training"><span
+class="toc-section-number">10.3</span> Smoke versus full
+training</a></li>
+</ul></li>
+<li><a href="#use-the-policies-tab" id="toc-use-the-policies-tab"><span
+class="toc-section-number">11</span> Use the Policies tab</a></li>
+<li><a href="#evaluate-and-render" id="toc-evaluate-and-render"><span
+class="toc-section-number">12</span> Evaluate and render</a>
+<ul>
+<li><a href="#deterministic-evaluation"
+id="toc-deterministic-evaluation"><span
+class="toc-section-number">12.1</span> Deterministic evaluation</a></li>
+<li><a href="#rendered-review" id="toc-rendered-review"><span
+class="toc-section-number">12.2</span> Rendered review</a></li>
+<li><a href="#minimum-acceptance-record"
+id="toc-minimum-acceptance-record"><span
+class="toc-section-number">12.3</span> Minimum acceptance
+record</a></li>
+</ul></li>
+<li><a href="#make-a-two-minute-dance"
+id="toc-make-a-two-minute-dance"><span
+class="toc-section-number">13</span> Make a two-minute dance</a>
+<ul>
+<li><a href="#what-works-today" id="toc-what-works-today"><span
+class="toc-section-number">13.1</span> What works today</a></li>
+<li><a href="#recommended-two-minute-production-plan"
+id="toc-recommended-two-minute-production-plan"><span
+class="toc-section-number">13.2</span> Recommended two-minute production
+plan</a></li>
+<li><a href="#suggested-training-schedule"
+id="toc-suggested-training-schedule"><span
+class="toc-section-number">13.3</span> Suggested training
+schedule</a></li>
+</ul></li>
+<li><a href="#improve-a-weak-dance" id="toc-improve-a-weak-dance"><span
+class="toc-section-number">14</span> Improve a weak dance</a>
+<ul>
+<li><a href="#diagnose-by-symptom" id="toc-diagnose-by-symptom"><span
+class="toc-section-number">14.1</span> Diagnose by symptom</a></li>
+</ul></li>
+<li><a href="#how-the-ui-maps-to-the-services"
+id="toc-how-the-ui-maps-to-the-services"><span
+class="toc-section-number">15</span> How the UI maps to the services</a>
+<ul>
+<li><a href="#studio-rlx-service" id="toc-studio-rlx-service"><span
+class="toc-section-number">15.1</span> Studio RLX service</a></li>
+<li><a href="#duck-lab-clip-and-teach-service"
+id="toc-duck-lab-clip-and-teach-service"><span
+class="toc-section-number">15.2</span> Duck Lab clip and Teach
+service</a></li>
+</ul></li>
+<li><a href="#command-line-equivalent"
+id="toc-command-line-equivalent"><span
+class="toc-section-number">16</span> Command-line equivalent</a></li>
+<li><a href="#deployment-handoff" id="toc-deployment-handoff"><span
+class="toc-section-number">17</span> Deployment handoff</a></li>
+<li><a href="#beginner-run-sheet" id="toc-beginner-run-sheet"><span
+class="toc-section-number">18</span> Beginner run sheet</a></li>
+<li><a href="#troubleshooting" id="toc-troubleshooting"><span
+class="toc-section-number">19</span> Troubleshooting</a>
+<ul>
+<li><a href="#studio-says-duck-lab-is-offline"
+id="toc-studio-says-duck-lab-is-offline"><span
+class="toc-section-number">19.1</span> Studio says Duck Lab is
+offline</a></li>
+<li><a href="#play-dance-opens-animate-but-nothing-moves"
+id="toc-play-dance-opens-animate-but-nothing-moves"><span
+class="toc-section-number">19.2</span> Play dance opens Animate but
+nothing moves</a></li>
+<li><a href="#train-this-says-the-clip-does-not-exist"
+id="toc-train-this-says-the-clip-does-not-exist"><span
+class="toc-section-number">19.3</span> Train this says the clip does not
+exist</a></li>
+<li><a href="#reward-history-stays-empty"
+id="toc-reward-history-stays-empty"><span
+class="toc-section-number">19.4</span> Reward history stays
+empty</a></li>
+<li><a href="#reward-is-high-but-the-dance-is-poor"
+id="toc-reward-is-high-but-the-dance-is-poor"><span
+class="toc-section-number">19.5</span> Reward is high but the dance is
+poor</a></li>
+<li><a href="#a-two-minute-clip-learns-only-its-beginning"
+id="toc-a-two-minute-clip-learns-only-its-beginning"><span
+class="toc-section-number">19.6</span> A two-minute clip learns only its
+beginning</a></li>
+<li><a href="#render-fails-on-macos"
+id="toc-render-fails-on-macos"><span
+class="toc-section-number">19.7</span> Render fails on macOS</a></li>
+</ul></li>
+<li><a href="#source-of-truth" id="toc-source-of-truth"><span
+class="toc-section-number">20</span> Source of truth</a></li>
+</ul>
+</nav>
+<h1 data-number="1" id="start-here"><span
+class="header-section-number">1</span> Start here</h1>
+<p>Microduck Studio is one browser application for designing motion,
+training a policy, watching progress, evaluating the result, and
+downloading artifacts. It is intended for local simulation and rapid
+experimentation.</p>
+<p>Open the Studio at:</p>
+<pre class="text"><code>http://127.0.0.1:63317</code></pre>
+<p>The normal workspace launcher starts both parts of the
+application:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /Volumes/ExternalSSD/geoagent/microduck-lab</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./restart-lab.sh</span></span></code></pre></div>
+<p>The services are:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Address</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Microduck Studio</td>
+<td><code>http://127.0.0.1:63317</code></td>
+<td>Browser UI, RLX jobs, evaluation, rendering, and downloads</td>
+</tr>
+<tr>
+<td>Duck Lab</td>
+<td><code>http://127.0.0.1:8788</code></td>
+<td>MuJoCo simulation, live poses, clips, policies, and Teach jobs</td>
+</tr>
+<tr>
+<td>Live stream</td>
+<td><code>ws://127.0.0.1:8788/ws</code></td>
+<td>Duck poses, statistics, and training progress</td>
+</tr>
+</tbody>
+</table>
+<p>Wait for the Studio to report a live Duck Lab connection before using
+<strong>Animate</strong>, <strong>Policies</strong>, or
+<strong>Teach</strong>.</p>
+<blockquote>
+<p><strong>Safety boundary:</strong> a locally trained policy is
+simulation evidence. Do not treat it as ready for a physical robot
+without separate compatibility, controlled-testing, and safety work.
+This guide's complete training, evaluation, export, and rendering
+workflow runs through RLX on macOS and does not require CUDA.</p>
+</blockquote>
+<h1 data-number="2" id="the-answer-first-clip-or-commands"><span
+class="header-section-number">2</span> The answer first: clip or
+commands?</h1>
+<p>For <strong>Dance imitation</strong>, PPO needs a <strong>motion
+clip</strong>. You do <strong>not</strong> provide a walking-speed or
+turning command.</p>
+<pre class="text"><code>Dance PPO input = robot state + previous action + clip phase
+Dance PPO target = poses and timing from the motion clip
+Velocity command = unused / zero for this dance recipe</code></pre>
+<p>The distinction is:</p>
+<table>
+<thead>
+<tr>
+<th>Guidance type</th>
+<th>What it says</th>
+<th>Used by Dance?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Motion clip</td>
+<td>“Put these 14 joints near these poses at these times.”</td>
+<td><strong>Yes, required</strong></td>
+</tr>
+<tr>
+<td>Velocity command</td>
+<td>“Move forward, sideways, or turn at this rate.”</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Reward definition</td>
+<td>“Match the clip while balancing and avoiding bad contacts.”</td>
+<td><strong>Yes, built into the recipe</strong></td>
+</tr>
+<tr>
+<td>PPO settings</td>
+<td>“How much and how aggressively to practice.”</td>
+<td><strong>Yes</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Other recipes differ:</p>
+<table>
+<thead>
+<tr>
+<th>Recipe</th>
+<th>Clip</th>
+<th>Velocity command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dance</td>
+<td>Required</td>
+<td>Not required</td>
+</tr>
+<tr>
+<td>Running</td>
+<td>Not required</td>
+<td>Required and sampled by the environment</td>
+</tr>
+<tr>
+<td>Stilt walking</td>
+<td>Not required</td>
+<td>Required and sampled by the environment</td>
+</tr>
+<tr>
+<td>Swing</td>
+<td>Not required</td>
+<td>Not required; mechanism rewards define the goal</td>
+</tr>
+</tbody>
+</table>
+<p>The policy interface still contains command slots because every
+Microduck policy preserves the same 61-observation contract. For Dance,
+clip phase is placed in reserved body-command slots and irrelevant
+command values remain zero. Do not invent forward-speed commands for a
+dance imitation run.</p>
+<h1 data-number="3" id="choose-the-correct-dance-path"><span
+class="header-section-number">3</span> Choose the correct dance
+path</h1>
+<p>There are two valid paths in the current application:</p>
+<table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>UI path</th>
+<th>Clip used</th>
+<th>Trainer</th>
+<th>Outputs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Verify or train the packaged RLX example</td>
+<td><strong>Dance → Training → Start RLX</strong></td>
+<td>Fixed <code>dance-120bpm</code></td>
+<td>RLX PPO with MLX</td>
+<td>Safetensors, metadata, ONNX, evaluation JSON, MP4, contact
+sheet</td>
+</tr>
+<tr>
+<td>Train a clip you authored</td>
+<td><strong>Animate → Save → train this → Teach</strong></td>
+<td>Your saved clip</td>
+<td>Duck Lab imitation trainer</td>
+<td>Local behavior run and policy artifacts</td>
+</tr>
+</tbody>
+</table>
+<p>The important limitation is that the current <strong>Start
+RLX</strong> button uses the packaged <code>dance-120bpm</code> clip.
+Saving a new clip in <strong>Animate</strong> does not silently replace
+the RLX recipe's clip. Use <strong>train this</strong> for a custom
+clip.</p>
+<h1 data-number="4" id="the-complete-workflow"><span
+class="header-section-number">4</span> The complete workflow</h1>
+<p>Use this order:</p>
+<ol type="1">
+<li><strong>Play</strong> the reference motion and understand the
+target.</li>
+<li><strong>Animate</strong> a short, clean motion motif.</li>
+<li>Choose <strong>Start RLX</strong> for the packaged clip or
+<strong>train this</strong> for a custom clip.</li>
+<li><strong>Train</strong> with an appropriate PPO practice budget.</li>
+<li><strong>Evaluate</strong> the deterministic exported policy.</li>
+<li><strong>Render</strong> a video and inspect the actual
+movement.</li>
+<li><strong>Compare</strong> the trained policy with baseline or null
+behavior.</li>
+<li><strong>Iterate</strong> on the motion, reward weights, or
+curriculum.</li>
+<li><strong>Handoff</strong> only the validated ONNX artifact for
+further official-stack work.</li>
+</ol>
+<p>The four tabs beside <strong>Training session</strong> are different
+views of this same workflow:</p>
+<table>
+<thead>
+<tr>
+<th>Tab</th>
+<th>Use it for</th>
+<th>Main result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Training</strong></td>
+<td>Start and monitor the packaged RLX 120 BPM example</td>
+<td>Checkpoint, ONNX export, reward history</td>
+</tr>
+<tr>
+<td><strong>Animate</strong></td>
+<td>Pose the duck and create a keyframed motion clip</td>
+<td>Saved clip in <code>microduck_local/clips/</code></td>
+</tr>
+<tr>
+<td><strong>Policies</strong></td>
+<td>Find, assign, compare, and reload policies</td>
+<td>A selected policy running on a visible duck</td>
+</tr>
+<tr>
+<td><strong>Teach</strong></td>
+<td>Start or monitor behavior training and adjust practice settings</td>
+<td>A local behavior run derived from a clip or recipe</td>
+</tr>
+</tbody>
+</table>
+<p><img src="images/studio-overview.png"
+alt="Microduck Studio showing the live simulation, Training tab, PPO recipe, evaluation gate, deployment handoff, and run artifacts" /></p>
+<p><em>Figure 1. The full Studio workspace. Training, simulation,
+evaluation, and artifacts remain in one application.</em></p>
+<h1 data-number="5" id="end-to-end-data-flow"><span
+class="header-section-number">5</span> End-to-end data flow</h1>
+<p><img src="images/dance-training-sequence.png"
+alt="High-resolution sequence diagram showing packaged RLX and custom clip dance training from UI input through PPO, evaluation, rendering, and artifacts" /></p>
+<p><em>Figure 2. End-to-end sequence. The packaged RLX branch loads
+<code>dance-120bpm</code>; the custom branch saves a clip through
+Animate and starts imitation through Teach. Both train from clip timing
+rather than a velocity command.</em></p>
+<h2 data-number="5.1" id="required-input-data"><span
+class="header-section-number">5.1</span> Required input data</h2>
+<p>Before starting a serious run, record:</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Required value or rule</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Recipe</td>
+<td><code>dance</code> / imitation</td>
+<td><code>dance</code></td>
+</tr>
+<tr>
+<td>Clip</td>
+<td>Existing saved clip with valid keyframes</td>
+<td><code>dance-120bpm</code></td>
+</tr>
+<tr>
+<td>Clip keys</td>
+<td>Strictly increasing time and exactly 14 joint values per key</td>
+<td>Five keys</td>
+</tr>
+<tr>
+<td>Clip mode</td>
+<td>Loop for a repeating dance motif</td>
+<td><code>loop: true</code></td>
+</tr>
+<tr>
+<td>Run name</td>
+<td>Unique, lowercase-safe identifier</td>
+<td><code>groove-a-seed1</code></td>
+</tr>
+<tr>
+<td>Seed</td>
+<td>Integer used for repeatability</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td>PPO timesteps</td>
+<td>Practice budget, not video duration</td>
+<td><code>1,000,000</code></td>
+</tr>
+<tr>
+<td>Parallel environments</td>
+<td>Number of simultaneous simulated ducks</td>
+<td><code>16</code></td>
+</tr>
+<tr>
+<td>Learning rate</td>
+<td>PPO optimizer step size</td>
+<td><code>0.0003</code></td>
+</tr>
+<tr>
+<td>Gamma</td>
+<td>Future-reward discount</td>
+<td><code>0.99</code></td>
+</tr>
+<tr>
+<td>Randomization</td>
+<td>Domain, observation, delay, and yaw toggles</td>
+<td>On for full training</td>
+</tr>
+<tr>
+<td>Episode duration</td>
+<td>One imitation attempt</td>
+<td><code>4 seconds</code></td>
+</tr>
+<tr>
+<td>Render duration</td>
+<td>Requested final show duration</td>
+<td><code>120 seconds</code></td>
+</tr>
+</tbody>
+</table>
+<p>You do not enter a forward, lateral, or yaw command for Dance.</p>
+<h2 data-number="5.2" id="data-consumed-at-each-control-step"><span
+class="header-section-number">5.2</span> Data consumed at each control
+step</h2>
+<p>At 50 Hz, the environment constructs one 61-value observation for
+each simulated duck. It includes robot state, the previous action, fixed
+command slots, and the sine/cosine phase of the clip. PPO returns 14
+joint actions.</p>
+<pre class="text"><code>saved clip
+    -&gt; target 14-joint pose for current phase
+robot simulation
+    -&gt; joint state, velocities, orientation, contacts, previous action
+fixed policy contract
+    -&gt; observations[batch, 61]
+RLX actor
+    -&gt; actions[batch, 14]
+MuJoCo
+    -&gt; next state and reward</code></pre>
+<p>The reward measures clip-pose agreement and physical execution. It
+can include pose matching, rotation timing, upright support, slip,
+unwanted spin, impacts, joint-limit use, and motor effort.</p>
+<h2 data-number="5.3" id="output-data"><span
+class="header-section-number">5.3</span> Output data</h2>
+<table>
+<thead>
+<tr>
+<th>Output</th>
+<th>Meaning</th>
+<th>Typical Studio location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dance.safetensors</code></td>
+<td>RLX actor-critic checkpoint</td>
+<td><code>rlx/runs/studio/dance/&lt;run&gt;/</code></td>
+</tr>
+<tr>
+<td><code>dance.safetensors.json</code></td>
+<td>Seed, PPO settings, randomization, and recipe metadata</td>
+<td>Same run directory</td>
+</tr>
+<tr>
+<td><code>dance.onnx</code></td>
+<td>Deterministic actor with observation normalization</td>
+<td>Same run directory</td>
+</tr>
+<tr>
+<td><code>evaluation.json</code></td>
+<td>Deterministic returns, finite checks, and pose RMSE</td>
+<td>Same run directory</td>
+</tr>
+<tr>
+<td><code>render/ep0.mp4</code></td>
+<td>Visual rollout, up to the requested 120-second show</td>
+<td>Run render directory</td>
+</tr>
+<tr>
+<td><code>render/ep0_sheet.png</code></td>
+<td>Diagnostic frames and captions</td>
+<td>Run render directory</td>
+</tr>
+<tr>
+<td>Reward history</td>
+<td>Mean reward emitted after each PPO rollout</td>
+<td>Live Studio process</td>
+</tr>
+</tbody>
+</table>
+<h1 data-number="6" id="four-ideas-to-understand-first"><span
+class="header-section-number">6</span> Four ideas to understand
+first</h1>
+<h2 data-number="6.1" id="animation-is-the-demonstration"><span
+class="header-section-number">6.1</span> Animation is the
+demonstration</h2>
+<p>An animation clip says where the joints should be at particular
+times. It is a reference, not intelligence. The browser interpolates
+between keyframes, and the training environment resamples the saved
+motion at 50 Hz.</p>
+<p>Each clip contains:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;version&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;my-dance&quot;</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;duration&quot;</span><span class="fu">:</span> <span class="fl">4.0</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;loop&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;keys&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;t&quot;</span><span class="fu">:</span> <span class="fl">0.0</span><span class="fu">,</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;joints&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;rootPitch&quot;</span><span class="fu">:</span> <span class="fl">0.0</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>A valid clip has 14 joint values per key, begins with a key at
+<code>t = 0</code>, has strictly increasing key times, and has a
+duration no longer than 120 seconds. Joint values are clamped to the
+robot model's limits when saved.</p>
+<h2 data-number="6.2" id="a-policy-is-the-learned-controller"><span
+class="header-section-number">6.2</span> A policy is the learned
+controller</h2>
+<p>The policy receives 61 observations and produces 14 joint actions on
+every control step:</p>
+<pre class="text"><code>robot state + previous action + clip phase
+                 |
+                 v
+        neural-network policy
+                 |
+                 v
+          14 joint actions</code></pre>
+<p>The observation layout stays fixed across behaviors. Clip phase uses
+existing body-command slots; velocity-command values are unused for
+Dance. Do not change the 61-observation or 14-action contract for one
+dance.</p>
+<h2 data-number="6.3" id="ppo-is-practice-not-playback"><span
+class="header-section-number">6.3</span> PPO is practice, not
+playback</h2>
+<p>Proximal Policy Optimization, or PPO, repeatedly:</p>
+<ol type="1">
+<li>lets simulated ducks attempt the movement;</li>
+<li>scores each attempt with reward terms;</li>
+<li>adjusts the policy to make useful actions more likely;</li>
+<li>repeats across many parallel environments.</li>
+</ol>
+<p>PPO does not simply memorize the timeline. It must learn to produce
+movement while balancing, respecting joint limits, handling delay and
+noise, and recovering from imperfect states.</p>
+<h2 data-number="6.4" id="duration-has-four-different-meanings"><span
+class="header-section-number">6.4</span> Duration has four different
+meanings</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+<th>Typical value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Clip duration</td>
+<td>Length of the authored motion before it loops or ends</td>
+<td>1 to 4 seconds per motif</td>
+</tr>
+<tr>
+<td>Episode duration</td>
+<td>Length of one simulated training attempt</td>
+<td>4 seconds for imitation</td>
+</tr>
+<tr>
+<td>Practice budget</td>
+<td>Total environment transitions used by PPO</td>
+<td>1M to 3M or more</td>
+</tr>
+<tr>
+<td>Performance duration</td>
+<td>How long the audience watches the dance</td>
+<td>120 seconds in this guide</td>
+</tr>
+</tbody>
+</table>
+<p>These values are not interchangeable. Setting a clip to 120 seconds
+does not give PPO a useful two-minute memory.</p>
+<h1 data-number="7" id="first-exercise-play-the-packaged-dance"><span
+class="header-section-number">7</span> First exercise: play the packaged
+dance</h1>
+<p>The included <code>dance-120bpm</code> clip is a one-second looping
+motif with five keyframes.</p>
+<ol type="1">
+<li>Open the Studio.</li>
+<li>Select <strong>Play dance</strong> near the top of the page.</li>
+<li>Confirm that the Studio opens the <strong>Animate</strong> tab.</li>
+<li>Confirm that the clip name is <code>dance-120bpm</code>.</li>
+<li>Confirm that the duration is <code>1.00 s</code> and
+<strong>loop</strong> is enabled.</li>
+<li>Watch several cycles.</li>
+<li>Pause and drag the timeline playhead.</li>
+<li>Notice how the pose changes between keyframes.</li>
+</ol>
+<p>This exercise checks choreography playback only. It does not use a
+trained policy and does not prove that the duck can physically reproduce
+the motion.</p>
+<h1 data-number="8" id="animate-a-dance-motif"><span
+class="header-section-number">8</span> Animate a dance motif</h1>
+<p>For a first useful dance, create a short loop between two and four
+seconds. Short motifs are easier to debug, train, and evaluate than a
+long sequence.</p>
+<p><img src="images/animate-tab.png"
+alt="Animate tab with clip name, duration, loop setting, keyframe timeline, rig controls, and train-this action" /></p>
+<p><em>Figure 3. The Animate tab. Name the clip, set its duration, place
+keyframes, preview the loop, save it, and then select <strong>train
+this</strong>.</em></p>
+<h2 data-number="8.1" id="create-the-clip"><span
+class="header-section-number">8.1</span> Create the clip</h2>
+<ol type="1">
+<li>Select the <strong>Animate</strong> tab.</li>
+<li>Select <strong>new clip</strong>.</li>
+<li>Enter a clear clip name such as <code>groove-a-4s</code>.</li>
+<li>Set <strong>dur</strong> to <code>4.0</code>.</li>
+<li>Enable <strong>loop</strong>.</li>
+<li>Leave the first key at <code>0.00</code>. It anchors the clip and
+cannot be deleted.</li>
+<li>Move the playhead to <code>1.00</code>.</li>
+<li>Pose the duck with the <strong>rig</strong> controls for coordinated
+movement, or use <strong>joints</strong> for a precise single-servo
+adjustment.</li>
+<li>Select <strong>key</strong> to store the pose.</li>
+<li>Repeat at <code>2.00</code>, <code>3.00</code>, and
+<code>4.00</code>.</li>
+<li>At <code>4.00</code>, return close to the starting pose so the loop
+has no visible jump.</li>
+<li>Select <strong>Play</strong> and inspect several loops.</li>
+<li>Select <strong>Save</strong>.</li>
+</ol>
+<p>Use <strong>Shift</strong> while dragging for fine adjustment. Keep
+both feet near plausible support positions and avoid abrupt full-range
+joint changes between neighboring keys.</p>
+<h2 data-number="8.2" id="starter-four-second-motif"><span
+class="header-section-number">8.2</span> Starter four-second motif</h2>
+<p>Use this movement plan rather than copying exact angles blindly:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Time</th>
+<th>Pose intention</th>
+<th>What to adjust</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0.00 s</td>
+<td>Neutral standing anchor</td>
+<td>Balanced hips, modest knee bend</td>
+</tr>
+<tr>
+<td style="text-align: right;">1.00 s</td>
+<td>Sway left</td>
+<td>Small trunk lean, left knee compression, right-side extension</td>
+</tr>
+<tr>
+<td style="text-align: right;">2.00 s</td>
+<td>Center and dip</td>
+<td>Symmetric squat, head level, feet planted</td>
+</tr>
+<tr>
+<td style="text-align: right;">3.00 s</td>
+<td>Sway right</td>
+<td>Mirror the one-second pose</td>
+</tr>
+<tr>
+<td style="text-align: right;">4.00 s</td>
+<td>Return to anchor</td>
+<td>Match the first pose closely</td>
+</tr>
+</tbody>
+</table>
+<p>Prefer broad, readable movement over extreme angles. The first
+objective is a stable rhythm that the simulated robot can physically
+reach.</p>
+<h2 data-number="8.3" id="animation-checklist"><span
+class="header-section-number">8.3</span> Animation checklist</h2>
+<p>Before training, verify:</p>
+<ul>
+<li>The first key is at <code>0.00</code>.</li>
+<li>Key times increase from left to right.</li>
+<li>The final pose blends into the first pose when looping.</li>
+<li>The duck does not begin inside the floor.</li>
+<li>No limb snaps violently between adjacent keys.</li>
+<li>The motion is visible in the simulation, not only in the
+sliders.</li>
+<li>The clip is saved and appears in the saved-clips browser.</li>
+</ul>
+<h1 data-number="9" id="teach-the-saved-animation"><span
+class="header-section-number">9</span> Teach the saved animation</h1>
+<p>The most direct path from a custom animation to training is the
+<strong>train this</strong> button in <strong>Animate</strong>.</p>
+<p><img src="images/teach-tab.png"
+alt="Teach tab showing a completed behavior, reward terms, practice budget, and suggested tricks" /></p>
+<p><em>Figure 4. The Teach tab explains the current behavior, displays
+reward-term contributions, and controls the next practice
+budget.</em></p>
+<ol type="1">
+<li>Save the clip.</li>
+<li>Select <strong>train this</strong>.</li>
+<li>The Studio sends the clip name to Duck Lab with the instruction
+<code>copy the animation</code>.</li>
+<li>Open the <strong>Teach</strong> tab.</li>
+<li>Confirm that the Teach view identifies the imitation behavior and
+the expected practice budget.</li>
+<li>Start with the recipe's default reward weights.</li>
+<li>Choose the practice budget.</li>
+<li>Start the Teach job and leave the Studio open to observe
+progress.</li>
+</ol>
+<p>The request sent to Duck Lab is conceptually:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;copy the animation&quot;</span><span class="fu">,</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;clip&quot;</span><span class="fu">:</span> <span class="st">&quot;groove-a-4s&quot;</span><span class="fu">,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;steps&quot;</span><span class="fu">:</span> <span class="dv">3000000</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>The <code>steps</code> field is the total PPO practice budget. It is
+not dance duration. If you omit it, Duck Lab uses the last saved choice
+for that behavior or the recipe default.</p>
+<h2 data-number="9.1" id="practice-budget"><span
+class="header-section-number">9.1</span> Practice budget</h2>
+<p>Use these values as decision points, not guarantees:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Budget</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">100,000 steps</td>
+<td>Fast integration check; usually not a finished dance</td>
+</tr>
+<tr>
+<td style="text-align: right;">1,000,000 steps</td>
+<td>First serious comparison run</td>
+</tr>
+<tr>
+<td style="text-align: right;">3,000,000 steps</td>
+<td>Current imitation recipe default and a stronger candidate</td>
+</tr>
+<tr>
+<td style="text-align: right;">More than 3,000,000</td>
+<td>Use only after evaluation shows continued improvement</td>
+</tr>
+</tbody>
+</table>
+<p>Change one thing at a time. If a three-million-step run fails badly,
+increasing the budget without inspecting the motion and rewards may only
+make the same failure more expensive.</p>
+<h2 data-number="9.2" id="reward-controls"><span
+class="header-section-number">9.2</span> Reward controls</h2>
+<p>The imitation behavior combines terms for:</p>
+<ul>
+<li>matching the target pose;</li>
+<li>matching rotation timing;</li>
+<li>remaining on both feet for looping clips;</li>
+<li>completing and landing non-looping motions;</li>
+<li>avoiding foot slip;</li>
+<li>avoiding unwanted spin;</li>
+<li>avoiding head impacts and hard landings;</li>
+<li>avoiding joint-limit parking;</li>
+<li>reducing unnecessary motor effort.</li>
+</ul>
+<p>Begin with the default weights. Change a weight only when the
+rendered behavior shows a specific failure that the corresponding term
+measures.</p>
+<p>Examples:</p>
+<table>
+<thead>
+<tr>
+<th>Observed failure</th>
+<th>First investigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pose resembles the dance but the duck falls</td>
+<td>Increase attention to <code>on_feet</code>, inspect whether the
+authored pose is physically reachable</td>
+</tr>
+<tr>
+<td>Feet skate while the upper body looks correct</td>
+<td>Inspect and cautiously raise <code>no_slip</code></td>
+</tr>
+<tr>
+<td>Duck spins instead of swaying</td>
+<td>Inspect and cautiously raise <code>no_spin</code></td>
+</tr>
+<tr>
+<td>Duck stays upright but barely moves</td>
+<td>Check whether pose matching is strong enough and whether the clip
+contains visible differences</td>
+</tr>
+<tr>
+<td>Joints remain at their extremes</td>
+<td>Inspect <code>no_limit_parking</code> and reduce extreme authored
+poses</td>
+</tr>
+<tr>
+<td>Reward rises but motion looks wrong</td>
+<td>Do not tune from the curve alone; render and inspect term-level
+behavior</td>
+</tr>
+</tbody>
+</table>
+<h1 data-number="10" id="use-the-training-tab"><span
+class="header-section-number">10</span> Use the Training tab</h1>
+<p>The <strong>Training</strong> tab is the status surface. It can
+show:</p>
+<ul>
+<li>current run name;</li>
+<li>PPO, MLX, and seed;</li>
+<li>latest rollout or completed-episode reward;</li>
+<li>deterministic evaluation score;</li>
+<li>training progress;</li>
+<li>reward history;</li>
+<li>live logs;</li>
+<li>start or stop controls.</li>
+</ul>
+<h2 data-number="10.1" id="reward-history"><span
+class="header-section-number">10.1</span> Reward history</h2>
+<p>The Reward history chart updates from the active RLX job or the
+active Duck Lab Teach job. RLX emits a mean reward after every PPO
+rollout, so the chart can advance before a four-second episode
+completes. A short delay before the first rollout is normal.</p>
+<p><img src="images/reward-history.png"
+alt="Training tab showing live progress and a populated reward-history chart" /></p>
+<p><em>Figure 5. Reward history is live training telemetry. It is useful
+for diagnosis, but it is not a visual-quality or deployment
+verdict.</em></p>
+<p>Read it as a diagnostic:</p>
+<ul>
+<li>A rising trend suggests that PPO is improving the reward
+definition.</li>
+<li>A flat trend can indicate insufficient exploration, an impossible
+target, or a poor reward signal.</li>
+<li>A sudden collapse can indicate unstable updates or a changed
+training stage.</li>
+<li>A high value does not prove that the motion looks good.</li>
+</ul>
+<p>When the run name changes, the Studio starts a separate history for
+the new run. Always pair the chart with deterministic evaluation and
+rendered motion.</p>
+<h2 data-number="10.2" id="the-two-training-buttons"><span
+class="header-section-number">10.2</span> The two training buttons</h2>
+<p>The Studio exposes two related paths:</p>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>What it trains</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Run RLX training</strong> or <strong>Start RLX</strong></td>
+<td>The packaged <code>dance-120bpm</code> example through the Studio
+<code>/api/rlx</code> service</td>
+</tr>
+<tr>
+<td><strong>Teach in Duck Lab</strong> or <strong>train
+this</strong></td>
+<td>A Duck Lab behavior, including a custom saved clip</td>
+</tr>
+</tbody>
+</table>
+<p>Use <strong>Run RLX training</strong> when learning the supplied
+example or verifying the end-to-end RLX pipeline. Use <strong>train
+this</strong> for the animation you authored.</p>
+<h2 data-number="10.3" id="smoke-versus-full-training"><span
+class="header-section-number">10.3</span> Smoke versus full
+training</h2>
+<p><strong>Pipeline smoke</strong> uses two environments, four total
+timesteps, and disables randomization. It checks that the process can
+start, save a checkpoint, export ONNX, and pass data through the
+interfaces. It cannot learn a dance.</p>
+<p><strong>Full training</strong> starts with:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th style="text-align: right;">Studio default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total timesteps</td>
+<td style="text-align: right;">1,000,000</td>
+</tr>
+<tr>
+<td>Parallel environments</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr>
+<td>Learning rate</td>
+<td style="text-align: right;">0.0003</td>
+</tr>
+<tr>
+<td>Gamma</td>
+<td style="text-align: right;">0.99</td>
+</tr>
+<tr>
+<td>Rollout steps</td>
+<td style="text-align: right;">24</td>
+</tr>
+<tr>
+<td>Minibatches</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>Update epochs</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr>
+<td>Episode duration</td>
+<td style="text-align: right;">4 seconds</td>
+</tr>
+<tr>
+<td>Domain randomization</td>
+<td style="text-align: right;">On</td>
+</tr>
+<tr>
+<td>Observation noise</td>
+<td style="text-align: right;">On</td>
+</tr>
+<tr>
+<td>Action delay</td>
+<td style="text-align: right;">On</td>
+</tr>
+<tr>
+<td>Random yaw</td>
+<td style="text-align: right;">On</td>
+</tr>
+</tbody>
+</table>
+<p>The notebook contains an earlier full-run example using learning rate
+<code>0.001</code>. The current Studio and command default are
+<code>0.0003</code>. For reproducible Studio runs, record the value
+shown in the UI and do not assume the notebook value.</p>
+<h1 data-number="11" id="use-the-policies-tab"><span
+class="header-section-number">11</span> Use the Policies tab</h1>
+<p>The <strong>Policies</strong> tab is the library of:</p>
+<ul>
+<li>local completed runs;</li>
+<li>checkpoints and exported policies;</li>
+<li>shipped Pollen policies.</li>
+</ul>
+<p><img src="images/policies-tab.png"
+alt="Policies tab listing local runs, checkpoints, and shipped Pollen policies" /></p>
+<p><em>Figure 6. Use Policies to locate local runs, checkpoints, and
+shipped baselines before assigning or comparing them.</em></p>
+<p>Use it to:</p>
+<ol type="1">
+<li>find the run by name;</li>
+<li>assign it to the visible duck;</li>
+<li>spawn a comparison duck with another policy;</li>
+<li>load a local run back into Teach for fine-tuning;</li>
+<li>download an owned local export;</li>
+<li>delete a local run only when its artifacts are no longer
+needed.</li>
+</ol>
+<p>For a fair visual comparison:</p>
+<ol type="1">
+<li>Put the candidate policy and baseline on separate ducks.</li>
+<li>Reset the simulations together.</li>
+<li>Use the same clip, command, seed, and observation period.</li>
+<li>Watch several complete cycles.</li>
+<li>Record falls, drift, unwanted spin, foot slip, and timing.</li>
+</ol>
+<h1 data-number="12" id="evaluate-and-render"><span
+class="header-section-number">12</span> Evaluate and render</h1>
+<p>Evaluation must answer two different questions:</p>
+<ol type="1">
+<li><strong>Does the policy execute correctly?</strong></li>
+<li><strong>Does the motion look like the intended dance?</strong></li>
+</ol>
+<p>The first is numerical. The second requires visual review.</p>
+<h2 data-number="12.1" id="deterministic-evaluation"><span
+class="header-section-number">12.1</span> Deterministic evaluation</h2>
+<p>After a checkpoint exists:</p>
+<ol type="1">
+<li>Select <strong>Run evaluation</strong>.</li>
+<li>Confirm that the checkpoint is present.</li>
+<li>Confirm that the exported ONNX contract is
+<code>obs[batch,61] -&gt; actions[batch,14]</code>.</li>
+<li>Check that actions and returns are finite.</li>
+<li>Record the mean return, seed, clip, and settings.</li>
+</ol>
+<p>A passing finite rollout proves that the policy can be executed under
+the tested conditions. It does not prove dance quality.</p>
+<h2 data-number="12.2" id="rendered-review"><span
+class="header-section-number">12.2</span> Rendered review</h2>
+<ol type="1">
+<li>Select <strong>Render rollout</strong>.</li>
+<li>Download or open the contact sheet.</li>
+<li>Review the MP4 from beginning to end.</li>
+<li>Compare the motion with the authored clip.</li>
+<li>Confirm that the duck remains upright when the choreography requires
+it.</li>
+<li>Check feet, head clearance, joint extremes, spin, and drift.</li>
+<li>Check <strong>I reviewed the rendered motion</strong> only after
+this inspection.</li>
+</ol>
+<p>Reject the run if it earns reward while standing still, falling into
+a rewarding pose, sliding, spinning, or exploiting contact behavior.</p>
+<h2 data-number="12.3" id="minimum-acceptance-record"><span
+class="header-section-number">12.3</span> Minimum acceptance record</h2>
+<p>Record this for every candidate:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Run</td>
+<td><code>groove-a-v3</code></td>
+</tr>
+<tr>
+<td>Clip</td>
+<td><code>groove-a-4s</code></td>
+</tr>
+<tr>
+<td>Seed</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td>Timesteps</td>
+<td><code>3,000,000</code></td>
+</tr>
+<tr>
+<td>Reward weights changed</td>
+<td>None</td>
+</tr>
+<tr>
+<td>Evaluation mean return</td>
+<td>Measured value</td>
+</tr>
+<tr>
+<td>Falls or terminations</td>
+<td>Measured value</td>
+</tr>
+<tr>
+<td>Visual verdict</td>
+<td>Pass, revise, or reject</td>
+</tr>
+<tr>
+<td>Main defect</td>
+<td>For example, right foot slides after 2.5 s</td>
+</tr>
+<tr>
+<td>Artifact paths</td>
+<td>Checkpoint, ONNX, MP4, contact sheet</td>
+</tr>
+</tbody>
+</table>
+<h1 data-number="13" id="make-a-two-minute-dance"><span
+class="header-section-number">13</span> Make a two-minute dance</h1>
+<h2 data-number="13.1" id="what-works-today"><span
+class="header-section-number">13.1</span> What works today</h2>
+<p>The current clip API accepts a duration up to 120 seconds, but the
+present imitation setup is not a reliable way to learn one unique
+120-second sequence:</p>
+<ul>
+<li>gamma <code>0.99</code> gives PPO an effective credit horizon of
+roughly two seconds;</li>
+<li>the default imitation episode is four seconds;</li>
+<li>the current flow does not prove random starts across every phase of
+a two-minute clip;</li>
+<li>later sections may receive little or no useful on-policy
+practice.</li>
+</ul>
+<p>Therefore, do not create a 120-second clip, train one million steps,
+and assume the full choreography was learned.</p>
+<p>The reliable current option is a short learned motif that loops for
+two minutes. A four-second motif repeated 30 times gives a 120-second
+performance. The native viewer can keep running and resetting until you
+stop it.</p>
+<h2 data-number="13.2" id="recommended-two-minute-production-plan"><span
+class="header-section-number">13.2</span> Recommended two-minute
+production plan</h2>
+<p>For a more varied show, design and validate short sections
+separately:</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th style="text-align: right;">Show time</th>
+<th style="text-align: right;">Motif length</th>
+<th style="text-align: right;">Repetitions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intro bounce</td>
+<td style="text-align: right;">8 s</td>
+<td style="text-align: right;">2 s</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>Groove A</td>
+<td style="text-align: right;">24 s</td>
+<td style="text-align: right;">4 s</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>Groove B</td>
+<td style="text-align: right;">24 s</td>
+<td style="text-align: right;">4 s</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>Turn and crouch</td>
+<td style="text-align: right;">16 s</td>
+<td style="text-align: right;">4 s</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>Groove A return</td>
+<td style="text-align: right;">24 s</td>
+<td style="text-align: right;">4 s</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>Finale</td>
+<td style="text-align: right;">24 s</td>
+<td style="text-align: right;">4 s</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>120 s</strong></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+</tbody>
+</table>
+<p>Use this as a design and training plan:</p>
+<ol type="1">
+<li>Create six named clips: <code>intro</code>, <code>groove-a</code>,
+<code>groove-b</code>, <code>turn-crouch</code>,
+<code>groove-a-return</code>, and <code>finale</code>.</li>
+<li>Keep each training target between two and four seconds.</li>
+<li>Train and evaluate each motif as its own policy candidate.</li>
+<li>Reject or revise weak motifs before building the show.</li>
+<li>Keep the same 61-observation and 14-action contract for every
+policy.</li>
+<li>Record the selected run name for each section.</li>
+<li>Use repeated playback for a two-minute single-motif demonstration
+today.</li>
+<li>Treat automatic multi-policy sequencing as a
+deployment/orchestration feature that is not yet implemented in the
+current Studio.</li>
+</ol>
+<p>This distinction matters: the table defines a two-minute choreography
+plan, but the current Studio does not yet provide a playlist that
+automatically switches among six learned policies on exact musical
+boundaries.</p>
+<h2 data-number="13.3" id="suggested-training-schedule"><span
+class="header-section-number">13.3</span> Suggested training
+schedule</h2>
+<table>
+<thead>
+<tr>
+<th>Pass</th>
+<th>Goal</th>
+<th>Suggested action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Verify plumbing</td>
+<td>Run smoke training for the packaged sample</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Prove one motif can be learned</td>
+<td>Train <code>groove-a</code> for 1M steps</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Improve the motif</td>
+<td>Inspect render, change one cause, train 1M to 3M steps</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Build a motif library</td>
+<td>Repeat for the other short sections</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Robustness</td>
+<td>Enable randomization and compare fixed seeds</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Show assembly</td>
+<td>Loop one approved motif or add a future sequencer</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Hardware candidate review</td>
+<td>Preserve the winning recipe and complete separate compatibility and
+safety validation</td>
+</tr>
+</tbody>
+</table>
+<h1 data-number="14" id="improve-a-weak-dance"><span
+class="header-section-number">14</span> Improve a weak dance</h1>
+<p>Use an evidence-driven loop:</p>
+<pre class="text"><code>observe defect
+    -&gt; identify whether the clip, reward, physics, or training is responsible
+    -&gt; change one variable
+    -&gt; train a new named run
+    -&gt; evaluate deterministically
+    -&gt; render and compare
+    -&gt; keep or reject</code></pre>
+<h2 data-number="14.1" id="diagnose-by-symptom"><span
+class="header-section-number">14.1</span> Diagnose by symptom</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely area</th>
+<th>Next action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Duck cannot reach the authored pose</td>
+<td>Animation</td>
+<td>Reduce joint extremes and increase transition time</td>
+</tr>
+<tr>
+<td>Duck never reaches a late movement</td>
+<td>Curriculum or episode coverage</td>
+<td>Shorten the motif or add phase-aware reset/curriculum support in
+code</td>
+</tr>
+<tr>
+<td>Reward increases while duck barely dances</td>
+<td>Reward design</td>
+<td>Inspect individual terms and strengthen behavior-specific
+evidence</td>
+</tr>
+<tr>
+<td>Duck dances only without noise</td>
+<td>Robustness</td>
+<td>Re-enable randomization one source at a time</td>
+</tr>
+<tr>
+<td>Good first cycle, poor loop boundary</td>
+<td>Animation</td>
+<td>Make the last key closely match the first</td>
+</tr>
+<tr>
+<td>Stable but off beat</td>
+<td>Clip timing</td>
+<td>Retune key times and rotation timing</td>
+</tr>
+<tr>
+<td>Falls after a specific pose</td>
+<td>Physics and support</td>
+<td>Review center of mass, feet, knee bend, and landing speed</td>
+</tr>
+<tr>
+<td>Training chart is empty</td>
+<td>Telemetry timing</td>
+<td>Wait for the first PPO rollout, then confirm active run and
+logs</td>
+</tr>
+<tr>
+<td>Training chart belongs to another run</td>
+<td>Run selection</td>
+<td>Check the run name; each run owns separate history</td>
+</tr>
+</tbody>
+</table>
+<p>If rollouts never visit the movement you are rewarding, increasing
+its reward weight is usually insufficient. Change the starting-state
+distribution, curriculum, or clip segmentation so PPO actually practices
+the state.</p>
+<h1 data-number="15" id="how-the-ui-maps-to-the-services"><span
+class="header-section-number">15</span> How the UI maps to the
+services</h1>
+<h2 data-number="15.1" id="studio-rlx-service"><span
+class="header-section-number">15.1</span> Studio RLX service</h2>
+<p>The browser route <code>POST /api/rlx</code> accepts:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;action&quot;</span><span class="fu">:</span> <span class="st">&quot;train&quot;</span><span class="fu">,</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;recipe&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;runName&quot;</span><span class="fu">:</span> <span class="st">&quot;dance-studio&quot;</span><span class="fu">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;profile&quot;</span><span class="fu">:</span> <span class="st">&quot;full&quot;</span><span class="fu">,</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;totalTimesteps&quot;</span><span class="fu">:</span> <span class="dv">1000000</span><span class="fu">,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;numEnvs&quot;</span><span class="fu">:</span> <span class="dv">16</span><span class="fu">,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;seed&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;learningRate&quot;</span><span class="fu">:</span> <span class="fl">0.0003</span><span class="fu">,</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;gamma&quot;</span><span class="fu">:</span> <span class="fl">0.99</span><span class="fu">,</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;domainRand&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;obsNoise&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;actionDelay&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;randomYaw&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Supported actions are <code>train</code>, <code>eval</code>,
+<code>render</code>, and <code>cancel</code>.</p>
+<p>The route starts:</p>
+<pre class="text"><code>rlx/examples/ppo_microduck_studio.py train --recipe dance</code></pre>
+<p>That example is intentionally fixed to the packaged
+<code>dance-120bpm</code> clip and the <code>imitate</code> behavior.
+Training creates a safetensors checkpoint, metadata, and normally an
+ONNX export. Evaluation and rendering use the ONNX file when it
+exists.</p>
+<p>Read status:</p>
+<pre class="http"><code>GET /api/rlx?experiment=dance&amp;run=dance-studio</code></pre>
+<p>Download known artifacts:</p>
+<pre class="http"><code>GET /api/rlx/artifact?experiment=dance&amp;run=dance-studio&amp;kind=onnx
+GET /api/rlx/artifact?experiment=dance&amp;run=dance-studio&amp;kind=video
+GET /api/rlx/artifact?experiment=dance&amp;run=dance-studio&amp;kind=sheet</code></pre>
+<p>The Studio API restricts run names and artifact kinds. It does not
+accept an arbitrary shell command.</p>
+<h2 data-number="15.2" id="duck-lab-clip-and-teach-service"><span
+class="header-section-number">15.2</span> Duck Lab clip and Teach
+service</h2>
+<p>Use Duck Lab for custom authored clips:</p>
+<pre class="http"><code>GET    http://127.0.0.1:8788/clips
+GET    http://127.0.0.1:8788/clips/{name}
+PUT    http://127.0.0.1:8788/clips/{name}
+DELETE http://127.0.0.1:8788/clips/{name}
+POST   http://127.0.0.1:8788/pose
+POST   http://127.0.0.1:8788/teach
+POST   http://127.0.0.1:8788/teach/load
+POST   http://127.0.0.1:8788/teach/weights
+POST   http://127.0.0.1:8788/teach/stop
+POST   http://127.0.0.1:8788/teach/clear</code></pre>
+<p>A custom imitation request can include:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;text&quot;</span><span class="fu">:</span> <span class="st">&quot;copy the animation&quot;</span><span class="fu">,</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;clip&quot;</span><span class="fu">:</span> <span class="st">&quot;groove-a-4s&quot;</span><span class="fu">,</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;steps&quot;</span><span class="fu">:</span> <span class="dv">3000000</span><span class="fu">,</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;weights&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pose_match&quot;</span><span class="fu">:</span> <span class="fl">4.0</span><span class="fu">,</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;on_feet&quot;</span><span class="fu">:</span> <span class="fl">5.0</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;initFrom&quot;</span><span class="fu">:</span> <span class="st">&quot;groove-a-v2&quot;</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Use <code>initFrom</code> only when intentionally fine-tuning a
+compatible local run. Per-stage <code>stageWeights</code>,
+<code>stageSteps</code>, and <code>startStage</code> apply to staged
+behavior recipes; they are not required for a normal single-clip
+imitation.</p>
+<h1 data-number="16" id="command-line-equivalent"><span
+class="header-section-number">16</span> Command-line equivalent</h1>
+<p>The UI is the preferred beginner path. For diagnosis or automation,
+the fixed RLX example supports:</p>
+<pre class="text"><code>train -&gt; eval -&gt; export -&gt; view -&gt; render</code></pre>
+<p>From <code>rlx/</code>, define the verified Python 3.12 overlay:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dance_uv()</span> <span class="kw">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">env</span> <span class="at">-u</span> VIRTUAL_ENV UV_PYTHON_PREFERENCE=only-system <span class="dt">\</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    uv run <span class="at">--isolated</span> <span class="at">--no-project</span> <span class="dt">\</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">--python</span> /usr/local/bin/python3.12 <span class="dt">\</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--with-editable</span> . <span class="dt">\</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">--with-editable</span> ../microduck_local <span class="st">&quot;</span><span class="va">$@</span><span class="st">&quot;</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span></code></pre></div>
+<p>Train the packaged sample:</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">dance_uv</span> examples/ppo_microduck_studio.py train <span class="dt">\</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--recipe</span> dance <span class="dt">\</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--checkpoint</span> runs/studio/dance/dance-studio/dance.safetensors <span class="dt">\</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--onnx-output</span> runs/studio/dance/dance-studio/dance.onnx <span class="dt">\</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--total-timesteps</span> 1000000 <span class="dt">\</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-envs</span> 16 <span class="dt">\</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-steps</span> 24 <span class="dt">\</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-minibatches</span> 4 <span class="dt">\</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">--update-epochs</span> 5 <span class="dt">\</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">--gamma</span> 0.99 <span class="dt">\</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">--learning-rate</span> 0.0003 <span class="dt">\</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> 1</span></code></pre></div>
+<p>Evaluate:</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">dance_uv</span> examples/ppo_microduck_studio.py eval <span class="dt">\</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--recipe</span> dance <span class="dt">\</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--policy</span> runs/studio/dance/dance-studio/dance.onnx <span class="dt">\</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-envs</span> 16 <span class="dt">\</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--eval-steps</span> 500 <span class="dt">\</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--max-episode-s</span> 4</span></code></pre></div>
+<p>Render:</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">dance_uv</span> examples/ppo_microduck_studio.py render <span class="dt">\</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--recipe</span> dance <span class="dt">\</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--policy</span> runs/studio/dance/dance-studio/dance.onnx <span class="dt">\</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--output</span> runs/studio/dance/dance-studio/render <span class="dt">\</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--episodes</span> 1 <span class="dt">\</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--max-episode-s</span> 4 <span class="dt">\</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--render-seconds</span> 120 <span class="dt">\</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--camera</span> three-quarter</span></code></pre></div>
+<h1 data-number="17" id="deployment-handoff"><span
+class="header-section-number">17</span> Deployment handoff</h1>
+<p>The Studio unlocks the artifact handoff only after:</p>
+<ul>
+<li>a checkpoint exists;</li>
+<li>ONNX export exists;</li>
+<li>deterministic evaluation passes;</li>
+<li>a render exists;</li>
+<li>a person confirms visual review.</li>
+</ul>
+<p>The ONNX export includes observation normalization and preserves the
+61-observation to 14-action interface. This makes it suitable as a local
+handoff artifact, not as automatic permission to operate hardware.</p>
+<p>For physical deployment:</p>
+<ol type="1">
+<li>preserve the observation ordering, action ordering, units, and
+control rate;</li>
+<li>preserve the clip, reward settings, model metadata, and evaluation
+evidence;</li>
+<li>repeat deterministic and rendered evaluation under the intended
+actuator and randomization settings;</li>
+<li>run compatibility and safety checks;</li>
+<li>test on hardware only in a controlled environment.</li>
+</ol>
+<h1 data-number="18" id="beginner-run-sheet"><span
+class="header-section-number">18</span> Beginner run sheet</h1>
+<p>Use this checklist for your first serious dance:</p>
+<ul class="task-list">
+<li><label><input type="checkbox" />Studio and Duck Lab show
+connected.</label></li>
+<li><label><input type="checkbox" />Packaged dance plays in
+Animate.</label></li>
+<li><label><input type="checkbox" />New clip is two to four seconds
+long.</label></li>
+<li><label><input type="checkbox" />First and last poses form a clean
+loop.</label></li>
+<li><label><input type="checkbox" />Clip is saved.</label></li>
+<li><label><input type="checkbox" /><strong>train this</strong> starts a
+Teach imitation job.</label></li>
+<li><label><input type="checkbox" />Run has a unique name.</label></li>
+<li><label><input type="checkbox" />Practice budget is at least one
+million steps for the first serious run.</label></li>
+<li><label><input type="checkbox" />Reward history receives rollout
+points while training is active.</label></li>
+<li><label><input type="checkbox" />Logs contain no worker or
+environment errors.</label></li>
+<li><label><input type="checkbox" />Deterministic evaluation completes
+with finite output.</label></li>
+<li><label><input type="checkbox" />ONNX shape is 61 observations to 14
+actions.</label></li>
+<li><label><input type="checkbox" />MP4 and contact sheet
+exist.</label></li>
+<li><label><input type="checkbox" />Motion was visually reviewed from
+beginning to end.</label></li>
+<li><label><input type="checkbox" />Candidate was compared with a
+baseline or null control.</label></li>
+<li><label><input type="checkbox" />Failures and settings were
+recorded.</label></li>
+<li><label><input type="checkbox" />Two-minute presentation is produced
+by a validated loop, not an unverified 120-second policy
+target.</label></li>
+<li><label><input type="checkbox" />Hardware deployment remains blocked
+until official-stack retraining and safety validation.</label></li>
+</ul>
+<h1 data-number="19" id="troubleshooting"><span
+class="header-section-number">19</span> Troubleshooting</h1>
+<h2 data-number="19.1" id="studio-says-duck-lab-is-offline"><span
+class="header-section-number">19.1</span> Studio says Duck Lab is
+offline</h2>
+<p>Run <code>./restart-lab.sh</code>, confirm port <code>8788</code> is
+available, then reload the Studio. Animate, Policies, and Teach depend
+on Duck Lab.</p>
+<h2 data-number="19.2"
+id="play-dance-opens-animate-but-nothing-moves"><span
+class="header-section-number">19.2</span> Play dance opens Animate but
+nothing moves</h2>
+<p>Confirm the clip name is <code>dance-120bpm</code>, the play button
+shows pause, the timeline advances, and the live simulation is
+connected. Reset the simulation if the policy or pose state is
+stale.</p>
+<h2 data-number="19.3"
+id="train-this-says-the-clip-does-not-exist"><span
+class="header-section-number">19.3</span> Train this says the clip does
+not exist</h2>
+<p>Save the clip first. Training receives a clip name and the backend
+loads the corresponding file from the clips directory.</p>
+<h2 data-number="19.4" id="reward-history-stays-empty"><span
+class="header-section-number">19.4</span> Reward history stays
+empty</h2>
+<p>Check that training is active, the selected run name is correct, and
+the log is still advancing. The RLX chart waits for the first completed
+PPO rollout; custom Teach telemetry may also include completed-episode
+points.</p>
+<h2 data-number="19.5" id="reward-is-high-but-the-dance-is-poor"><span
+class="header-section-number">19.5</span> Reward is high but the dance
+is poor</h2>
+<p>This is a failed policy candidate. Render it, identify the exploit or
+missing motion, revise one cause, and train a new named run.</p>
+<h2 data-number="19.6"
+id="a-two-minute-clip-learns-only-its-beginning"><span
+class="header-section-number">19.6</span> A two-minute clip learns only
+its beginning</h2>
+<p>Shorten it to two-to-four-second motifs. The current four-second
+episode and PPO credit horizon do not provide reliable coverage of a
+unique 120-second sequence.</p>
+<h2 data-number="19.7" id="render-fails-on-macos"><span
+class="header-section-number">19.7</span> Render fails on macOS</h2>
+<p>Use the framework-linked Python 3.12 configured by
+<code>MICRODUCK_STUDIO_PYTHON</code>. For native viewing, use
+<code>mjpython</code>. Offscreen rendering also requires a working
+MuJoCo graphics backend and FFmpeg support.</p>
+<h1 data-number="20" id="source-of-truth"><span
+class="header-section-number">20</span> Source of truth</h1>
+<p>This guide is based on the current repository implementation:</p>
+<ul>
+<li><code>DESIGN.md</code></li>
+<li><code>duck-viewer/STUDIO.md</code></li>
+<li><code>duck-viewer/components/Studio.tsx</code></li>
+<li><code>duck-viewer/components/AnimPanel.tsx</code></li>
+<li><code>duck-viewer/components/PolicyPanel.tsx</code></li>
+<li><code>duck-viewer/components/TeachPanel.tsx</code></li>
+<li><code>duck-viewer/app/api/rlx/route.ts</code></li>
+<li><code>duck-viewer/lib/rlx-job.ts</code></li>
+<li><code>microduck_local/AGENTS.md</code></li>
+<li><code>microduck_local/src/microduck_local/motion.py</code></li>
+<li><code>microduck_local/src/microduck_local/viz_server.py</code></li>
+<li><code>microduck_local/src/microduck_local/behaviors/core.py</code></li>
+<li><code>microduck_local/src/microduck_local/behaviors/imitate.py</code></li>
+<li><code>rlx/assets/clips/dance-120bpm.json</code></li>
+<li><code>rlx/examples/ppo_microduck_studio.py</code></li>
+<li><code>rlx/docs/ppo-microduck-dance-guide.md</code></li>
+<li><code>rlx/docs/ppo_microduck_dance_notebook.ipynb</code></li>
+<li><code>rlx/mylab.md</code></li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,53 @@
+sequenceDiagram
+    autonumber
+    actor User
+    participant Studio as Microduck Studio
+    participant Animate as Animate tab
+    participant DuckLab as Duck Lab
+    participant API as Studio RLX API
+    participant CLI as ppo_microduck_studio.py
+    participant Env as Dance imitation env
+    participant PPO as RLX PPO / MLX
+    participant Store as Run artifacts
+
+    User->>Studio: Select Dance imitation
+    Studio-->>User: Show required input: motion clip
+    Note over Studio,User: Dance needs a clip. It does not need a user velocity command.
+
+    alt Packaged RLX workflow
+        User->>Studio: Select Pipeline smoke or Full training
+        Studio->>API: POST /api/rlx action=train, recipe=dance
+        API->>CLI: Launch macOS RLX process
+        CLI->>Env: Load imitate + dance-120bpm
+    else Custom authored clip workflow
+        User->>Animate: Create 2-4 s loop, 14 joints per key
+        Animate->>DuckLab: PUT /clips/{name}
+        DuckLab-->>Animate: Saved clip metadata
+        User->>Animate: Select train this
+        Animate->>DuckLab: POST /teach text=copy animation, clip=name
+        DuckLab->>Env: Load imitate + selected clip
+    end
+
+    Note over Env: Inputs each 50 Hz step:<br/>robot state + previous action + clip phase<br/>velocity command is zero / unused for dance
+    loop PPO practice
+        Env->>PPO: observations[batch,61], rewards, done flags
+        PPO->>Env: actions[batch,14]
+        PPO-->>Studio: rollout progress + mean reward
+        Studio-->>User: Update progress and Reward history
+    end
+
+    PPO->>Store: Save checkpoint + normalization metadata
+    CLI->>Store: Export deterministic ONNX
+    User->>Studio: Run evaluation
+    Studio->>API: POST /api/rlx action=eval
+    API->>CLI: Evaluate checkpoint or ONNX
+    CLI->>Env: Deterministic rollout
+    Env->>Store: evaluation.json
+    Store-->>Studio: finite actions, return, pose RMSE
+
+    User->>Studio: Render rollout
+    Studio->>API: POST /api/rlx action=render
+    API->>CLI: Render 120-second show
+    CLI->>Env: Loop learned short motif
+    Env->>Store: MP4 + contact sheet
+    Store-->>User: Review motion and accept, revise, or reject

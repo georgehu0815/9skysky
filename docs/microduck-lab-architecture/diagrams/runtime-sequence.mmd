@@ -1,0 +1,37 @@
+sequenceDiagram
+  autonumber
+  actor User as Operator
+  participant Browser as Duck Viewer
+  participant API as FastAPI routes
+  participant WS as WebSocket /ws
+  participant LabLoop as 50 Hz lab_loop
+  participant Duck as Duck and environment
+  participant Job as TrainingJob
+  participant Trainer as train_behavior
+  User->>Browser: Open http://127.0.0.1:63317
+  Browser->>API: GET /scene
+  API-->>Browser: meshes, geoms, bodies
+  Browser->>API: GET /policies
+  API-->>Browser: pollen, runs, checkpoints
+  Browser->>WS: Connect
+  loop Every 20 ms
+    LabLoop->>Duck: set command, infer, env.step
+    Duck-->>LabLoop: pose and telemetry
+  end
+  loop Every 2 ticks
+    LabLoop-->>WS: Frame at 25 Hz
+    WS-->>Browser: cmd, ducks, stats, training, events
+  end
+  User->>Browser: Assign, spawn, or reset
+  Browser->>WS: assign or spawn_duck or reset
+  WS->>Duck: hot-swap, create, or reset
+  User->>Browser: Teach a behavior
+  Browser->>API: POST /teach
+  API->>Job: Create curriculum job and preview Duck
+  Job->>Trainer: Launch subprocess with 32 envs
+  loop Configured snapshot cadence
+    Trainer-->>Job: progress.jsonl and atomic live.onnx
+    LabLoop->>Job: Poll at about 1 Hz
+    Job->>Duck: Hot-load snapshot for trainee and helpers
+    LabLoop-->>Browser: Frame with updated training state
+  end

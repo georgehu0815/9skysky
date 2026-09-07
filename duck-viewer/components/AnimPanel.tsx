@@ -85,8 +85,25 @@ const field: React.CSSProperties = {
   fontSize: 11,
 };
 
-export function AnimPanel() {
-  const [open, setOpen] = useState(() => loadJSON("animOpen", false));
+async function loadReferenceDance(): Promise<Clip> {
+  try {
+    return await loadClip("dance-120bpm");
+  } catch {
+    const response = await fetch("/api/rlx/choreography", { cache: "no-store" });
+    if (!response.ok) throw new Error("reference choreography unavailable");
+    return response.json() as Promise<Clip>;
+  }
+}
+
+export function AnimPanel({
+  variant = "overlay",
+  active = true,
+}: {
+  variant?: "overlay" | "embedded";
+  active?: boolean;
+}) {
+  const embedded = variant === "embedded";
+  const [open, setOpen] = useState(() => embedded || loadJSON("animOpen", false));
   const [meta, setMeta] = useState<JointsMeta | null>(null);
   const [metaErr, setMetaErr] = useState<string | null>(null);
   // Unsaved work survives a refresh — an authored pose is expensive to redo.
@@ -98,6 +115,28 @@ export function AnimPanel() {
   const [browsing, setBrowsing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [poseErr, setPoseErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    const playReference = async () => {
+      setOpen(true);
+      setBrowsing(false);
+      try {
+        const reference = await loadReferenceDance();
+        setClip(reference);
+        clipRef.current = reference;
+        setPlayhead(0);
+        playheadRef.current = 0;
+        setPose(sampleClip(reference, 0));
+        setPlaying(true);
+        pushToast("playing the 120 BPM reference dance");
+      } catch {
+        setPlaying(false);
+        pushToast("the 120 BPM reference dance is unavailable");
+      }
+    };
+    window.addEventListener("microduck:play-choreography", playReference);
+    return () => window.removeEventListener("microduck:play-choreography", playReference);
+  }, []);
 
   // 3D selection lives in the shared store (PoseDuck writes it on click).
   useSyncExternalStore(subscribeAnim, animVersion, () => 0);
@@ -137,15 +176,17 @@ export function AnimPanel() {
     };
   }, [open, meta]);
 
-  useEffect(() => saveJSON("animOpen", open), [open]);
+  useEffect(() => {
+    if (!embedded) saveJSON("animOpen", open);
+  }, [embedded, open]);
   useEffect(() => saveJSON("animClip", clip), [clip]);
   // The ghost duck only exists once we know the joint layout — with an
   // unreachable /joints (a lab older than these endpoints) the panel shows
   // its error and the scene stays exactly as it was.
   useEffect(() => {
-    setAnimVisible(open && !!meta);
+    setAnimVisible(active && open && !!meta);
     return () => setAnimVisible(false);
-  }, [open, meta]);
+  }, [active, open, meta]);
 
   // Land on the clip's first pose once the metadata (and therefore the clip)
   // is settled, so the ghost duck shows something real straight away.
@@ -479,7 +520,7 @@ export function AnimPanel() {
 
   // --- render --------------------------------------------------------------
 
-  if (!open)
+  if (!open && !embedded)
     return (
       <button
         onClick={() => setOpen(true)}
@@ -519,30 +560,31 @@ export function AnimPanel() {
       // behind it.
       data-policy-ui
       style={{
-        position: "absolute",
-        bottom: 14,
-        left: "50%",
-        transform: "translateX(-50%)",
+        position: embedded ? "relative" : "absolute",
+        bottom: embedded ? "auto" : 14,
+        left: embedded ? "auto" : "50%",
+        transform: embedded ? "none" : "translateX(-50%)",
         // Bottom-centre, capped so the right edge stays clear of the teach
         // panel (right: 14, width 320 → its left edge is 100vw - 334): a
         // centred panel of width W reaches 50vw + W/2, hence the 688px term.
         // The max() floor keeps it usable on a narrow window at the cost of
         // some overlap there — collapse a panel, as the other three expect.
-        width: "min(520px, max(340px, calc(100vw - 688px)))",
+        width: embedded ? "100%" : "min(520px, calc(100cqw - 28px))",
         // Deliberately short: this is an editor for a 3D scene, and a panel
         // that eats the stage hides the thing being posed. The joint list
         // scrolls inside whatever is left.
-        maxHeight: "min(56vh, 470px)",
+        maxHeight: embedded ? 548 : "min(56cqh, 470px)",
+        height: embedded ? "100%" : "auto",
         display: "flex",
         flexDirection: "column",
-        background: "rgba(14, 16, 20, 0.88)",
-        border: "1px solid rgba(255,255,255,0.09)",
-        borderRadius: 10,
+        background: embedded ? "transparent" : "rgba(14, 16, 20, 0.88)",
+        border: embedded ? "0" : "1px solid rgba(255,255,255,0.09)",
+        borderRadius: embedded ? 0 : 10,
         color: "#e8e6e1",
         fontFamily: mono,
         fontSize: 12,
         lineHeight: 1.5,
-        backdropFilter: "blur(6px)",
+        backdropFilter: embedded ? "none" : "blur(6px)",
         zIndex: 20,
         overflow: "hidden",
       }}
@@ -570,21 +612,23 @@ export function AnimPanel() {
         >
           ◎ focus
         </button>
-        <button
-          onClick={() => setOpen(false)}
-          title="collapse"
-          style={{
-            background: "none",
-            border: "none",
-            color: "#8b93a3",
-            cursor: "pointer",
-            fontFamily: mono,
-            fontSize: 12,
-            padding: "0 4px",
-          }}
-        >
-          —
-        </button>
+        {!embedded && (
+          <button
+            onClick={() => setOpen(false)}
+            title="collapse"
+            style={{
+              background: "none",
+              border: "none",
+              color: "#8b93a3",
+              cursor: "pointer",
+              fontFamily: mono,
+              fontSize: 12,
+              padding: "0 4px",
+            }}
+          >
+            —
+          </button>
+        )}
       </div>
 
       {metaErr && (

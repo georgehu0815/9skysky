@@ -1,0 +1,2444 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Microduck Lab" />
+  <meta name="dcterms.date" content="2026-09-06" />
+  <title>Microduck Studio Experiments Guide</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="/Volumes/ExternalSSD/geoagent/microduck-lab/docs/microduck-studio-experiments-guide/print.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Microduck Studio Experiments Guide</h1>
+<p class="subtitle">Train, evaluate, render, and export four macOS RLX
+recipes</p>
+<p class="author">Microduck Lab</p>
+<p class="date">2026-09-06</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#start-here" id="toc-start-here"><span
+class="toc-section-number">1</span> Start here</a></li>
+<li><a href="#reference-evidence-and-your-run-are-different"
+id="toc-reference-evidence-and-your-run-are-different"><span
+class="toc-section-number">2</span> Reference evidence and your run are
+different</a></li>
+<li><a href="#what-all-four-recipes-share"
+id="toc-what-all-four-recipes-share"><span
+class="toc-section-number">3</span> What all four recipes share</a></li>
+<li><a href="#set-up-the-macos-rlx-environment"
+id="toc-set-up-the-macos-rlx-environment"><span
+class="toc-section-number">4</span> Set up the macOS RLX environment</a>
+<ul>
+<li><a href="#prerequisites" id="toc-prerequisites"><span
+class="toc-section-number">4.1</span> Prerequisites</a></li>
+<li><a href="#install-the-workspace"
+id="toc-install-the-workspace"><span
+class="toc-section-number">4.2</span> Install the workspace</a></li>
+<li><a href="#verify-the-rlx-command-surface"
+id="toc-verify-the-rlx-command-surface"><span
+class="toc-section-number">4.3</span> Verify the RLX command
+surface</a></li>
+</ul></li>
+<li><a href="#choose-and-configure-an-experiment"
+id="toc-choose-and-configure-an-experiment"><span
+class="toc-section-number">5</span> Choose and configure an
+experiment</a>
+<ul>
+<li><a href="#shared-studio-controls"
+id="toc-shared-studio-controls"><span
+class="toc-section-number">5.1</span> Shared Studio controls</a></li>
+<li><a href="#recipe-defaults" id="toc-recipe-defaults"><span
+class="toc-section-number">5.2</span> Recipe defaults</a></li>
+<li><a href="#episode-and-show-duration"
+id="toc-episode-and-show-duration"><span
+class="toc-section-number">5.3</span> Episode and show duration</a></li>
+</ul></li>
+<li><a href="#pipeline-smoke-versus-full-training"
+id="toc-pipeline-smoke-versus-full-training"><span
+class="toc-section-number">6</span> Pipeline smoke versus full
+training</a>
+<ul>
+<li><a href="#pipeline-smoke" id="toc-pipeline-smoke"><span
+class="toc-section-number">6.1</span> Pipeline smoke</a></li>
+<li><a href="#full-training" id="toc-full-training"><span
+class="toc-section-number">6.2</span> Full training</a></li>
+</ul></li>
+<li><a href="#read-reward-history-correctly"
+id="toc-read-reward-history-correctly"><span
+class="toc-section-number">7</span> Read reward history
+correctly</a></li>
+<li><a href="#dance-imitation" id="toc-dance-imitation"><span
+class="toc-section-number">8</span> Dance imitation</a>
+<ul>
+<li><a href="#what-the-recipe-learns"
+id="toc-what-the-recipe-learns"><span
+class="toc-section-number">8.1</span> What the recipe learns</a></li>
+<li><a href="#exact-dance-reward-recipe"
+id="toc-exact-dance-reward-recipe"><span
+class="toc-section-number">8.2</span> Exact dance reward recipe</a></li>
+<li><a href="#dance-controls-and-first-run"
+id="toc-dance-controls-and-first-run"><span
+class="toc-section-number">8.3</span> Dance controls and first
+run</a></li>
+<li><a href="#published-dance-reference"
+id="toc-published-dance-reference"><span
+class="toc-section-number">8.4</span> Published dance reference</a></li>
+<li><a href="#two-minute-dance-strategy"
+id="toc-two-minute-dance-strategy"><span
+class="toc-section-number">8.5</span> Two-minute dance strategy</a></li>
+<li><a href="#iterate-on-dance" id="toc-iterate-on-dance"><span
+class="toc-section-number">8.6</span> Iterate on dance</a></li>
+</ul></li>
+<li><a href="#self-pumped-swing" id="toc-self-pumped-swing"><span
+class="toc-section-number">9</span> Self-pumped swing</a>
+<ul>
+<li><a href="#what-the-recipe-learns-1"
+id="toc-what-the-recipe-learns-1"><span
+class="toc-section-number">9.1</span> What the recipe learns</a></li>
+<li><a href="#exact-swing-reward-focus"
+id="toc-exact-swing-reward-focus"><span
+class="toc-section-number">9.2</span> Exact swing reward focus</a></li>
+<li><a href="#swing-controls-and-first-run"
+id="toc-swing-controls-and-first-run"><span
+class="toc-section-number">9.3</span> Swing controls and first
+run</a></li>
+<li><a href="#published-swing-reference"
+id="toc-published-swing-reference"><span
+class="toc-section-number">9.4</span> Published swing reference</a></li>
+<li><a href="#evaluate-and-iterate-on-swing"
+id="toc-evaluate-and-iterate-on-swing"><span
+class="toc-section-number">9.5</span> Evaluate and iterate on
+swing</a></li>
+</ul></li>
+<li><a href="#fast-running" id="toc-fast-running"><span
+class="toc-section-number">10</span> Fast running</a>
+<ul>
+<li><a href="#what-the-recipe-learns-2"
+id="toc-what-the-recipe-learns-2"><span
+class="toc-section-number">10.1</span> What the recipe learns</a></li>
+<li><a href="#running-controls-and-first-run"
+id="toc-running-controls-and-first-run"><span
+class="toc-section-number">10.2</span> Running controls and first
+run</a></li>
+<li><a href="#published-running-reference"
+id="toc-published-running-reference"><span
+class="toc-section-number">10.3</span> Published running
+reference</a></li>
+<li><a href="#evaluate-and-iterate-on-running"
+id="toc-evaluate-and-iterate-on-running"><span
+class="toc-section-number">10.4</span> Evaluate and iterate on
+running</a></li>
+</ul></li>
+<li><a href="#stilt-walking" id="toc-stilt-walking"><span
+class="toc-section-number">11</span> Stilt walking</a>
+<ul>
+<li><a href="#what-the-recipe-learns-3"
+id="toc-what-the-recipe-learns-3"><span
+class="toc-section-number">11.1</span> What the recipe learns</a></li>
+<li><a href="#exact-stilt-controls" id="toc-exact-stilt-controls"><span
+class="toc-section-number">11.2</span> Exact stilt controls</a></li>
+<li><a href="#stilt-controls-and-first-run"
+id="toc-stilt-controls-and-first-run"><span
+class="toc-section-number">11.3</span> Stilt controls and first
+run</a></li>
+<li><a href="#published-stilt-reference"
+id="toc-published-stilt-reference"><span
+class="toc-section-number">11.4</span> Published stilt
+reference</a></li>
+<li><a href="#evaluate-and-iterate-on-stilts"
+id="toc-evaluate-and-iterate-on-stilts"><span
+class="toc-section-number">11.5</span> Evaluate and iterate on
+stilts</a></li>
+</ul></li>
+<li><a href="#deterministic-evaluation"
+id="toc-deterministic-evaluation"><span
+class="toc-section-number">12</span> Deterministic evaluation</a>
+<ul>
+<li><a href="#read-nested-recipe-metrics"
+id="toc-read-nested-recipe-metrics"><span
+class="toc-section-number">12.1</span> Read nested recipe
+metrics</a></li>
+<li><a href="#a-fair-comparison" id="toc-a-fair-comparison"><span
+class="toc-section-number">12.2</span> A fair comparison</a></li>
+</ul></li>
+<li><a href="#render-and-show-the-result"
+id="toc-render-and-show-the-result"><span
+class="toc-section-number">13</span> Render and show the result</a></li>
+<li><a href="#onnx-export-and-run-artifacts"
+id="toc-onnx-export-and-run-artifacts"><span
+class="toc-section-number">14</span> ONNX export and run
+artifacts</a></li>
+<li><a href="#iterate-without-losing-evidence"
+id="toc-iterate-without-losing-evidence"><span
+class="toc-section-number">15</span> Iterate without losing
+evidence</a></li>
+<li><a href="#command-line-equivalents"
+id="toc-command-line-equivalents"><span
+class="toc-section-number">16</span> Command-line equivalents</a>
+<ul>
+<li><a href="#generic-smoke" id="toc-generic-smoke"><span
+class="toc-section-number">16.1</span> Generic smoke</a></li>
+<li><a href="#full-dance-example" id="toc-full-dance-example"><span
+class="toc-section-number">16.2</span> Full dance example</a></li>
+<li><a href="#full-swing-with-its-natural-horizon"
+id="toc-full-swing-with-its-natural-horizon"><span
+class="toc-section-number">16.3</span> Full swing with its natural
+horizon</a></li>
+<li><a href="#full-running-with-a-longer-horizon"
+id="toc-full-running-with-a-longer-horizon"><span
+class="toc-section-number">16.4</span> Full running with a longer
+horizon</a></li>
+<li><a href="#full-10-cm-stilt-example"
+id="toc-full-10-cm-stilt-example"><span
+class="toc-section-number">16.5</span> Full 10 cm stilt example</a></li>
+<li><a href="#evaluate-render-and-export"
+id="toc-evaluate-render-and-export"><span
+class="toc-section-number">16.6</span> Evaluate, render, and
+export</a></li>
+</ul></li>
+<li><a href="#how-studio-aligns-with-the-rlx-ppo-api"
+id="toc-how-studio-aligns-with-the-rlx-ppo-api"><span
+class="toc-section-number">17</span> How Studio aligns with the RLX PPO
+API</a></li>
+<li><a href="#troubleshooting" id="toc-troubleshooting"><span
+class="toc-section-number">18</span> Troubleshooting</a>
+<ul>
+<li><a href="#studio-or-duck-lab-does-not-start"
+id="toc-studio-or-duck-lab-does-not-start"><span
+class="toc-section-number">18.1</span> Studio or Duck Lab does not
+start</a></li>
+<li><a href="#the-smoke-run-has-a-reward-but-no-useful-motion"
+id="toc-the-smoke-run-has-a-reward-but-no-useful-motion"><span
+class="toc-section-number">18.2</span> The smoke run has a reward but no
+useful motion</a></li>
+<li><a href="#reward-history-stays-empty"
+id="toc-reward-history-stays-empty"><span
+class="toc-section-number">18.3</span> Reward history stays
+empty</a></li>
+<li><a href="#evaluation-shows-speed-or-degrees-that-look-implausible"
+id="toc-evaluation-shows-speed-or-degrees-that-look-implausible"><span
+class="toc-section-number">18.4</span> Evaluation shows speed or degrees
+that look implausible</a></li>
+<li><a href="#a-reference-preview-looks-better-than-the-new-render"
+id="toc-a-reference-preview-looks-better-than-the-new-render"><span
+class="toc-section-number">18.5</span> A reference preview looks better
+than the new render</a></li>
+<li><a href="#swing-does-not-build-a-large-arc"
+id="toc-swing-does-not-build-a-large-arc"><span
+class="toc-section-number">18.6</span> Swing does not build a large
+arc</a></li>
+<li><a href="#running-speed-is-not-close-to-1651-ms"
+id="toc-running-speed-is-not-close-to-1651-ms"><span
+class="toc-section-number">18.7</span> Running speed is not close to
+1.651 m/s</a></li>
+<li><a href="#stilt-playback-looks-physically-wrong"
+id="toc-stilt-playback-looks-physically-wrong"><span
+class="toc-section-number">18.8</span> Stilt playback looks physically
+wrong</a></li>
+<li><a href="#onnx-is-missing" id="toc-onnx-is-missing"><span
+class="toc-section-number">18.9</span> ONNX is missing</a></li>
+</ul></li>
+<li><a href="#beginner-completion-checklist"
+id="toc-beginner-completion-checklist"><span
+class="toc-section-number">19</span> Beginner completion
+checklist</a></li>
+<li><a href="#repository-sources-used-by-this-guide"
+id="toc-repository-sources-used-by-this-guide"><span
+class="toc-section-number">20</span> Repository sources used by this
+guide</a></li>
+</ul>
+</nav>
+<h1 data-number="1" id="start-here"><span
+class="header-section-number">1</span> Start here</h1>
+<p>Microduck Studio provides one local workflow for four
+reinforcement-learning experiments:</p>
+<ol type="1">
+<li><strong>Dance imitation</strong></li>
+<li><strong>Self-pumped swing</strong></li>
+<li><strong>Fast running</strong></li>
+<li><strong>Stilt walking</strong></li>
+</ol>
+<p>All four Studio recipes run locally on macOS through RLX PPO. MuJoCo
+performs the simulation on the CPU, and RLX performs PPO updates with
+MLX on Apple Silicon. <strong>This Studio path does not require
+CUDA.</strong></p>
+<p>Open the Studio at:</p>
+<pre class="text"><code>http://127.0.0.1:63317</code></pre>
+<p>Start the workspace from the repository root:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /Volumes/ExternalSSD/geoagent/microduck-lab</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./restart-lab.sh</span></span></code></pre></div>
+<p>The launcher starts:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Address</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Microduck Studio</td>
+<td><code>http://127.0.0.1:63317</code></td>
+<td>Experiment selection, RLX jobs, evaluation, rendering, and
+artifacts</td>
+</tr>
+<tr>
+<td>Duck Lab</td>
+<td><code>http://127.0.0.1:8788</code></td>
+<td>Live MuJoCo scene, policy playback, animation, and Teach
+workflows</td>
+</tr>
+<tr>
+<td>Live stream</td>
+<td><code>ws://127.0.0.1:8788/ws</code></td>
+<td>Poses, simulation statistics, and Duck Lab training progress</td>
+</tr>
+</tbody>
+</table>
+<p>Wait for the Studio connection indicator before relying on the
+embedded simulation, <strong>Animate</strong>,
+<strong>Policies</strong>, or <strong>Teach</strong>. The four RLX
+recipe jobs run through the Studio's local <code>/api/rlx</code>
+service.</p>
+<blockquote>
+<p><strong>Simulation boundary:</strong> Studio output is local
+prototyping evidence. It is not proof that a policy is safe for a
+physical robot. Hardware work requires a separate compatibility,
+controlled-testing, and safety process. All four workflows in this guide
+use RLX on macOS.</p>
+</blockquote>
+<h1 data-number="2"
+id="reference-evidence-and-your-run-are-different"><span
+class="header-section-number">2</span> Reference evidence and your run
+are different</h1>
+<p>The experiment catalog contains published preview media and published
+evaluation records. Those assets are labeled <strong>REFERENCE</strong>
+in the Studio. They do not update when you train a new policy.</p>
+<p>Your own run produces a separate checkpoint, metadata sidecar, ONNX
+policy, evaluation record, MP4, and contact sheet under
+<code>rlx/runs/studio/</code>. Treat these as <strong>LATEST
+RUN</strong> evidence.</p>
+<table>
+<thead>
+<tr>
+<th>Label</th>
+<th>What it means</th>
+<th>What it does not mean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>REFERENCE</strong></td>
+<td>Bundled media or JSON produced by a previously published
+experiment</td>
+<td>Your current settings reproduced the result</td>
+</tr>
+<tr>
+<td><strong>LATEST RUN</strong></td>
+<td>Artifacts and measurements from the run name currently selected in
+Studio</td>
+<td>The result matches the reference or is hardware-ready</td>
+</tr>
+<tr>
+<td><strong>Pipeline smoke</strong></td>
+<td>The command path, environment, checkpoint, export, and evaluator can
+execute</td>
+<td>PPO learned the requested behavior</td>
+</tr>
+<tr>
+<td><strong>Full training</strong></td>
+<td>The recipe used its normal Studio budget and randomized
+settings</td>
+<td>The resulting motion is good without evaluation and visual
+review</td>
+</tr>
+</tbody>
+</table>
+<p>Never copy a reference number into the record for a newly trained
+run. Record only values found in that run's own
+<code>evaluation.json</code> and rendered output.</p>
+<p><img src="images/experiment-catalog.png"
+alt="Microduck Studio experiment catalog with the four recipes and REFERENCE media labels" /></p>
+<p><em>Figure 1. Select one recipe at a time. Preview and evaluation
+links in the catalog show published reference evidence, not the latest
+local run.</em></p>
+<h1 data-number="3" id="what-all-four-recipes-share"><span
+class="header-section-number">3</span> What all four recipes share</h1>
+<p>Every Studio recipe preserves the same policy interface:</p>
+<pre class="text"><code>observations[batch, 61] -&gt; deterministic actor -&gt; actions[batch, 14]</code></pre>
+<p>The control loop runs at 50 Hz. The actor and critic each use a
+<code>512 -&gt; 256 -&gt; 128</code> ELU multilayer perceptron. Training
+saves an MLX actor-critic checkpoint plus observation-normalization
+statistics. ONNX export bakes that normalizer into the deterministic
+actor graph.</p>
+<p>The shared workflow is:</p>
+<pre class="text"><code>choose recipe
+    -&gt; configure a named run
+    -&gt; run pipeline smoke
+    -&gt; run full training
+    -&gt; inspect reward history
+    -&gt; evaluate deterministically
+    -&gt; render MP4 and contact sheet
+    -&gt; review motion
+    -&gt; download artifacts
+    -&gt; change one cause and repeat</code></pre>
+<p>The Studio exposes the same four lifecycle stages for each
+experiment:</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Required result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Train</strong></td>
+<td>Safetensors checkpoint, metadata sidecar, and normally an ONNX
+export</td>
+</tr>
+<tr>
+<td><strong>Evaluate</strong></td>
+<td>Deterministic rollout JSON with finite observations, rewards, and
+actions</td>
+</tr>
+<tr>
+<td><strong>Render</strong></td>
+<td>One MP4 and one diagnostic contact sheet</td>
+</tr>
+<tr>
+<td><strong>Artifacts</strong></td>
+<td>Downloadable files tied to the selected experiment and run name</td>
+</tr>
+</tbody>
+</table>
+<h1 data-number="4" id="set-up-the-macos-rlx-environment"><span
+class="header-section-number">4</span> Set up the macOS RLX
+environment</h1>
+<h2 data-number="4.1" id="prerequisites"><span
+class="header-section-number">4.1</span> Prerequisites</h2>
+<p>The documented Studio path expects:</p>
+<ul>
+<li>macOS on Apple Silicon;</li>
+<li><code>uv</code>;</li>
+<li>a framework-linked Python 3.12 at
+<code>/usr/local/bin/python3.12</code>, unless
+<code>MICRODUCK_STUDIO_PYTHON</code> points to another compatible
+interpreter;</li>
+<li>the local <code>rlx/</code> and <code>microduck_local/</code>
+checkouts in this workspace;</li>
+<li>access to the Microduck MJCF model referenced by
+<code>microduck_local</code>;</li>
+<li>Node.js and npm for the Studio;</li>
+<li>ImageIO's FFmpeg support for MP4 rendering.</li>
+</ul>
+<p>No CUDA installation, CUDA device, or remote training service is used
+by this workflow.</p>
+<h2 data-number="4.2" id="install-the-workspace"><span
+class="header-section-number">4.2</span> Install the workspace</h2>
+<p>From the workspace root:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /Volumes/ExternalSSD/geoagent/microduck-lab</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> microduck_local <span class="kw">&amp;&amp;</span> <span class="ex">uv</span> sync</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ../duck-viewer <span class="kw">&amp;&amp;</span> <span class="ex">npm</span> install</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ..</span></code></pre></div>
+<p>If the Microduck model checkout is not at its default location,
+set:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">MICRODUCK_RL_DIR</span><span class="op">=</span>/absolute/path/to/microduck_rl</span></code></pre></div>
+<p>The normal launcher handles the Duck Lab and Studio processes:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./restart-lab.sh</span></span></code></pre></div>
+<h2 data-number="4.3" id="verify-the-rlx-command-surface"><span
+class="header-section-number">4.3</span> Verify the RLX command
+surface</h2>
+<p>The Studio invokes <code>rlx/examples/ppo_microduck_studio.py</code>
+in an isolated Python 3.12 overlay. For command-line diagnosis, define
+the same type of helper from the <code>rlx/</code> directory:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /Volumes/ExternalSSD/geoagent/microduck-lab/rlx</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">studio_uv()</span> <span class="kw">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">env</span> <span class="at">-u</span> VIRTUAL_ENV UV_PYTHON_PREFERENCE=only-system <span class="dt">\</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    uv run <span class="at">--isolated</span> <span class="at">--no-project</span> <span class="dt">\</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">--python</span> /usr/local/bin/python3.12 <span class="dt">\</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">--with-editable</span> . <span class="dt">\</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">--with-editable</span> ../microduck_local <span class="st">&quot;</span><span class="va">$@</span><span class="st">&quot;</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span></code></pre></div>
+<p>Confirm the four commands and four recipes:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">studio_uv</span> examples/ppo_microduck_studio.py <span class="at">--help</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">studio_uv</span> examples/ppo_microduck_studio.py train <span class="at">--help</span></span></code></pre></div>
+<p>The command groups are <code>train</code>, <code>eval</code>,
+<code>render</code>, and <code>export</code>. The accepted recipes are
+<code>dance</code>, <code>running</code>, <code>stilts</code>, and
+<code>swing</code>.</p>
+<h1 data-number="5" id="choose-and-configure-an-experiment"><span
+class="header-section-number">5</span> Choose and configure an
+experiment</h1>
+<ol type="1">
+<li>Open <strong>Experiments</strong>.</li>
+<li>Select the desired row in the four-recipe catalog.</li>
+<li>Select <strong>Preview reference</strong> to inspect the published
+motion.</li>
+<li>Scroll to <strong>Microduck PPO Recipe</strong>.</li>
+<li>Give the run a unique name.</li>
+<li>Run <strong>Pipeline smoke</strong> first.</li>
+<li>Switch to <strong>Full training</strong> only after the smoke path
+succeeds.</li>
+</ol>
+<p>Selecting another experiment resets the recipe form to that
+experiment's defaults and clears the local visual-review checkbox.</p>
+<h2 data-number="5.1" id="shared-studio-controls"><span
+class="header-section-number">5.1</span> Shared Studio controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th style="text-align: right;">Smoke default</th>
+<th style="text-align: right;">Full default</th>
+<th>Accepted range or behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Run name</td>
+<td style="text-align: right;">Recipe default</td>
+<td style="text-align: right;">Recipe default</td>
+<td>Letters, numbers, <code>_</code>, and <code>-</code>; sanitized to
+lowercase; maximum 48 characters</td>
+</tr>
+<tr>
+<td>Total timesteps</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">Recipe-specific</td>
+<td>4 to 40,000,000 in the UI; server rounds up to a full rollout
+batch</td>
+</tr>
+<tr>
+<td>Parallel envs</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">16</td>
+<td>1 to 64</td>
+</tr>
+<tr>
+<td>Seed</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td>Positive integer, maximum 2,147,483,647</td>
+</tr>
+<tr>
+<td>Learning rate</td>
+<td style="text-align: right;">0.0003</td>
+<td style="text-align: right;">0.0003</td>
+<td>0.000001 to 0.1</td>
+</tr>
+<tr>
+<td>Gamma</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">0.99</td>
+<td>0.8 to 1.0</td>
+</tr>
+<tr>
+<td>Domain randomization</td>
+<td style="text-align: right;">Off</td>
+<td style="text-align: right;">On</td>
+<td>Disabled automatically in smoke mode</td>
+</tr>
+<tr>
+<td>Observation noise</td>
+<td style="text-align: right;">Off</td>
+<td style="text-align: right;">On</td>
+<td>Disabled automatically in smoke mode</td>
+</tr>
+<tr>
+<td>Action delay</td>
+<td style="text-align: right;">Off</td>
+<td style="text-align: right;">On</td>
+<td>Disabled automatically in smoke mode</td>
+</tr>
+<tr>
+<td>Random yaw</td>
+<td style="text-align: right;">Off</td>
+<td style="text-align: right;">On</td>
+<td>Disabled automatically in smoke mode; the swing environment forces
+it off</td>
+</tr>
+</tbody>
+</table>
+<p>The Studio fixes additional PPO values:</p>
+<table>
+<thead>
+<tr>
+<th>PPO setting</th>
+<th style="text-align: right;">Pipeline smoke</th>
+<th style="text-align: right;">Full training</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rollout steps per environment</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">24</td>
+</tr>
+<tr>
+<td>Minibatches</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>Update epochs</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr>
+<td>GAE lambda</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">0.95</td>
+</tr>
+<tr>
+<td>PPO clip coefficient</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr>
+<td>Entropy coefficient</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+<tr>
+<td>Value coefficient</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.0</td>
+</tr>
+<tr>
+<td>Maximum gradient norm</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.5</td>
+</tr>
+<tr>
+<td>Advantage normalization</td>
+<td style="text-align: right;">On</td>
+<td style="text-align: right;">On</td>
+</tr>
+<tr>
+<td>Clipped value loss</td>
+<td style="text-align: right;">On</td>
+<td style="text-align: right;">On</td>
+</tr>
+</tbody>
+</table>
+<p>The server rounds <code>totalTimesteps</code> to a multiple of:</p>
+<pre class="text"><code>parallel environments * rollout steps</code></pre>
+<p>For example, full training with 16 environments and 24 rollout steps
+advances in batches of 384 transitions.</p>
+<h2 data-number="5.2" id="recipe-defaults"><span
+class="header-section-number">5.2</span> Recipe defaults</h2>
+<table>
+<thead>
+<tr>
+<th>Recipe</th>
+<th>Default run name</th>
+<th style="text-align: right;">Studio full budget</th>
+<th style="text-align: right;">Environments</th>
+<th>Catalog evaluation metric</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dance imitation</td>
+<td><code>dance-studio</code></td>
+<td style="text-align: right;">1,000,000</td>
+<td style="text-align: right;">16</td>
+<td>Mean return</td>
+</tr>
+<tr>
+<td>Self-pumped swing</td>
+<td><code>swing-studio</code></td>
+<td style="text-align: right;">4,000,000</td>
+<td style="text-align: right;">16</td>
+<td>Peak-to-peak span</td>
+</tr>
+<tr>
+<td>Fast running</td>
+<td><code>running-studio</code></td>
+<td style="text-align: right;">4,000,000</td>
+<td style="text-align: right;">16</td>
+<td>Forward speed</td>
+</tr>
+<tr>
+<td>Stilt walking</td>
+<td><code>stilts-10cm-studio</code></td>
+<td style="text-align: right;">4,000,000</td>
+<td style="text-align: right;">16</td>
+<td>Forward speed</td>
+</tr>
+</tbody>
+</table>
+<h2 data-number="5.3" id="episode-and-show-duration"><span
+class="header-section-number">5.3</span> Episode and show duration</h2>
+<p>The recipe registry uses natural full-training horizons of 4 seconds
+for dance, 24 seconds for swing, 12 seconds for running, and 10 seconds
+for stilts. Smoke mode uses one-second episodes only to verify
+wiring.</p>
+<p>Dance rendering is separate from its training horizon: the Studio
+asks the renderer for a 120-second show and loops the learned
+four-second motif. Swing, running, and stilts render their natural
+recipe horizon by default.</p>
+<p>This distinction matters most for swing, whose published reference
+evaluation used 36-second rollouts, and for running and stilts, whose
+published evaluations used 10-second rollouts. Match evaluation duration
+and morphology before comparing directly with those published
+values.</p>
+<h1 data-number="6" id="pipeline-smoke-versus-full-training"><span
+class="header-section-number">6</span> Pipeline smoke versus full
+training</h1>
+<h2 data-number="6.1" id="pipeline-smoke"><span
+class="header-section-number">6.1</span> Pipeline smoke</h2>
+<p>Use smoke mode to prove:</p>
+<ul>
+<li>the selected environment can be created;</li>
+<li>the 61-observation and 14-action shapes are valid;</li>
+<li>PPO can collect one tiny rollout and update once;</li>
+<li>checkpoint serialization works;</li>
+<li>ONNX export works;</li>
+<li>deterministic evaluation and rendering can load the artifact.</li>
+</ul>
+<p>Smoke mode uses two environments, two rollout steps, one minibatch,
+one update epoch, and four total transitions. It disables all four
+randomization toggles.</p>
+<blockquote>
+<p>A four-transition policy has not learned to dance, pump a swing, run,
+or walk on stilts. Label its output <strong>SMOKE</strong>, not
+<strong>TRAINED</strong>.</p>
+</blockquote>
+<h2 data-number="6.2" id="full-training"><span
+class="header-section-number">6.2</span> Full training</h2>
+<p>Full training uses 16 environments, 24 rollout steps, four
+minibatches, five update epochs, and the recipe budget shown in the
+catalog. Randomization, observation noise, action delay, and random yaw
+are enabled by default.</p>
+<p>Select <strong>Full training</strong> and then <strong>Start
+RLX</strong> or <strong>Run RLX training</strong>. The experiment
+coach's <strong>Train dance</strong>, <strong>Train swing</strong>,
+<strong>Train running</strong>, or <strong>Train stilts</strong> button
+also switches to the full recommended settings before starting.</p>
+<p>Training completion proves that PPO finished and artifacts were
+written. It does not prove that the behavior is useful.</p>
+<p><img src="images/training-evaluation.png"
+alt="Training panel with reward history followed by deterministic evaluation and render review" /></p>
+<p><em>Figure 2. Reward history describes training. Deterministic
+evaluation and render review provide separate evidence after the
+checkpoint exists.</em></p>
+<h1 data-number="7" id="read-reward-history-correctly"><span
+class="header-section-number">7</span> Read reward history
+correctly</h1>
+<p>The chart plots mean completed-episode reward reported by the active
+RLX job. It can remain empty until at least one episode finishes. With a
+four-second episode at 50 Hz, an environment needs roughly 200 control
+steps to complete an episode unless it terminates early.</p>
+<p>Use reward history to answer:</p>
+<ul>
+<li>Is the policy improving against this recipe's reward?</li>
+<li>Did learning plateau?</li>
+<li>Did a later update collapse?</li>
+<li>Did a settings change alter the learning curve?</li>
+</ul>
+<p>Do not use reward history to answer:</p>
+<ul>
+<li>Does the motion look correct?</li>
+<li>Is the duck moving rather than exploiting the reward?</li>
+<li>Does a swing pass the strict geometry gates?</li>
+<li>Is running speed comparable with the published reference under the
+same duration and stress settings?</li>
+<li>Is the policy ready for hardware?</li>
+</ul>
+<p>The chart updates after every PPO rollout, so long dance, swing,
+running, and stilt episodes do not have to finish before reward history
+appears. Completed episodes can add additional points. The chart stores
+at most 240 points in the current Studio process. Starting a new
+training operation clears the active RLX chart for that run. Keep the
+metadata, evaluation JSON, and rendered files as the durable
+evidence.</p>
+<h1 data-number="8" id="dance-imitation"><span
+class="header-section-number">8</span> Dance imitation</h1>
+<h2 data-number="8.1" id="what-the-recipe-learns"><span
+class="header-section-number">8.1</span> What the recipe learns</h2>
+<p>The dance recipe always selects the <code>imitate</code> behavior and
+the packaged <code>dance-120bpm</code> clip. The clip is a one-second,
+five-keyframe loop at 120 BPM. PPO must match the authored joint pose
+and body rotation while preserving balance, usable contact, and
+motion.</p>
+<p>The recipe's numerical task metric is:</p>
+<pre class="text"><code>pose_rmse_rad</code></pre>
+<p>Lower pose root-mean-square error is better, but the current Studio
+evaluation card uses mean return as its top-level dance score. Visual
+review remains required.</p>
+<h2 data-number="8.2" id="exact-dance-reward-recipe"><span
+class="header-section-number">8.2</span> Exact dance reward recipe</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th style="text-align: right;">Weight</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pose_match</code></td>
+<td style="text-align: right;">4.0</td>
+<td>Match the reference joint pose at the current phase</td>
+</tr>
+<tr>
+<td><code>rotation_match</code></td>
+<td style="text-align: right;">4.0</td>
+<td>Match reference body-rotation timing</td>
+</tr>
+<tr>
+<td><code>stick_it</code></td>
+<td style="text-align: right;">5.0</td>
+<td>End a one-shot clip standing on both feet</td>
+</tr>
+<tr>
+<td><code>on_feet</code></td>
+<td style="text-align: right;">5.0</td>
+<td>Stay upright at standing height with foot contact for looping
+clips</td>
+</tr>
+<tr>
+<td><code>no_slip</code></td>
+<td style="text-align: right;">0.5 penalty</td>
+<td>Prevent planted feet from skating</td>
+</tr>
+<tr>
+<td><code>no_spin</code></td>
+<td style="text-align: right;">0.3 penalty</td>
+<td>Prevent unwanted yaw</td>
+</tr>
+<tr>
+<td><code>travel</code></td>
+<td style="text-align: right;">3.0</td>
+<td>Reward forward movement for looping gait-like clips</td>
+</tr>
+<tr>
+<td><code>gentle_head</code></td>
+<td style="text-align: right;">1.0 penalty</td>
+<td>Penalize head-floor impacts</td>
+</tr>
+<tr>
+<td><code>soft_landings</code></td>
+<td style="text-align: right;">0.75 penalty</td>
+<td>Penalize hard landings</td>
+</tr>
+<tr>
+<td><code>no_limit_parking</code></td>
+<td style="text-align: right;">1.0 penalty</td>
+<td>Penalize joints parked at limits</td>
+</tr>
+<tr>
+<td><code>save_energy</code></td>
+<td style="text-align: right;">0.5 penalty</td>
+<td>Penalize unnecessary motor effort</td>
+</tr>
+</tbody>
+</table>
+<p>The Studio's RLX recipe form does not expose reward-weight sliders.
+The CLI supports <code>--weight-overrides</code> for controlled
+experiments, but beginners should first establish a valid baseline with
+the defaults.</p>
+<h2 data-number="8.3" id="dance-controls-and-first-run"><span
+class="header-section-number">8.3</span> Dance controls and first
+run</h2>
+<p>Use:</p>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th style="text-align: right;">Recommended first full value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Run name</td>
+<td style="text-align: right;">A unique name such as
+<code>dance-baseline-01</code></td>
+</tr>
+<tr>
+<td>Total timesteps</td>
+<td style="text-align: right;">1,000,000</td>
+</tr>
+<tr>
+<td>Parallel envs</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr>
+<td>Seed</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>Learning rate</td>
+<td style="text-align: right;">0.0003</td>
+</tr>
+<tr>
+<td>Gamma</td>
+<td style="text-align: right;">0.99</td>
+</tr>
+<tr>
+<td>All four randomization toggles</td>
+<td style="text-align: right;">On</td>
+</tr>
+</tbody>
+</table>
+<p>Select <strong>Preview reference</strong> to open
+<strong>Animate</strong> and play the packaged clip. This is
+choreography playback, not a trained policy.</p>
+<p>To train a custom authored clip, use <strong>Animate</strong> -&gt;
+<strong>train this</strong> and the Duck Lab Teach path. The four-recipe
+RLX Studio command remains fixed to <code>dance-120bpm</code>.</p>
+<h2 data-number="8.4" id="published-dance-reference"><span
+class="header-section-number">8.4</span> Published dance reference</h2>
+<p>The bundled catalog includes a reference preview, but its bundled
+<code>evaluation.json</code> is a pipeline-smoke record:</p>
+<table>
+<thead>
+<tr>
+<th>Published field</th>
+<th style="text-align: right;">Bundled value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Evaluation environments</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>Evaluation steps</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>Total transitions</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td>Completed episodes</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>Mean rollout return</td>
+<td style="text-align: right;">46.30493378639221</td>
+</tr>
+<tr>
+<td>Finite</td>
+<td style="text-align: right;"><code>true</code></td>
+</tr>
+<tr>
+<td>Passed</td>
+<td style="text-align: right;"><code>true</code></td>
+</tr>
+</tbody>
+</table>
+<p>This record proves finite smoke execution only. It is not a published
+full-training dance-quality benchmark and must not be used as the
+expected score for a new dance run.</p>
+<h2 data-number="8.5" id="two-minute-dance-strategy"><span
+class="header-section-number">8.5</span> Two-minute dance strategy</h2>
+<p>Do not train one unique 120-second target and assume PPO learned the
+whole performance. The practical strategy is to train a short, clean
+motif and repeat it.</p>
+<p>A four-second loop repeated 30 times produces a two-minute
+performance:</p>
+<pre class="text"><code>4 seconds * 30 repetitions = 120 seconds</code></pre>
+<p>For more variety, design several two-to-four-second motifs:</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th style="text-align: right;">Performance time</th>
+<th style="text-align: right;">Motif</th>
+<th style="text-align: right;">Repetitions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intro</td>
+<td style="text-align: right;">8 s</td>
+<td style="text-align: right;">2 s</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>Groove A</td>
+<td style="text-align: right;">24 s</td>
+<td style="text-align: right;">4 s</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>Groove B</td>
+<td style="text-align: right;">24 s</td>
+<td style="text-align: right;">4 s</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>Turn or crouch</td>
+<td style="text-align: right;">16 s</td>
+<td style="text-align: right;">4 s</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>Groove A return</td>
+<td style="text-align: right;">24 s</td>
+<td style="text-align: right;">4 s</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td>Finale</td>
+<td style="text-align: right;">24 s</td>
+<td style="text-align: right;">4 s</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>120 s</strong></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+</tbody>
+</table>
+<p>Train and approve each motif separately. The current Studio does not
+provide a playlist that switches learned policies automatically on
+musical boundaries. A single approved loop can be shown for two minutes
+today; a multi-policy show requires separate orchestration.</p>
+<h2 data-number="8.6" id="iterate-on-dance"><span
+class="header-section-number">8.6</span> Iterate on dance</h2>
+<table>
+<thead>
+<tr>
+<th>Rendered symptom</th>
+<th>First change to investigate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pose matches while the duck lies down</td>
+<td>Increase physical plausibility of the clip; inspect
+<code>on_feet</code> behavior</td>
+</tr>
+<tr>
+<td>Feet slide through the cycle</td>
+<td>Reduce abrupt keyframe travel; test a cautious <code>no_slip</code>
+increase</td>
+</tr>
+<tr>
+<td>Duck turns instead of dancing in place</td>
+<td>Inspect <code>no_spin</code> and asymmetric authored poses</td>
+</tr>
+<tr>
+<td>Duck barely moves</td>
+<td>Confirm visible pose differences and pose-phase coverage</td>
+</tr>
+<tr>
+<td>Loop jumps at its boundary</td>
+<td>Make the final pose closely match the first pose</td>
+</tr>
+<tr>
+<td>Late choreography never appears</td>
+<td>Shorten or segment the clip; current episodes do not cover a unique
+two-minute sequence</td>
+</tr>
+</tbody>
+</table>
+<h1 data-number="9" id="self-pumped-swing"><span
+class="header-section-number">9</span> Self-pumped swing</h1>
+<h2 data-number="9.1" id="what-the-recipe-learns-1"><span
+class="header-section-number">9.1</span> What the recipe learns</h2>
+<p>The swing recipe starts the robot seated and motionless in a retained
+swing. The policy must discover coordinated body movement that increases
+the swing arc in both directions without violating the mechanism
+geometry.</p>
+<p>The environment uses:</p>
+<ul>
+<li>two tension-only strings;</li>
+<li>a nominal string length of 0.38 m;</li>
+<li>a tendon limit of 0.395 m;</li>
+<li>fixed zero locomotion, head, and body commands;</li>
+<li>no fall or height termination;</li>
+<li>a fixed seated-pose action transform;</li>
+<li><strong>0.7 action scale</strong> around the seated pose;</li>
+<li>random yaw forced off inside the environment.</li>
+</ul>
+<p><img src="images/swing-workflow.png"
+alt="Self-pumped swing workflow showing reference preview, training, geometry-aware evaluation, and rendered review" /></p>
+<p><em>Figure 3. Swing quality depends on arc growth and mechanism
+validity. Review the geometry metrics and the full motion, not reward
+alone.</em></p>
+<h2 data-number="9.2" id="exact-swing-reward-focus"><span
+class="header-section-number">9.2</span> Exact swing reward focus</h2>
+<p>The largest positive term rewards new positive and negative peak
+progress. Additional terms reward height, late-episode height, and swing
+energy. Penalties cover:</p>
+<ul>
+<li>lateral offset and lateral velocity;</li>
+<li>out-of-plane angular velocity;</li>
+<li>attachment misalignment;</li>
+<li>string slack and left/right imbalance;</li>
+<li>string overextension;</li>
+<li>persistent invalid geometry;</li>
+<li>action rate;</li>
+<li>joint torque;</li>
+<li>joint-limit contact.</li>
+</ul>
+<p>The strict published gates are:</p>
+<table>
+<thead>
+<tr>
+<th>Gate</th>
+<th style="text-align: right;">Failure condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Deep slack</td>
+<td style="text-align: right;">String length below 0.370 m</td>
+</tr>
+<tr>
+<td>Overextension</td>
+<td style="text-align: right;">String length above 0.394 m</td>
+</tr>
+<tr>
+<td>Lateral motion</td>
+<td style="text-align: right;">Absolute lateral offset above 0.020
+m</td>
+</tr>
+<tr>
+<td>Attachment alignment</td>
+<td style="text-align: right;">Alignment penalty above 0.050</td>
+</tr>
+</tbody>
+</table>
+<p>The local recipe marks geometry invalid after two consecutive invalid
+steps. Once invalid, peak, height, and energy rewards are suppressed for
+that episode.</p>
+<h2 data-number="9.3" id="swing-controls-and-first-run"><span
+class="header-section-number">9.3</span> Swing controls and first
+run</h2>
+<p>Use:</p>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th style="text-align: right;">Recommended first full value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Run name</td>
+<td style="text-align: right;"><code>swing-baseline-01</code></td>
+</tr>
+<tr>
+<td>Total timesteps</td>
+<td style="text-align: right;">4,000,000</td>
+</tr>
+<tr>
+<td>Parallel envs</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr>
+<td>Seed</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>Learning rate</td>
+<td style="text-align: right;">0.0003</td>
+</tr>
+<tr>
+<td>Gamma</td>
+<td style="text-align: right;">0.99</td>
+</tr>
+<tr>
+<td>Domain randomization</td>
+<td style="text-align: right;">On</td>
+</tr>
+<tr>
+<td>Observation noise</td>
+<td style="text-align: right;">On</td>
+</tr>
+<tr>
+<td>Action delay</td>
+<td style="text-align: right;">On</td>
+</tr>
+<tr>
+<td>Random yaw</td>
+<td style="text-align: right;">On in the form, but forced off by the
+swing environment</td>
+</tr>
+</tbody>
+</table>
+<p>The Studio uses the recipe's 24-second training horizon. To compare
+with the published strict result, run a separate 36-second deterministic
+evaluation with matching geometry gates.</p>
+<h2 data-number="9.4" id="published-swing-reference"><span
+class="header-section-number">9.4</span> Published swing reference</h2>
+<p>The bundled swing media and JSON report:</p>
+<table>
+<thead>
+<tr>
+<th>Published metric</th>
+<th style="text-align: right;">Reference value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Evaluation seeds</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>Duration per seed</td>
+<td style="text-align: right;">36.0 s</td>
+</tr>
+<tr>
+<td>Strict full-horizon passes</td>
+<td style="text-align: right;">71</td>
+</tr>
+<tr>
+<td>Geometry-debt-free passes</td>
+<td style="text-align: right;">73</td>
+</tr>
+<tr>
+<td>Median peak-to-peak span</td>
+<td style="text-align: right;">163.0279718838097 degrees</td>
+</tr>
+<tr>
+<td>Median final-six-half-cycle span</td>
+<td style="text-align: right;">161.08761759344662 degrees</td>
+</tr>
+<tr>
+<td>Best strict seed</td>
+<td style="text-align: right;">27</td>
+</tr>
+<tr>
+<td>Best strict peak-to-peak span</td>
+<td style="text-align: right;">173.19988233166998 degrees</td>
+</tr>
+<tr>
+<td>Best strict final-six-half-cycle span</td>
+<td style="text-align: right;">171.67248924707994 degrees</td>
+</tr>
+<tr>
+<td>Best strict maximum lateral offset</td>
+<td style="text-align: right;">0.010354727506637573 m</td>
+</tr>
+<tr>
+<td>Cord-overextension seeds</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>Deep-slack seeds</td>
+<td style="text-align: right;">15</td>
+</tr>
+</tbody>
+</table>
+<p>These are published reference results for the bundled media. They are
+not metrics from a newly started <code>swing-studio</code> run.</p>
+<h2 data-number="9.5" id="evaluate-and-iterate-on-swing"><span
+class="header-section-number">9.5</span> Evaluate and iterate on
+swing</h2>
+<p>The local evaluator records instantaneous recipe metrics under:</p>
+<pre class="text"><code>recipe_metrics.swing_angle_deg
+recipe_metrics.swing_abs_angle_deg
+recipe_metrics.swing_rate_rad_s
+recipe_metrics.lateral_offset_m
+recipe_metrics.string_slack_m
+recipe_metrics.string_imbalance_m
+recipe_metrics.alignment_penalty
+recipe_metrics.valid_geometry</code></pre>
+<p>The Studio computes the headline peak-to-peak span from the minimum
+and maximum of <code>recipe_metrics.swing_angle_deg</code>. Inspect the
+saved evaluation JSON for the underlying range and the other geometry
+checks.</p>
+<p>Change one cause at a time:</p>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>First investigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Arc grows in only one direction</td>
+<td>Check bidirectional peak progress and asymmetry in the motion</td>
+</tr>
+<tr>
+<td>Large sideways motion</td>
+<td>Lateral penalties and swing alignment</td>
+</tr>
+<tr>
+<td>Reward rises, strings go slack</td>
+<td>Slack, imbalance, and invalid-geometry metrics</td>
+</tr>
+<tr>
+<td>Good early pump, weak later motion</td>
+<td>Four-second Studio horizon; reproduce with a longer CLI horizon</td>
+</tr>
+<tr>
+<td>Violent joint movement</td>
+<td>Action-rate, torque, and limit penalties</td>
+</tr>
+</tbody>
+</table>
+<h1 data-number="10" id="fast-running"><span
+class="header-section-number">10</span> Fast running</h1>
+<h2 data-number="10.1" id="what-the-recipe-learns-2"><span
+class="header-section-number">10.1</span> What the recipe learns</h2>
+<p>The running recipe uses the local <code>run</code> behavior. It is a
+CPU-MuJoCo port of the running task rather than a retuned walking
+reward. The curriculum raises the commanded speed over training and
+includes some walking and standing commands so the policy also sees
+lower-speed and idle states.</p>
+<p>The evaluator reports:</p>
+<pre class="text"><code>recipe_metrics.forward_speed_m_s
+recipe_metrics.upright</code></pre>
+<p>The reward emphasizes:</p>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th style="text-align: right;">Weight or schedule</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>keep_pace</code></td>
+<td style="text-align: right;">4.0</td>
+<td>Match commanded body-frame speed</td>
+</tr>
+<tr>
+<td><code>track_turn</code></td>
+<td style="text-align: right;">2.0</td>
+<td>Match commanded yaw rate</td>
+</tr>
+<tr>
+<td><code>air_time</code></td>
+<td style="text-align: right;">3.0</td>
+<td>Maintain running-length foot flight</td>
+</tr>
+<tr>
+<td><code>stay_upright</code></td>
+<td style="text-align: right;">2.0</td>
+<td>Remain upright while allowing useful lean</td>
+</tr>
+<tr>
+<td><code>pose</code></td>
+<td style="text-align: right;">1.0</td>
+<td>Use a speed-appropriate leg posture</td>
+</tr>
+<tr>
+<td><code>head_up</code></td>
+<td style="text-align: right;">3.5</td>
+<td>Track the head command and avoid head-first acceleration</td>
+</tr>
+<tr>
+<td><code>foot_clearance</code></td>
+<td style="text-align: right;">2.0 penalty</td>
+<td>Keep a moving foot near the 3 cm clearance target</td>
+</tr>
+<tr>
+<td><code>plant_the_foot</code></td>
+<td style="text-align: right;">0.1 penalty</td>
+<td>Reduce planted-foot slip</td>
+</tr>
+<tr>
+<td><code>smooth_moves</code></td>
+<td style="text-align: right;">Ramps from 0.1 to 0.5 internally</td>
+<td>Reduce action-rate jerk after the gait starts forming</td>
+</tr>
+<tr>
+<td><code>no_limit_parking</code></td>
+<td style="text-align: right;">1.0 penalty</td>
+<td>Avoid joint-limit parking</td>
+</tr>
+<tr>
+<td><code>calm_roll</code></td>
+<td style="text-align: right;">0.025 penalty</td>
+<td>Reduce excessive trunk roll and pitch rate</td>
+</tr>
+</tbody>
+</table>
+<p>The local behavior's own default budget is 20,000,000 steps. The
+Studio's recommended full profile currently starts at 4,000,000 steps.
+Treat that as an initial candidate budget, not a promise that the
+published fast gait will be reproduced.</p>
+<h2 data-number="10.2" id="running-controls-and-first-run"><span
+class="header-section-number">10.2</span> Running controls and first
+run</h2>
+<p>Use:</p>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th style="text-align: right;">Recommended first full value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Run name</td>
+<td style="text-align: right;"><code>running-baseline-01</code></td>
+</tr>
+<tr>
+<td>Total timesteps</td>
+<td style="text-align: right;">4,000,000</td>
+</tr>
+<tr>
+<td>Parallel envs</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr>
+<td>Seed</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>Learning rate</td>
+<td style="text-align: right;">0.0003</td>
+</tr>
+<tr>
+<td>Gamma</td>
+<td style="text-align: right;">0.99</td>
+</tr>
+<tr>
+<td>All four randomization toggles</td>
+<td style="text-align: right;">On</td>
+</tr>
+</tbody>
+</table>
+<p>The Studio uses the recipe's natural 12-second training horizon. Use
+multiple evaluation episodes and seeds before comparing sustained speed
+or survival with the published 10-second evidence.</p>
+<h2 data-number="10.3" id="published-running-reference"><span
+class="header-section-number">10.3</span> Published running
+reference</h2>
+<p>The bundled running reference is comparison media from the published
+experiment, not a measured outcome of the macOS RLX Studio recipe.
+Reproducing it in Studio means training a new RLX run and comparing that
+run's own evidence.</p>
+<table>
+<thead>
+<tr>
+<th>Published case</th>
+<th style="text-align: right;">Environments</th>
+<th style="text-align: right;">Survival</th>
+<th style="text-align: right;">Mean body-forward speed</th>
+<th style="text-align: right;">Mean absolute heading error</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nominal</td>
+<td style="text-align: right;">512</td>
+<td style="text-align: right;">99.21875%</td>
+<td style="text-align: right;">1.6510932445526123 m/s</td>
+<td style="text-align: right;">31.326498703723402 degrees</td>
+</tr>
+<tr>
+<td>Push/COM/tilt stress</td>
+<td style="text-align: right;">512</td>
+<td style="text-align: right;">98.828125%</td>
+<td style="text-align: right;">1.6349653005599976 m/s</td>
+<td style="text-align: right;">43.2924983559655 degrees</td>
+</tr>
+<tr>
+<td>Backlash nominal</td>
+<td style="text-align: right;">256</td>
+<td style="text-align: right;">98.828125%</td>
+<td style="text-align: right;">1.6362495422363281 m/s</td>
+<td style="text-align: right;">32.83215926473935 degrees</td>
+</tr>
+<tr>
+<td>Backlash + stress</td>
+<td style="text-align: right;">256</td>
+<td style="text-align: right;">98.4375%</td>
+<td style="text-align: right;">1.6121970415115356 m/s</td>
+<td style="text-align: right;">43.80756975146533 degrees</td>
+</tr>
+<tr>
+<td>High-grip + stress</td>
+<td style="text-align: right;">512</td>
+<td style="text-align: right;">96.6796875%</td>
+<td style="text-align: right;">1.6424154043197632 m/s</td>
+<td style="text-align: right;">42.492167524874674 degrees</td>
+</tr>
+</tbody>
+</table>
+<p>The published record explicitly notes substantial heading and lateral
+drift and says the policy has not been validated on hardware.</p>
+<h2 data-number="10.4" id="evaluate-and-iterate-on-running"><span
+class="header-section-number">10.4</span> Evaluate and iterate on
+running</h2>
+<p>The Studio headline reads the mean from
+<code>recipe_metrics.forward_speed_m_s</code>. Open
+<code>evaluation.json</code> for its full <code>mean</code>,
+<code>min</code>, and <code>max</code> summary.</p>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>First investigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stable but slow</td>
+<td>Command curriculum coverage and <code>keep_pace</code> progress</td>
+</tr>
+<tr>
+<td>Hops without advancing</td>
+<td>Body-frame speed, planted-foot slip, and render displacement</td>
+</tr>
+<tr>
+<td>Head dives toward the floor</td>
+<td><code>head_up</code>, torso posture, and early termination</td>
+</tr>
+<tr>
+<td>Fast but drifts badly</td>
+<td>Commanded yaw tracking; do not invent an unobservable absolute-yaw
+reward</td>
+</tr>
+<tr>
+<td>Smoothness penalty kills exploration</td>
+<td>Compare early and late learning; avoid raising it before a gait
+exists</td>
+</tr>
+<tr>
+<td>Four-second run looks fast but unstable</td>
+<td>Evaluate over a longer horizon and multiple seeds</td>
+</tr>
+</tbody>
+</table>
+<h1 data-number="11" id="stilt-walking"><span
+class="header-section-number">11</span> Stilt walking</h1>
+<h2 data-number="11.1" id="what-the-recipe-learns-3"><span
+class="header-section-number">11.1</span> What the recipe learns</h2>
+<p>The stilt recipe replaces the original sole contacts with generated
+stilt meshes, raises the standing keyframe by the selected height, and
+trains locomotion on that fixed morphology. A policy is tied to the
+stilt geometry recorded in its metadata.</p>
+<p><img src="images/stilts-settings.png"
+alt="Stilt recipe advanced settings showing height, support blend, and mass per stilt" /></p>
+<p><em>Figure 4. Stilt height, support blend, and mass define the
+morphology. Record all three values with every checkpoint and ONNX
+export.</em></p>
+<h2 data-number="11.2" id="exact-stilt-controls"><span
+class="header-section-number">11.2</span> Exact stilt controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th style="text-align: right;">Studio default</th>
+<th style="text-align: right;">Accepted range</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stilt height</td>
+<td style="text-align: right;">10 cm</td>
+<td style="text-align: right;">0.8 to 300 cm</td>
+<td>Vertical extension below each ankle</td>
+</tr>
+<tr>
+<td>Support blend</td>
+<td style="text-align: right;">0.50</td>
+<td style="text-align: right;">0.00 to 1.00</td>
+<td>Interpolates support shape from platform-like to peg-like</td>
+</tr>
+<tr>
+<td>Mass per stilt</td>
+<td style="text-align: right;">0.029 kg</td>
+<td style="text-align: right;">0.001 to 2 kg</td>
+<td>Mass assigned to each generated stilt collision body</td>
+</tr>
+</tbody>
+</table>
+<p>The default mass formula used when the CLI receives no explicit mass
+is:</p>
+<pre class="text"><code>mass_kg = 0.012 + 0.001 * height_cm</code></pre>
+<p>For 10 cm, that formula gives 0.022 kg. The Studio intentionally
+defaults to 0.029 kg, which matches the bundled 10 cm evaluation
+environment rather than the training nominal mass recorded in that
+reference.</p>
+<p>The stilt environment modifies the walking reward:</p>
+<ul>
+<li>upright contribution multiplied by 1.5;</li>
+<li>linear-velocity tracking multiplied by 1.25;</li>
+<li>angular-velocity tracking multiplied by 0.5;</li>
+<li>feet-air-time contribution multiplied by two-thirds;</li>
+<li>head-pose contribution multiplied by 0.125;</li>
+<li>standing pose contribution disabled;</li>
+<li>action-rate penalty multiplied by 0.2.</li>
+</ul>
+<p>Command sampling includes standing and movement:</p>
+<ul>
+<li>25% zero-command probability;</li>
+<li>forward command range from -0.12 to 0.25 m/s;</li>
+<li>lateral command range from -0.06 to 0.06 m/s;</li>
+<li>yaw-rate command range from -0.35 to 0.35 rad/s.</li>
+</ul>
+<h2 data-number="11.3" id="stilt-controls-and-first-run"><span
+class="header-section-number">11.3</span> Stilt controls and first
+run</h2>
+<p>Use:</p>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th style="text-align: right;">Recommended first full value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Run name</td>
+<td style="text-align: right;"><code>stilts-10cm-baseline-01</code></td>
+</tr>
+<tr>
+<td>Total timesteps</td>
+<td style="text-align: right;">4,000,000</td>
+</tr>
+<tr>
+<td>Parallel envs</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr>
+<td>Seed</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td>Learning rate</td>
+<td style="text-align: right;">0.0003</td>
+</tr>
+<tr>
+<td>Gamma</td>
+<td style="text-align: right;">0.99</td>
+</tr>
+<tr>
+<td>Stilt height</td>
+<td style="text-align: right;">10 cm</td>
+</tr>
+<tr>
+<td>Support blend</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr>
+<td>Mass per stilt</td>
+<td style="text-align: right;">0.029 kg</td>
+</tr>
+<tr>
+<td>All four randomization toggles</td>
+<td style="text-align: right;">On</td>
+</tr>
+</tbody>
+</table>
+<p>The Studio uses the recipe's natural 10-second training horizon. Keep
+morphology fixed when comparing runs. Changing height, blend, or mass
+creates a different physical task.</p>
+<h2 data-number="11.4" id="published-stilt-reference"><span
+class="header-section-number">11.4</span> Published stilt reference</h2>
+<p>The bundled 10 cm reference reports:</p>
+<table>
+<thead>
+<tr>
+<th>Published metric</th>
+<th style="text-align: right;">Reference value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Height</td>
+<td style="text-align: right;">10.0 cm</td>
+</tr>
+<tr>
+<td>Support blend</td>
+<td style="text-align: right;">0.5</td>
+</tr>
+<tr>
+<td>Evaluation mass per stilt</td>
+<td style="text-align: right;">0.029 kg</td>
+</tr>
+<tr>
+<td>Training nominal mass per stilt</td>
+<td style="text-align: right;">0.022 kg</td>
+</tr>
+<tr>
+<td>Evaluation environments</td>
+<td style="text-align: right;">64</td>
+</tr>
+<tr>
+<td>Seed</td>
+<td style="text-align: right;">123</td>
+</tr>
+<tr>
+<td>Command speed</td>
+<td style="text-align: right;">0.15 m/s</td>
+</tr>
+<tr>
+<td>Duration</td>
+<td style="text-align: right;">10.0 s</td>
+</tr>
+<tr>
+<td>Mean forward speed</td>
+<td style="text-align: right;">0.14054720103740692 m/s</td>
+</tr>
+<tr>
+<td>Median forward speed</td>
+<td style="text-align: right;">0.11753581464290619 m/s</td>
+</tr>
+<tr>
+<td>10th percentile forward speed</td>
+<td style="text-align: right;">0.07581190019845963 m/s</td>
+</tr>
+<tr>
+<td>90th percentile forward speed</td>
+<td style="text-align: right;">0.25480103492736816 m/s</td>
+</tr>
+<tr>
+<td>Survival</td>
+<td style="text-align: right;">100%</td>
+</tr>
+<tr>
+<td>Median maximum tilt</td>
+<td style="text-align: right;">3.2776942307941677 degrees</td>
+</tr>
+</tbody>
+</table>
+<p>The published release evidence contains full-horizon rollout records
+for eight heights:</p>
+<pre class="text"><code>10, 15, 20, 25, 50, 100, 140, and 200 cm</code></pre>
+<p>Those released checkpoints are separate policies. Do not assume one
+10 cm policy generalizes to another height or support shape.</p>
+<h2 data-number="11.5" id="evaluate-and-iterate-on-stilts"><span
+class="header-section-number">11.5</span> Evaluate and iterate on
+stilts</h2>
+<p>The local evaluator records:</p>
+<pre class="text"><code>recipe_metrics.forward_speed_m_s
+recipe_metrics.upright
+recipe_metrics.stilt_height_cm
+recipe_metrics.stilt_blend
+recipe_metrics.stilt_mass_kg</code></pre>
+<p>As with running, inspect the nested
+<code>forward_speed_m_s.mean</code> in <code>evaluation.json</code>. The
+Studio displays that same value as the headline metric.</p>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>First investigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Immediate fall</td>
+<td>Height, support blend, mass, spawn pose, and contact geometry</td>
+</tr>
+<tr>
+<td>Stable but stationary</td>
+<td>Velocity command coverage and linear tracking</td>
+</tr>
+<tr>
+<td>Feet catch or chatter</td>
+<td>Support shape, action rate, and rendered contacts</td>
+</tr>
+<tr>
+<td>Works at 10 cm but fails at 15 cm</td>
+<td>Train a morphology-specific policy; do not reuse the 10 cm
+artifact</td>
+</tr>
+<tr>
+<td>Evaluation metadata differs from training</td>
+<td>Reject the comparison and rerun with identical height, blend, and
+mass</td>
+</tr>
+</tbody>
+</table>
+<h1 data-number="12" id="deterministic-evaluation"><span
+class="header-section-number">12</span> Deterministic evaluation</h1>
+<p>After a checkpoint exists:</p>
+<ol type="1">
+<li>Select <strong>Run evaluation</strong>.</li>
+<li>Wait for the job to succeed.</li>
+<li>Confirm <code>finite</code> is <code>true</code>.</li>
+<li>Confirm <code>passed</code> is <code>true</code>.</li>
+<li>Inspect <code>failures</code>, terminations, truncations, action
+magnitude, and <code>recipe_metrics</code>.</li>
+<li>Record the exact seed, settings, source artifact, and horizon.</li>
+</ol>
+<p>Evaluation uses the ONNX policy when it exists; otherwise it loads
+the checkpoint and applies the same saved observation normalizer. The
+policy uses the deterministic actor mean rather than sampling from the
+training distribution.</p>
+<p>The evaluator returns:</p>
+<pre class="text"><code>mean_return
+episode_return
+rollout_return
+recipe_metrics
+termination_rate
+action_abs_mean
+action_abs_max
+finite
+passed
+failures</code></pre>
+<p>By default, the Studio runs 500 evaluation steps for a full profile
+and four steps for a smoke profile. It uses the selected number of
+environments and the same randomization toggles shown in the form.</p>
+<h2 data-number="12.1" id="read-nested-recipe-metrics"><span
+class="header-section-number">12.1</span> Read nested recipe
+metrics</h2>
+<p>The evaluator summarizes each recipe metric as:</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;recipe_metrics&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;metric_name&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;mean&quot;</span><span class="fu">:</span> <span class="fl">0.0</span><span class="fu">,</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;min&quot;</span><span class="fu">:</span> <span class="fl">0.0</span><span class="fu">,</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;max&quot;</span><span class="fu">:</span> <span class="fl">0.0</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Use the JSON record as the source of truth. The Studio reads nested
+recipe metrics directly: the mean forward speed for running and stilts,
+and the evaluated swing-angle range for swing.</p>
+<h2 data-number="12.2" id="a-fair-comparison"><span
+class="header-section-number">12.2</span> A fair comparison</h2>
+<p>Compare two policies only when these match:</p>
+<ul>
+<li>recipe;</li>
+<li>run horizon;</li>
+<li>seed set;</li>
+<li>randomization toggles;</li>
+<li>actuator model;</li>
+<li>command distribution;</li>
+<li>stilt morphology, when applicable;</li>
+<li>source type and observation normalizer;</li>
+<li>evaluation step count.</li>
+</ul>
+<p>Published reference values often use different simulators,
+environment counts, durations, or stress protocols. Treat them as goals
+and context, not like-for-like acceptance thresholds for a differently
+configured Studio run.</p>
+<h1 data-number="13" id="render-and-show-the-result"><span
+class="header-section-number">13</span> Render and show the result</h1>
+<p>Numerical evaluation answers whether the policy executes and produces
+finite values. Rendering answers whether it actually performs the
+intended behavior.</p>
+<ol type="1">
+<li>Select <strong>Render rollout</strong>.</li>
+<li>Wait for <code>render/ep0.mp4</code> and
+<code>render/ep0_sheet.png</code>.</li>
+<li>Download or open both files.</li>
+<li>Watch the complete MP4.</li>
+<li>Inspect the contact sheet for posture, contacts, drift, falls, and
+mechanism geometry.</li>
+<li>Compare against a null or baseline policy under the same
+conditions.</li>
+<li>Check <strong>I reviewed the rendered motion</strong> only after the
+review.</li>
+</ol>
+<p>The Studio render is deterministic and disables domain randomization,
+observation noise, action delay, and random yaw. It renders one episode
+at 640 x 360 from the three-quarter camera. The default output frame
+rate is 25 fps, sampled from the 50 Hz control loop.</p>
+<p>Use <strong>Preview reference</strong> or <strong>Full video</strong>
+to show published media. Use the downloaded latest-run MP4 to show what
+your newly trained policy did. Keep the labels visible in notes or
+presentations:</p>
+<pre class="text"><code>REFERENCE: bundled published media
+LATEST RUN: &lt;recipe&gt;/&lt;run-name&gt;/render/ep0.mp4</code></pre>
+<p>Reject a run that:</p>
+<ul>
+<li>obtains reward while standing still when movement is required;</li>
+<li>falls into a rewarding pose;</li>
+<li>slides instead of stepping;</li>
+<li>spins or drifts to exploit a local reward;</li>
+<li>violates swing geometry;</li>
+<li>uses the wrong stilt morphology;</li>
+<li>behaves well only in a cropped or partial clip.</li>
+</ul>
+<h1 data-number="14" id="onnx-export-and-run-artifacts"><span
+class="header-section-number">14</span> ONNX export and run
+artifacts</h1>
+<p>Training normally exports ONNX automatically. If a checkpoint exists
+but ONNX does not, select <strong>Export ONNX</strong>.</p>
+<p>For a run named <code>running-baseline-01</code>, artifacts appear
+under:</p>
+<pre class="text"><code>rlx/runs/studio/running/running-baseline-01/</code></pre>
+<p>The artifact names are recipe-specific:</p>
+<table>
+<thead>
+<tr>
+<th>Recipe</th>
+<th>Checkpoint</th>
+<th>Metadata</th>
+<th>ONNX</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dance</td>
+<td><code>dance.safetensors</code></td>
+<td><code>dance.safetensors.json</code></td>
+<td><code>dance.onnx</code></td>
+</tr>
+<tr>
+<td>Swing</td>
+<td><code>swing.safetensors</code></td>
+<td><code>swing.safetensors.json</code></td>
+<td><code>swing.onnx</code></td>
+</tr>
+<tr>
+<td>Running</td>
+<td><code>running.safetensors</code></td>
+<td><code>running.safetensors.json</code></td>
+<td><code>running.onnx</code></td>
+</tr>
+<tr>
+<td>Stilts</td>
+<td><code>stilts.safetensors</code></td>
+<td><code>stilts.safetensors.json</code></td>
+<td><code>stilts.onnx</code></td>
+</tr>
+</tbody>
+</table>
+<p>Every rendered run can also contain:</p>
+<pre class="text"><code>evaluation.json
+render/ep0.mp4
+render/ep0_sheet.png</code></pre>
+<p>The metadata sidecar records:</p>
+<ul>
+<li>recipe name;</li>
+<li>completed steps;</li>
+<li>seed and environment count;</li>
+<li>maximum episode duration;</li>
+<li>backend and actuator model;</li>
+<li>reward overrides;</li>
+<li>stilt options;</li>
+<li>randomization settings;</li>
+<li>PPO hyperparameters.</li>
+</ul>
+<p>The ONNX graph:</p>
+<ul>
+<li>accepts a dynamic batch of 61-element observations;</li>
+<li>applies the saved observation mean and variance;</li>
+<li>clips normalized observations to the saved range;</li>
+<li>runs the deterministic actor;</li>
+<li>emits a dynamic batch of 14 actions.</li>
+</ul>
+<p>The Studio's <strong>Download policy</strong> gate requires:</p>
+<ul>
+<li>ONNX present;</li>
+<li>deterministic evaluation passed;</li>
+<li>render contact sheet present;</li>
+<li>visual-review checkbox selected.</li>
+</ul>
+<p>This gate packages evidence. It does not authorize physical
+deployment.</p>
+<h1 data-number="15" id="iterate-without-losing-evidence"><span
+class="header-section-number">15</span> Iterate without losing
+evidence</h1>
+<p>Use one named run for one controlled experiment:</p>
+<pre class="text"><code>baseline
+    -&gt; observe one defect
+    -&gt; choose one likely cause
+    -&gt; change one setting
+    -&gt; use a new run name
+    -&gt; train
+    -&gt; evaluate
+    -&gt; render
+    -&gt; compare
+    -&gt; keep or reject</code></pre>
+<p>Good run names encode the recipe and one change:</p>
+<pre class="text"><code>dance-loop-cleanup-01
+swing-long-horizon-01
+running-lr-1e4-01
+stilts-15cm-b050-01</code></pre>
+<p>Record:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Experiment</td>
+<td>Dance, swing, running, or stilts</td>
+</tr>
+<tr>
+<td>Run name</td>
+<td>Exact Studio name</td>
+</tr>
+<tr>
+<td>Profile</td>
+<td>Smoke or full</td>
+</tr>
+<tr>
+<td>Timesteps and environments</td>
+<td>Exact values</td>
+</tr>
+<tr>
+<td>Seed</td>
+<td>Exact value</td>
+</tr>
+<tr>
+<td>Learning rate and gamma</td>
+<td>Exact values</td>
+</tr>
+<tr>
+<td>Randomization toggles</td>
+<td>On or off for each</td>
+</tr>
+<tr>
+<td>Episode horizon</td>
+<td>Exact value used by the launcher</td>
+</tr>
+<tr>
+<td>Stilt morphology</td>
+<td>Height, blend, and mass, when applicable</td>
+</tr>
+<tr>
+<td>Evaluation source</td>
+<td>Checkpoint or ONNX path</td>
+</tr>
+<tr>
+<td>Mean return</td>
+<td>Measured latest-run value</td>
+</tr>
+<tr>
+<td>Recipe metrics</td>
+<td>Measured nested values</td>
+</tr>
+<tr>
+<td>Terminations and truncations</td>
+<td>Measured counts</td>
+</tr>
+<tr>
+<td>Visual verdict</td>
+<td>Pass, revise, or reject</td>
+</tr>
+<tr>
+<td>Main defect</td>
+<td>One concrete observed behavior</td>
+</tr>
+<tr>
+<td>Artifact paths</td>
+<td>Checkpoint, metadata, ONNX, evaluation, MP4, sheet</td>
+</tr>
+</tbody>
+</table>
+<p>Do not fill a blank latest-run metric with a catalog reference
+value.</p>
+<h1 data-number="16" id="command-line-equivalents"><span
+class="header-section-number">16</span> Command-line equivalents</h1>
+<p>The Studio is the beginner path. The CLI is useful for reproducible
+diagnosis, longer episode horizons, and direct inspection of JSON
+output.</p>
+<p>Run commands from <code>rlx/</code> after defining
+<code>studio_uv</code>.</p>
+<h2 data-number="16.1" id="generic-smoke"><span
+class="header-section-number">16.1</span> Generic smoke</h2>
+<p>Replace <code>&lt;recipe&gt;</code> and <code>&lt;stem&gt;</code>
+with one of:</p>
+<pre class="text"><code>dance / dance
+swing / swing
+running / running
+stilts / stilts</code></pre>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">studio_uv</span> examples/ppo_microduck_studio.py train <span class="dt">\</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--recipe</span> <span class="op">&lt;</span>recipe<span class="op">&gt;</span> <span class="dt">\</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--checkpoint</span> runs/studio/<span class="op">&lt;</span>recipe<span class="op">&gt;</span>/<span class="op">&lt;</span>run<span class="op">&gt;</span>/<span class="op">&lt;</span>stem<span class="op">&gt;</span>.safetensors <span class="dt">\</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--onnx-output</span> runs/studio/<span class="op">&lt;</span>recipe<span class="op">&gt;</span>/<span class="op">&lt;</span>run<span class="op">&gt;</span>/<span class="op">&lt;</span>stem<span class="op">&gt;</span>.onnx <span class="dt">\</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-envs</span> 2 <span class="dt">\</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-steps</span> 2 <span class="dt">\</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-minibatches</span> 1 <span class="dt">\</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--update-epochs</span> 1 <span class="dt">\</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">--total-timesteps</span> 4 <span class="dt">\</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">--max-episode-s</span> 1 <span class="dt">\</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">--no-domain-rand</span> <span class="dt">\</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">--no-obs-noise</span> <span class="dt">\</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">--no-action-delay</span> <span class="dt">\</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">--no-random-yaw</span></span></code></pre></div>
+<h2 data-number="16.2" id="full-dance-example"><span
+class="header-section-number">16.2</span> Full dance example</h2>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">studio_uv</span> examples/ppo_microduck_studio.py train <span class="dt">\</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--recipe</span> dance <span class="dt">\</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--checkpoint</span> runs/studio/dance/dance-baseline-01/dance.safetensors <span class="dt">\</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--onnx-output</span> runs/studio/dance/dance-baseline-01/dance.onnx <span class="dt">\</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--total-timesteps</span> 1000000 <span class="dt">\</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-envs</span> 16 <span class="dt">\</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-steps</span> 24 <span class="dt">\</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-minibatches</span> 4 <span class="dt">\</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">--update-epochs</span> 5 <span class="dt">\</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">--learning-rate</span> 0.0003 <span class="dt">\</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">--gamma</span> 0.99 <span class="dt">\</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> 1 <span class="dt">\</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">--max-episode-s</span> 4</span></code></pre></div>
+<h2 data-number="16.3" id="full-swing-with-its-natural-horizon"><span
+class="header-section-number">16.3</span> Full swing with its natural
+horizon</h2>
+<p>This uses the registry's 24-second swing horizon:</p>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">studio_uv</span> examples/ppo_microduck_studio.py train <span class="dt">\</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--recipe</span> swing <span class="dt">\</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--checkpoint</span> runs/studio/swing/swing-long-01/swing.safetensors <span class="dt">\</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--onnx-output</span> runs/studio/swing/swing-long-01/swing.onnx <span class="dt">\</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--total-timesteps</span> 4000000 <span class="dt">\</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-envs</span> 16 <span class="dt">\</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-steps</span> 24 <span class="dt">\</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-minibatches</span> 4 <span class="dt">\</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">--update-epochs</span> 5 <span class="dt">\</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">--learning-rate</span> 0.0003 <span class="dt">\</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">--gamma</span> 0.99 <span class="dt">\</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> 1 <span class="dt">\</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">--max-episode-s</span> 24 <span class="dt">\</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">--no-random-yaw</span></span></code></pre></div>
+<h2 data-number="16.4" id="full-running-with-a-longer-horizon"><span
+class="header-section-number">16.4</span> Full running with a longer
+horizon</h2>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">studio_uv</span> examples/ppo_microduck_studio.py train <span class="dt">\</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--recipe</span> running <span class="dt">\</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--checkpoint</span> runs/studio/running/running-long-01/running.safetensors <span class="dt">\</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--onnx-output</span> runs/studio/running/running-long-01/running.onnx <span class="dt">\</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--total-timesteps</span> 4000000 <span class="dt">\</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-envs</span> 16 <span class="dt">\</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-steps</span> 24 <span class="dt">\</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-minibatches</span> 4 <span class="dt">\</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">--update-epochs</span> 5 <span class="dt">\</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">--learning-rate</span> 0.0003 <span class="dt">\</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">--gamma</span> 0.99 <span class="dt">\</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> 1 <span class="dt">\</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">--max-episode-s</span> 12</span></code></pre></div>
+<h2 data-number="16.5" id="full-10-cm-stilt-example"><span
+class="header-section-number">16.5</span> Full 10 cm stilt example</h2>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">studio_uv</span> examples/ppo_microduck_studio.py train <span class="dt">\</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--recipe</span> stilts <span class="dt">\</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--checkpoint</span> runs/studio/stilts/stilts-10cm-baseline-01/stilts.safetensors <span class="dt">\</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--onnx-output</span> runs/studio/stilts/stilts-10cm-baseline-01/stilts.onnx <span class="dt">\</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--total-timesteps</span> 4000000 <span class="dt">\</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-envs</span> 16 <span class="dt">\</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-steps</span> 24 <span class="dt">\</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-minibatches</span> 4 <span class="dt">\</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">--update-epochs</span> 5 <span class="dt">\</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">--learning-rate</span> 0.0003 <span class="dt">\</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">--gamma</span> 0.99 <span class="dt">\</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> 1 <span class="dt">\</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">--max-episode-s</span> 12 <span class="dt">\</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">--stilt-height-cm</span> 10 <span class="dt">\</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">--stilt-blend</span> 0.5 <span class="dt">\</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">--stilt-mass-kg</span> 0.029</span></code></pre></div>
+<h2 data-number="16.6" id="evaluate-render-and-export"><span
+class="header-section-number">16.6</span> Evaluate, render, and
+export</h2>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">studio_uv</span> examples/ppo_microduck_studio.py eval <span class="dt">\</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--recipe</span> running <span class="dt">\</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--policy</span> runs/studio/running/running-long-01/running.onnx <span class="dt">\</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--num-envs</span> 16 <span class="dt">\</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--eval-steps</span> 500 <span class="dt">\</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> 1 <span class="dt">\</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--max-episode-s</span> 12</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">studio_uv</span> examples/ppo_microduck_studio.py render <span class="dt">\</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--recipe</span> running <span class="dt">\</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--policy</span> runs/studio/running/running-long-01/running.onnx <span class="dt">\</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--output</span> runs/studio/running/running-long-01/render <span class="dt">\</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--episodes</span> 1 <span class="dt">\</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--width</span> 640 <span class="dt">\</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--height</span> 360 <span class="dt">\</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--camera</span> three-quarter <span class="dt">\</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seed</span> 1 <span class="dt">\</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">--max-episode-s</span> 12</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">studio_uv</span> examples/ppo_microduck_studio.py export <span class="dt">\</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--recipe</span> running <span class="dt">\</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--checkpoint</span> runs/studio/running/running-long-01/running.safetensors <span class="dt">\</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--output</span> runs/studio/running/running-long-01/running.onnx</span></code></pre></div>
+<p>When evaluating or rendering stilts, repeat the exact height, blend,
+and mass flags used for training.</p>
+<h1 data-number="17" id="how-studio-aligns-with-the-rlx-ppo-api"><span
+class="header-section-number">17</span> How Studio aligns with the RLX
+PPO API</h1>
+<p>The Studio recipe script uses RLX as a library rather than
+implementing a separate PPO algorithm.</p>
+<p>It constructs:</p>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> PPOConfig(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    num_envs<span class="op">=</span>args.num_envs,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    num_steps<span class="op">=</span>args.num_steps,</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    num_minibatches<span class="op">=</span>args.num_minibatches,</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    update_epochs<span class="op">=</span>args.update_epochs,</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    gamma<span class="op">=</span>args.gamma,</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    gae_lambda<span class="op">=</span>args.gae_lambda,</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    normalize_advantages<span class="op">=</span>args.normalize_advantages,</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>    clip_coefficient<span class="op">=</span>args.clip_coefficient,</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>    clip_value_loss<span class="op">=</span>args.clip_value_loss,</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>    entropy_coefficient<span class="op">=</span>args.entropy_coefficient,</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>    value_coefficient<span class="op">=</span>args.value_coefficient,</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>    max_grad_norm<span class="op">=</span>args.max_grad_norm,</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>Then it creates:</p>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>algorithm <span class="op">=</span> PPO(</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    config<span class="op">=</span>config,</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    env<span class="op">=</span>env,</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    network<span class="op">=</span>network,</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    optimizer<span class="op">=</span>optim.Adam(learning_rate<span class="op">=</span>args.learning_rate),</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">buffer</span><span class="op">=</span>RolloutBuffer(</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>        config.num_steps,</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>        env.observation_space,</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>        env.action_space,</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>        gamma<span class="op">=</span>config.gamma,</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>        num_envs<span class="op">=</span>config.num_envs,</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>    key<span class="op">=</span>mx.random.key(args.seed),</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>Finally, Studio training calls:</p>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>algorithm.train(</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    args.total_timesteps,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    callback<span class="op">=</span>training_progress_callback,</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>This matches the RLX PPO API:</p>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>PPO.train(num_steps, callback<span class="op">=</span><span class="va">None</span>, <span class="op">*</span>, observer<span class="op">=</span><span class="va">None</span>)</span></code></pre></div>
+<p>The callback keeps RLX's existing <code>callback(info, step)</code>
+convention. The Studio adapter emits JSON <code>training_progress</code>
+events containing total steps, the requested target, completed episode
+count, and mean reward when an episode finishes.</p>
+<p>The optional RLX phase <code>observer</code> is not enabled by the
+current Studio script. Therefore, the Studio chart is episode-reward
+telemetry, not PPO collection time, update time, optimizer-step count,
+or loss telemetry.</p>
+<p>The environment adapter also follows RLX's reset and step
+contract:</p>
+<pre class="text"><code>reset(keys) -&gt; observation, state, info
+step(keys, state, action)
+    -&gt; observation, state, reward, terminated, truncated, info</code></pre>
+<p>Time-limit truncations carry terminal observations so PPO can
+bootstrap from the final state without confusing it with the autoreset
+observation.</p>
+<h1 data-number="18" id="troubleshooting"><span
+class="header-section-number">18</span> Troubleshooting</h1>
+<h2 data-number="18.1" id="studio-or-duck-lab-does-not-start"><span
+class="header-section-number">18.1</span> Studio or Duck Lab does not
+start</h2>
+<p>Run:</p>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /Volumes/ExternalSSD/geoagent/microduck-lab</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./restart-lab.sh</span></span></code></pre></div>
+<p>Then inspect the printed viewer-log path. Confirm ports
+<code>63317</code> and <code>8788</code> are not occupied by stale
+processes.</p>
+<h2 data-number="18.2"
+id="the-smoke-run-has-a-reward-but-no-useful-motion"><span
+class="header-section-number">18.2</span> The smoke run has a reward but
+no useful motion</h2>
+<p>That is expected. Four transitions validate wiring only. Switch to a
+new run name and full training after the smoke pipeline completes.</p>
+<h2 data-number="18.3" id="reward-history-stays-empty"><span
+class="header-section-number">18.3</span> Reward history stays
+empty</h2>
+<p>Wait for a completed episode, verify that the job is still running,
+and open <strong>View logs</strong>. A full four-second episode requires
+about 200 control steps per environment.</p>
+<h2 data-number="18.4"
+id="evaluation-shows-speed-or-degrees-that-look-implausible"><span
+class="header-section-number">18.4</span> Evaluation shows speed or
+degrees that look implausible</h2>
+<p>Open the run's <code>evaluation.json</code>. The current headline
+card can fall back to <code>mean_return</code> when swing, running, or
+stilt metrics are nested under <code>recipe_metrics</code>. Use the
+nested metric summary.</p>
+<h2 data-number="18.5"
+id="a-reference-preview-looks-better-than-the-new-render"><span
+class="header-section-number">18.5</span> A reference preview looks
+better than the new render</h2>
+<p>The preview is published reference media. It may come from a longer
+evaluation, many more environments, a different simulator path, or a
+released checkpoint. Compare protocols before comparing numbers.</p>
+<h2 data-number="18.6" id="swing-does-not-build-a-large-arc"><span
+class="header-section-number">18.6</span> Swing does not build a large
+arc</h2>
+<p>The Studio training horizon is 24 seconds. Inspect pumping and
+geometry first; the published strict reference used a separate 36-second
+evaluation.</p>
+<h2 data-number="18.7" id="running-speed-is-not-close-to-1651-ms"><span
+class="header-section-number">18.7</span> Running speed is not close to
+1.651 m/s</h2>
+<p>That number belongs to the bundled published reference. The Studio
+starts a separate macOS RLX training run with 16 environments and a
+four-million-step initial budget. Record the local result without
+substituting the reference value.</p>
+<h2 data-number="18.8" id="stilt-playback-looks-physically-wrong"><span
+class="header-section-number">18.8</span> Stilt playback looks
+physically wrong</h2>
+<p>Confirm the evaluation and render commands use the checkpoint's exact
+height, blend, and mass. A morphology mismatch invalidates the
+result.</p>
+<h2 data-number="18.9" id="onnx-is-missing"><span
+class="header-section-number">18.9</span> ONNX is missing</h2>
+<p>Confirm the checkpoint and sidecar exist, then select <strong>Export
+ONNX</strong>. The export command requires a valid safetensors
+checkpoint and metadata sidecar.</p>
+<h1 data-number="19" id="beginner-completion-checklist"><span
+class="header-section-number">19</span> Beginner completion
+checklist</h1>
+<ul class="task-list">
+<li><label><input type="checkbox" />Studio opens at
+<code>http://127.0.0.1:63317</code>.</label></li>
+<li><label><input type="checkbox" />The selected experiment is
+correct.</label></li>
+<li><label><input type="checkbox" />Published media is labeled
+<strong>REFERENCE</strong>.</label></li>
+<li><label><input type="checkbox" />The run has a unique
+name.</label></li>
+<li><label><input type="checkbox" />Pipeline smoke
+completes.</label></li>
+<li><label><input type="checkbox" />Smoke output is not described as
+learned behavior.</label></li>
+<li><label><input type="checkbox" />Full training uses the intended
+budget and settings.</label></li>
+<li><label><input type="checkbox" />Reward history receives
+completed-episode points.</label></li>
+<li><label><input type="checkbox" />Checkpoint and metadata
+exist.</label></li>
+<li><label><input type="checkbox" />ONNX exists with the 61-observation
+/ 14-action contract.</label></li>
+<li><label><input type="checkbox" />Deterministic evaluation finishes
+with finite values.</label></li>
+<li><label><input type="checkbox" />Nested recipe metrics were read from
+<code>evaluation.json</code>.</label></li>
+<li><label><input type="checkbox" />MP4 and contact sheet
+exist.</label></li>
+<li><label><input type="checkbox" />The entire latest-run video was
+reviewed.</label></li>
+<li><label><input type="checkbox" />Latest-run metrics were not copied
+from reference evidence.</label></li>
+<li><label><input type="checkbox" />Swing geometry or stilt morphology
+was checked when applicable.</label></li>
+<li><label><input type="checkbox" />A two-minute dance uses validated
+short motifs rather than an assumed 120-second learned
+sequence.</label></li>
+<li><label><input type="checkbox" />Hardware deployment remains blocked
+pending compatibility checks and controlled safety
+validation.</label></li>
+</ul>
+<h1 data-number="20" id="repository-sources-used-by-this-guide"><span
+class="header-section-number">20</span> Repository sources used by this
+guide</h1>
+<p>This guide describes the repository state as of September 6,
+2026:</p>
+<ul>
+<li><code>duck-viewer/lib/experiments.ts</code></li>
+<li><code>duck-viewer/lib/rlx-job.ts</code></li>
+<li><code>duck-viewer/components/Studio.tsx</code></li>
+<li><code>duck-viewer/public/experiments/*/evaluation.json</code></li>
+<li><code>rlx/examples/ppo_microduck_studio.py</code></li>
+<li><code>rlx/rlx/environments/microduck_recipes.py</code></li>
+<li><code>rlx/rlx/algorithms/ppo.py</code></li>
+<li><code>rlx/rlx/models/microduck.py</code></li>
+<li><code>rlx/rlx/export/microduck_onnx.py</code></li>
+<li><code>microduck_local/src/microduck_local/behaviors/imitate.py</code></li>
+<li><code>microduck_local/src/microduck_local/behaviors/locomotion.py</code></li>
+</ul>
+</body>
+</html>

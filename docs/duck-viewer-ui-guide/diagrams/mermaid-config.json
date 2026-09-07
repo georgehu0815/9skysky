@@ -1,0 +1,16 @@
+{
+  "htmlLabels": false,
+  "theme": "neutral",
+  "themeVariables": {
+    "fontFamily": "PingFang SC, Hiragino Sans GB, Noto Sans CJK SC, Arial, Helvetica, sans-serif",
+    "fontSize": "18px"
+  },
+  "flowchart": {
+    "htmlLabels": false,
+    "curve": "basis",
+    "nodeSpacing": 34,
+    "rankSpacing": 46,
+    "padding": 14,
+    "useMaxWidth": false
+  }
+}

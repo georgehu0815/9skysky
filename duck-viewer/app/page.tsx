@@ -2,9 +2,8 @@
 
 import dynamic from "next/dynamic";
 
-// Canvas/WebSocket are browser-only.
-const Viewer = dynamic(() => import("@/components/Viewer"), { ssr: false });
+const Studio = dynamic(() => import("@/components/Studio"), { ssr: false });
 
 export default function Home() {
-  return <Viewer />;
+  return <Studio />;
 }

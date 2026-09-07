@@ -1,0 +1,56 @@
+flowchart TB
+  subgraph FE[Duck Viewer browser process]
+
+    PAGE[app/page.tsx<br/>browser-only Viewer]
+    VIEW[Viewer and React Three Fiber Canvas]
+    PANELS[HUD, Policy, Teach, Animate, Record, Guide, Toasts]
+    LC[LabClient<br/>latest Frame ref and reconnect]
+    LS[(React state, module stores, localStorage)]
+    GPU[WebGL renderer<br/>merged geometry, DPR 1 to 1.5]
+    PAGE --> VIEW
+    VIEW --> PANELS
+    VIEW <--> LC
+    PANELS <--> LC
+    PANELS <--> LS
+    VIEW --> GPU
+  end
+  subgraph API[Loopback protocol]
+
+    REST[REST discovery, authoring, training, settings]
+    WS[WebSocket /ws<br/>commands and 25 Hz Frame]
+  end
+  subgraph BE[Duck Lab FastAPI process]
+
+    STATE[LabState<br/>roster, clients, job, events, stats]
+    LOOP[lab_loop<br/>50 Hz serial control]
+    ROUTES[FastAPI route handlers]
+    subgraph ROSTER[Visible roster, maximum 20]
+      D1[Duck d0<br/>policy infer and env]
+      DN[Duck dN<br/>policy infer and env]
+      ENV[One environment per Duck]
+      DATA[Private MjData per Duck]
+      MODEL[Shared immutable MjModel<br/>for XML same-scene ducks]
+      BAM[Private MjModel<br/>for BAM mutation]
+      D1 --> ENV
+      DN --> ENV
+      ENV --> DATA
+      ENV --> MODEL
+      ENV -. BAM exception .-> BAM
+    end
+    ROUTES <--> STATE
+    STATE <--> LOOP
+    LOOP --> D1
+    LOOP --> DN
+  end
+  LC <--> WS
+  PANELS <--> REST
+  REST <--> ROUTES
+  WS <--> STATE
+  classDef front fill:#E8F3FF,stroke:#2F80ED,color:#102A43
+  classDef protocol fill:#FFF4D6,stroke:#B7791F,color:#102A43
+  classDef back fill:#E8FFF5,stroke:#219653,color:#102A43
+  classDef sim fill:#F3E8FF,stroke:#805AD5,color:#102A43
+  class PAGE,VIEW,PANELS,LC,LS,GPU front
+  class REST,WS protocol
+  class STATE,LOOP,ROUTES back
+  class D1,DN,ENV,DATA,MODEL,BAM sim

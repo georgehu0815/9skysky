@@ -1,0 +1,54 @@
+flowchart LR
+  subgraph REQ[Teach 请求]
+    direction TB
+    A[TeachPanel 调用 POST /teach]
+    B[验证行为、动画、预算、<br/>权重与热启动]
+    C[TrainingJob 创建阶段运行]
+    A --> B --> C
+  end
+  subgraph TRAIN[训练子进程]
+    direction TB
+    D[启动 train_behavior]
+    E[导入 torch 前<br/>预编译一个 MjModel]
+    F[32 个 fork 向量工作进程]
+    G[共享内存数组<br/>与信号量屏障]
+    H[VecNormalize 与 SymmetryPPO]
+    D --> E --> F --> G --> H
+  end
+  subgraph LIVE[进度与实时预览]
+    direction TB
+    I[每次 PPO rollout 写一条<br/>progress.jsonl]
+    J[默认每 150000 步<br/>原子写入 live.onnx、model.zip、<br/>vecnormalize.pkl]
+    K[Lab 约每 1 Hz 轮询]
+    L[trainee 与 helper<br/>热加载 live.onnx]
+    I --> J --> K --> L
+  end
+  subgraph CURR[课程判断]
+    direction TB
+    M{还有阶段吗？}
+    N[下一阶段运行<br/>热启动上一阶段产物]
+    O[最终 policy.onnx<br/>内置观测归一化]
+    M -->|是| N
+    M -->|否| O
+  end
+  subgraph HANDOFF[证据与硬件边界]
+    direction TB
+    P[确定性评估<br/>与 render-rollout]
+    Q[将环境设计移植到<br/>microduck_rl]
+    R[在官方 GPU<br/>技术栈重新训练]
+    S[通过 sim2real 验证后<br/>交付硬件]
+    P --> Q --> R --> S
+  end
+  REQ --> TRAIN --> LIVE --> CURR
+  N -. 下一阶段 .-> TRAIN
+  O --> HANDOFF
+  classDef request fill:#E8F3FF,stroke:#2F80ED,color:#102A43
+  classDef process fill:#E8FFF5,stroke:#219653,color:#102A43
+  classDef artifact fill:#FFF4D6,stroke:#B7791F,color:#102A43
+  classDef decision fill:#F3E8FF,stroke:#805AD5,color:#102A43
+  classDef handoff fill:#FFE8E8,stroke:#C53030,color:#102A43
+  class A,B,C request
+  class D,E,F,G,H,K,L,N,P process
+  class I,J,O artifact
+  class M decision
+  class Q,R,S handoff

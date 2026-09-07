@@ -1,0 +1,41 @@
+flowchart TB
+  U[操作员与研究人员]
+  subgraph W[Microduck Lab 工作区]
+
+    V[Duck Viewer 前端<br/>Next.js，端口 63317]
+    B[Duck Lab 后端<br/>FastAPI，端口 8788]
+    T[训练子进程<br/>SB3 PPO]
+    P[(策略与运行产物<br/>runs、policies、clips、captures)]
+    F[(本地设置与阵容<br/>lab-state、teach-weights、HF token)]
+  end
+  subgraph C[训练计算]
+    E[32 个 fork 向量工作进程<br/>MuJoCo 环境]
+  end
+  subgraph UP[上游边界]
+
+    R[microduck_rl<br/>官方 GPU sim2real 技术栈]
+    M[microduck<br/>机器人运行时与发布策略]
+    H[Microduck 硬件<br/>14 个舵机、IMU、50 Hz]
+  end
+  U -->|本机浏览器| V
+  V <-->|REST 与 WebSocket /ws| B
+  B -->|启动与监控| T
+  T <-->|共享内存与信号量| E
+  B <--> P
+  B <--> F
+  T --> P
+  P -->|原型设计与 ONNX 证据| R
+  R -->|重新训练的可部署 ONNX| M
+  M -->|61 维观测、14 维动作| H
+  classDef user fill:#FFF4D6,stroke:#B7791F,color:#102A43
+  classDef front fill:#E8F3FF,stroke:#2F80ED,color:#102A43
+  classDef back fill:#E8FFF5,stroke:#219653,color:#102A43
+  classDef train fill:#F3E8FF,stroke:#805AD5,color:#102A43
+  classDef store fill:#F7FAFC,stroke:#486581,color:#102A43
+  classDef upstream fill:#FFE8E8,stroke:#C53030,color:#102A43
+  class U user
+  class V front
+  class B back
+  class T,E train
+  class P,F store
+  class R,M,H upstream

@@ -1,0 +1,29 @@
+\XeTeXlinebreaklocale "zh"
+\XeTeXlinebreakskip = 0pt plus 1pt
+\definecolor{covernavy}{HTML}{102A43}
+\definecolor{coverblue}{HTML}{2F80ED}
+\renewcommand{\maketitle}{%
+  \begin{titlepage}
+  \thispagestyle{empty}
+  \pagecolor{covernavy}
+  \color{white}
+  \vspace*{0.55in}
+  {\color{coverblue}\rule{\textwidth}{5pt}}\\[0.42in]
+  {\fontsize{34}{40}\selectfont\bfseries Duck Viewer UI 操作指南\par}
+  \vspace{0.24in}
+  {\fontsize{16}{22}\selectfont 面向本地 Microduck 实验室的策略操作、对比与循证验证\par}
+  \vfill
+  \begin{center}
+    \colorbox{white}{\includegraphics[width=0.86\textwidth]{images/viewer-overview.png}}
+  \end{center}
+  \vfill
+  {\large\bfseries George Hu\par}
+  \vspace{0.08in}
+  {\large 2026-09-04\par}
+  \vspace{0.32in}
+  {\color{coverblue}\rule{\textwidth}{2pt}}
+  \clearpage
+  \nopagecolor
+  \end{titlepage}
+  \setcounter{page}{1}%
+}

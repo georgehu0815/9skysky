@@ -1,0 +1,56 @@
+flowchart TB
+  subgraph FE[Duck Viewer 浏览器进程]
+
+    PAGE[app/page.tsx<br/>仅浏览器 Viewer]
+    VIEW[Viewer 与 React Three Fiber Canvas]
+    PANELS[HUD、策略、教学、动画、录制、指南、通知]
+    LC[LabClient<br/>最新 Frame 引用与自动重连]
+    LS[(React 状态、模块存储、localStorage)]
+    GPU[WebGL 渲染器<br/>合并几何，DPR 1 至 1.5]
+    PAGE --> VIEW
+    VIEW --> PANELS
+    VIEW <--> LC
+    PANELS <--> LC
+    PANELS <--> LS
+    VIEW --> GPU
+  end
+  subgraph API[环回协议]
+
+    REST[REST 发现、创作、训练与设置]
+    WS[WebSocket /ws<br/>命令与 25 Hz Frame]
+  end
+  subgraph BE[Duck Lab FastAPI 进程]
+
+    STATE[LabState<br/>阵容、客户端、任务、事件、统计]
+    LOOP[lab_loop<br/>50 Hz 串行控制]
+    ROUTES[FastAPI 路由处理器]
+    subgraph ROSTER[可见阵容，上限 20]
+      D1[Duck d0<br/>策略推理与环境]
+      DN[Duck dN<br/>策略推理与环境]
+      ENV[每个 Duck 一个环境]
+      DATA[每个 Duck 私有 MjData]
+      MODEL[XML 同场景 Duck<br/>共享不可变 MjModel]
+      BAM[BAM 变更使用<br/>私有 MjModel]
+      D1 --> ENV
+      DN --> ENV
+      ENV --> DATA
+      ENV --> MODEL
+      ENV -. BAM 例外 .-> BAM
+    end
+    ROUTES <--> STATE
+    STATE <--> LOOP
+    LOOP --> D1
+    LOOP --> DN
+  end
+  LC <--> WS
+  PANELS <--> REST
+  REST <--> ROUTES
+  WS <--> STATE
+  classDef front fill:#E8F3FF,stroke:#2F80ED,color:#102A43
+  classDef protocol fill:#FFF4D6,stroke:#B7791F,color:#102A43
+  classDef back fill:#E8FFF5,stroke:#219653,color:#102A43
+  classDef sim fill:#F3E8FF,stroke:#805AD5,color:#102A43
+  class PAGE,VIEW,PANELS,LC,LS,GPU front
+  class REST,WS protocol
+  class STATE,LOOP,ROUTES back
+  class D1,DN,ENV,DATA,MODEL,BAM sim

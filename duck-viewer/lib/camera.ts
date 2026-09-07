@@ -31,6 +31,18 @@ const KEY_MOTIONS: Record<string, CameraMotion> = {
 const held = new Set<CameraMotion>();
 let resetPending = false;
 
+export function cameraMotionStart(motion: CameraMotion): void {
+  held.add(motion);
+}
+
+export function cameraMotionStop(motion: CameraMotion): void {
+  held.delete(motion);
+}
+
+export function requestCameraReset(): void {
+  resetPending = true;
+}
+
 /** keydown: begin the motion (or queue the view reset). True if it was a
  *  camera key. Plain R now restarts the SIM (Viewer owns that), so the view
  *  reset moved to Shift+R — passed as a flag rather than sniffed from the key
@@ -39,19 +51,19 @@ export function cameraKeyDown(key: string, shift = false): boolean {
   const k = key.toLowerCase();
   if (k === "r") {
     if (!shift) return false; // plain R isn't ours — leave it to the caller
-    resetPending = true;
+    requestCameraReset();
     return true;
   }
   const m = KEY_MOTIONS[k];
   if (!m) return false;
-  held.add(m);
+  cameraMotionStart(m);
   return true;
 }
 
 /** keyup: end the motion. Safe to call for any key. */
 export function cameraKeyUp(key: string): void {
   const m = KEY_MOTIONS[key.toLowerCase()];
-  if (m) held.delete(m);
+  if (m) cameraMotionStop(m);
 }
 
 /** Stuck-key guard: clear everything (window blur, page hide). */

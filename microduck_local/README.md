@@ -68,6 +68,25 @@ cd ../microduck_rl && uv run scripts/infer_policy.py \
 uv run tensorboard --logdir runs/
 ```
 
+### Hello World: one environment per visible duck / 每只可见鸭子一个环境
+
+Run the real `viz_server.Duck` architecture proof:
+
+```bash
+uv run hello-ducks --ducks 3 --steps 20
+```
+
+The command reports measured Python object identities and trunk positions. Each
+`Duck` has a separate `MicroduckWalkEnv` and private `MjData` simulation state,
+while XML ducks on the same scene share one immutable compiled `MjModel` to save
+memory. It also proves that stepping one duck leaves another duck's `qpos` bytes
+unchanged. A successful run ends with a clear `PASS`.
+
+该命令报告实际测得的 Python 对象标识和躯干位置。每个 `Duck` 都有独立的
+`MicroduckWalkEnv` 和私有的 `MjData` 仿真状态；同一场景中的 XML 鸭子共享一个
+不可变的已编译 `MjModel`，以节省内存。命令还会验证推进一只鸭子不会改变另一只
+鸭子的 `qpos` 字节。成功运行以明确的 `PASS` 结束。
+
 Measured on an M5 Max: ~26k control-steps/s raw env throughput at 12 workers
 (run `uv run bench-envs` to get the numbers for your machine).
 Continue a run with `--init-from runs/my-run`.

@@ -1,0 +1,40 @@
+%%{init: {"flowchart": {"htmlLabels": false}}}%%
+flowchart TB
+  Panels["BROWSER · OPERATOR PANELS<br/>HUD · Policies · Guide · Teach · Animate · Capture"]
+  Client["BROWSER · LAB CLIENT<br/>REST and WebSocket"]
+  Scene["BROWSER · THREE.JS SCENE<br/>react-three-fiber canvas"]
+
+  API["DUCK-LAB · REST API<br/>GET /scene · GET /policies<br/>teach · joints · capture APIs"]
+  Stream["DUCK-LAB · WEBSOCKET /ws<br/>poses · commands · resets · roster changes"]
+  Runtime["DUCK-LAB · LIVE RUNTIME<br/>one MuJoCo environment and one ONNX session<br/>per visible duck"]
+  Trainer["DUCK-LAB · TRAINER SUBPROCESS<br/>progress and live policy snapshots"]
+  Capture["DUCK-LAB · CAPTURE PIPELINE<br/>ffmpeg to MP4 and GIF"]
+
+  Shipped["POLICY SOURCE<br/>microduck/policies<br/>shipped ONNX policies"]
+  Runs["POLICY SOURCE<br/>microduck_local/runs<br/>exports and checkpoints"]
+  Outputs["CAPTURE OUTPUT<br/>microduck_local/captures<br/>PNG downloads · MP4 · GIF"]
+
+  Panels --> Client
+  Client --> Scene
+  Panels --> Scene
+  Client -->|"HTTP GET /scene · /policies"| API
+  Client -->|"HTTP POST teach · joints · captures"| API
+  Client <-->|"ws://127.0.0.1:8788/ws"| Stream
+  API --> Runtime
+  Stream <--> Runtime
+  API --> Trainer
+  Trainer -->|"live snapshots"| Runtime
+  API --> Capture
+  Shipped --> Runtime
+  Runs --> Runtime
+  Trainer --> Runs
+  Capture --> Outputs
+
+  classDef browser fill:#e8f1fb,stroke:#286090,color:#142433,stroke-width:2px,font-size:20px;
+  classDef service fill:#eef7ea,stroke:#4f7b42,color:#172514,stroke-width:2px,font-size:20px;
+  classDef source fill:#fff4df,stroke:#9a6b20,color:#35250d,stroke-width:2px,font-size:20px;
+  classDef output fill:#f4eafa,stroke:#75428c,color:#2c1735,stroke-width:2px,font-size:20px;
+  class Panels,Scene,Client browser;
+  class API,Stream,Runtime,Trainer,Capture service;
+  class Shipped,Runs source;
+  class Outputs output;

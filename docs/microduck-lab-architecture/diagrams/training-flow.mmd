@@ -1,0 +1,54 @@
+flowchart LR
+  subgraph REQ[Teach request]
+    direction TB
+    A[TeachPanel POST /teach]
+    B[Validate behavior, clip,<br/>budget, weights, warm start]
+    C[TrainingJob creates stage run]
+    A --> B --> C
+  end
+  subgraph TRAIN[Training subprocess]
+    direction TB
+    D[Launch train_behavior]
+    E[Prime one MjModel<br/>before torch import]
+    F[32 fork vector workers]
+    G[Shared-memory arrays<br/>and semaphore barrier]
+    H[VecNormalize and SymmetryPPO]
+    D --> E --> F --> G --> H
+  end
+  subgraph LIVE[Progress and live preview]
+    direction TB
+    I[One progress.jsonl record<br/>per PPO rollout]
+    J[Every 150000 steps by default<br/>atomic live.onnx, model.zip,<br/>vecnormalize.pkl]
+    K[Lab polls at about 1 Hz]
+    L[Trainee and helpers<br/>hot-load live.onnx]
+    I --> J --> K --> L
+  end
+  subgraph CURR[Curriculum decision]
+    direction TB
+    M{More stages?}
+    N[Next stage run<br/>warm-start prior artifacts]
+    O[Final policy.onnx<br/>normalizer baked in]
+    M -->|yes| N
+    M -->|no| O
+  end
+  subgraph HANDOFF[Evidence and hardware boundary]
+    direction TB
+    P[Deterministic eval<br/>and render-rollout]
+    Q[Port environment design<br/>to microduck_rl]
+    R[Retrain on official<br/>GPU stack]
+    S[Hardware handoff after<br/>sim2real validation]
+    P --> Q --> R --> S
+  end
+  REQ --> TRAIN --> LIVE --> CURR
+  N -. next stage .-> TRAIN
+  O --> HANDOFF
+  classDef request fill:#E8F3FF,stroke:#2F80ED,color:#102A43
+  classDef process fill:#E8FFF5,stroke:#219653,color:#102A43
+  classDef artifact fill:#FFF4D6,stroke:#B7791F,color:#102A43
+  classDef decision fill:#F3E8FF,stroke:#805AD5,color:#102A43
+  classDef handoff fill:#FFE8E8,stroke:#C53030,color:#102A43
+  class A,B,C request
+  class D,E,F,G,H,K,L,N,P process
+  class I,J,O artifact
+  class M decision
+  class Q,R,S handoff

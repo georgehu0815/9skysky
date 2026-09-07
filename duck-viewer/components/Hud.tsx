@@ -18,6 +18,7 @@ import {
 import { loadJSON, saveJSON } from "@/lib/persist";
 import { setSelectedDuck, useSelectedDuck } from "@/lib/select";
 import { setDuckLabels, setHudRight } from "@/lib/ui";
+import { GuidePanel } from "./GuidePanel";
 
 const mono = "ui-monospace, SFMono-Regular, Menlo, monospace";
 
@@ -392,14 +393,11 @@ export function Hud({
   // Hooks below run regardless of `open` so the poll keeps hook order stable.
   const [open, setOpen] = useState(() => loadJSON("hudOpen", true));
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
   // Stable: this HUD re-renders ~4x/s, and an inline arrow would make the
   // modal's keyboard-gate effect tear down and re-run on every one of them.
   const closeSettings = useCallback(() => setSettingsOpen(false), []);
-  // Same treatment for the bottom-left camera-help bar — it's pure reference
-  // text, so folding it away frees corner space (and the Next dev badge sits
-  // right under it in dev). Starts collapsed: first sight of the scene should
-  // be ducks, not a key list. Unconditional hook: order stays stable.
-  const [cmdBarOpen, setCmdBarOpen] = useState(() => loadJSON("cmdBarOpen", false));
+  const closeGuide = useCallback(() => setGuideOpen(false), []);
   // Floating duck name labels on/off — persisted here, mirrored into the
   // shared ui store so every Duck inside the Canvas reacts live.
   const [labels, setLabels] = useState(() => loadJSON("duckLabels", true));
@@ -427,7 +425,6 @@ export function Hud({
   }, [clientRef]);
 
   useEffect(() => saveJSON("hudOpen", open), [open]);
-  useEffect(() => saveJSON("cmdBarOpen", cmdBarOpen), [cmdBarOpen]);
   useEffect(() => {
     saveJSON("duckLabels", labels);
     setDuckLabels(labels);
@@ -479,6 +476,13 @@ export function Hud({
   return (
     <>
       {settingsOpen && <HfSettingsModal onClose={closeSettings} />}
+      {guideOpen && (
+        <GuidePanel
+          clientRef={clientRef}
+          connected={connected}
+          onClose={closeGuide}
+        />
+      )}
       {open ? (
       <div
         ref={hudEdgeRef}
@@ -520,6 +524,22 @@ export function Hud({
             }}
           >
             🏷
+          </button>
+          <button
+            onClick={() => setGuideOpen(true)}
+            title="Duck Viewer guide"
+            aria-label="Open Duck Viewer guide"
+            style={{
+              background: "none",
+              border: "none",
+              color: "#8b93a3",
+              cursor: "pointer",
+              fontFamily: mono,
+              fontSize: 12,
+              padding: "0 4px",
+            }}
+          >
+            ?
           </button>
           <button
             onClick={() => setSettingsOpen(true)}
@@ -761,75 +781,10 @@ export function Hud({
         </button>
       )}
 
-      {/* Viewport help. The keyboard flies the CAMERA (Maya/Blender-style) —
-          ducks are driven by their RL policies alone (walking policies follow
-          the server's auto demo script; trick policies do their trick).
-          Collapsible like the panels above; the focus hint folds away with it
-          (keys still work — the hint is a nicety, not a control). */}
-      {cmdBarOpen ? (
-        <div style={{ ...panel, bottom: 14, left: 14, maxWidth: 265 }}>
-          <div style={{ display: "flex", alignItems: "flex-start" }}>
-            <div style={{ color: "#8b93a3", flex: 1 }}>
-              {/* Restart leads: it is the only key here that touches the SIM
-                  rather than the view, and the panel grows upward from a fixed
-                  bottom edge — so the last line is the one the `next dev`
-                  badge sits on top of. Camera list keeps the tail. */}
-              <div style={{ color: "#a5adbb", marginBottom: 3 }}>
-                ↺ R restart sim — every duck&apos;s episode from zero
-              </div>
-              <div style={{ color: "#a5adbb", marginBottom: 3 }}>
-                🖱 click a duck to select · ⌫ remove it · esc deselect
-              </div>
-              🎥 drag orbit · scroll zoom · 2-finger swipe slide · A/D slide ·
-              W/S·↑↓ dolly · ←/→ orbit · Q/E up·down · Shift+R reset view
-            </div>
-            <button
-              onClick={() => setCmdBarOpen(false)}
-              title="collapse"
-              style={{
-                background: "none",
-                border: "none",
-                color: "#8b93a3",
-                cursor: "pointer",
-                fontFamily: mono,
-                fontSize: 12,
-                padding: "0 4px",
-                marginLeft: 10,
-              }}
-            >
-              —
-            </button>
-          </div>
-          {!pageFocused && (
-            <div style={{ color: "#566072", marginTop: 3 }}>
-              ⌨ click the scene to enable keys
-            </div>
-          )}
+      {!pageFocused && (
+        <div style={{ ...panel, bottom: 14, left: 14, color: "#8b93a3" }}>
+          Click the scene to enable keyboard controls
         </div>
-      ) : (
-        // Collapsed: compact pill, nudged right of the Next dev badge that
-        // squats in the very corner during `next dev`.
-        <button
-          onClick={() => setCmdBarOpen(true)}
-          title="keyboard controls"
-          style={{
-            position: "absolute",
-            zIndex: 20,
-            bottom: 14,
-            left: 56,
-            background: "rgba(14,16,20,0.86)",
-            color: "#e8e6e1",
-            border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 10,
-            padding: "8px 12px",
-            fontFamily: mono,
-            fontSize: 12,
-            cursor: "pointer",
-            backdropFilter: "blur(6px)",
-          }}
-        >
-          🎥 controls
-        </button>
       )}
     </>
   );

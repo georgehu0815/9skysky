@@ -14,6 +14,10 @@ __pycache__/
 microduck_local/runs/
 microduck_local/lab-state.json
 microduck_local/teach-weights.json
+/rlx/runs/
+/rlx/artifacts/
+/rlx/:memory:.ses
+/rlx/MUJOCO_LOG.TXT
 # 🤗 BYOK Hugging Face token (the viewer's ⚙ settings) — never commit
 microduck_local/hf-token.json
 microduck_local/hf-token.json.tmp
