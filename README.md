@@ -1,3 +1,16 @@
+
+# Microduck on MacOS with M Chip GPU 
+
+We build this open source Microduck Traning Studio which based on [microduck-lab](https://github.com/jonathanhawkins/microduck-lab) [Microduck](https://pollen-robotics.com/microduck) and [microduck_rl](https://github.com/pollen-robotics/microduck_rl).
+
+Please give all the credit to the baseline project.
+
+
+This project also use RL PPO algorithem native supported by  [rlx](https://github.com/noahfarr/rlx).
+
+
+
+
 # Microduck Lab 🦆: RL experimentation on your Mac
 
 Train reinforcement-learning policies for the
