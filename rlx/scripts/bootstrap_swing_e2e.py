@@ -214,6 +214,7 @@ def main(argv=None):
     mean, variance = observation_statistics(observations)
     normalizer_count = len(labels)
     history, train_seconds, best = [], 0.0, None
+    actor = None
     for stage in range(args.iterations + 1):
         if stage:
             if len(labels) >= args.max_samples or time.monotonic() >= deadline - 30:

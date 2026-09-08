@@ -163,7 +163,11 @@ Versioned recipes and the evidence report are in
 Read each scenario's **skill** verdict: completed training, finite rewards, and
 valid MP4 files do not establish that a policy learned the requested motion.
 
-From the workspace root, with Studio running:
+Follow the report's per-scenario **Reproduction commands** first: the final
+Running and Stilt recipes require their independently trained base checkpoints,
+and Swing requires the explicitly teacher-assisted BC/DAgger initializer.
+Do not launch a resumed recipe into an empty run directory. With those matching
+checkpoint/sidecar prerequisites populated and Studio running, the shared driver is:
 
 ```bash
 node duck-viewer/scripts/rlx-dance-api-e2e.mjs --execute \
@@ -184,13 +188,18 @@ assessment version 2 anchors intended heading per command segment, so circling
 under a zero-turn command cannot masquerade as straight-line progress. An
 optional `--locomotion-forward-command` pins an explicit observable forward
 task without changing the 61-observation/14-action policy contract.
+Optional `flight` (Running) and `yaw_tracking` (Running/Stilts) shaping are
+per-recipe weights disabled by default; neither changes skill acceptance.
 
 `audit_scenarios.py` saves held-out physical traces, zero-action and initial-policy
 controls, checkpoint history, parameter changes, ONNX parity, raw/normalized
 reward charts, actual PPO loss metrics, and a no-reset comparison MP4. It exits
 nonzero when acceptance fails. `duck-viewer/scripts/verify-rlx-video.mjs` checks
 API bytes/ranges, decoded H.264 frames, and browser playback using an existing
-Playwright installation supplied through `--playwright-package`.
+Playwright installation supplied through `--playwright-package`. The receipt
+binds the MP4s to the audited policy hash; the report requires matching successful
+train/eval/render/export API evidence and current artifact hashes. A failed
+rerun invalidates its prior success marker.
 
 The Microduck actor/critic uses a numerically stable ELU implementation that
 bounds the inactive exponential branch. This preserves the ELU function and

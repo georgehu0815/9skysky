@@ -1634,7 +1634,7 @@ export default function Studio() {
                   <div>
                     <p className={styles.eyebrow}>LATEST RUN</p>
                     <h3 id="rollout-player-title">{recipe.runName} rollout</h3>
-                    <p>Watch the full 24-second policy before accepting or continuing training.</p>
+                    <p>Watch the complete saved rollout before accepting or continuing training.</p>
                   </div>
                   <video
                     controls

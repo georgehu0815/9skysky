@@ -27,6 +27,7 @@ ARTIFACT_NAMES = (
     "reward-learning.png",
     "ppo-losses.png",
     "browser-video.png",
+    "studio-evaluation.png",
     "comparison.mp4",
     "api-video.mp4",
     "audit.json",
@@ -704,6 +705,9 @@ def log_status(evidence_root: Path) -> list[list[str]]:
         ("Viewer Node tests", "node-tests.log", r"tests (\d+).*pass (\d+).*fail (\d+)"),
         ("Viewer build", "node-build.log", r"(Compiled successfully)"),
         ("Viewer lint", "node-lint.log", r"(eslint)"),
+        ("Report regression tests", "report-tests.log", r"(Ran \d+ tests).*?(OK)"),
+        ("Python static correctness", "ruff.log", r"(All checks passed!)"),
+        ("Studio UI playback", "studio-ui-validation.log", r'("passed":true)'),
     )
     for label, filename, pattern in checks:
         path = evidence_root / filename
@@ -1095,6 +1099,7 @@ def render_attempt(attempt: Attempt, output_dir: Path) -> list[str]:
         ("physical-tracking.png", "Physical tracking"),
         ("reward-learning.png", "Reward and checkpoint learning"),
         ("ppo-losses.png", "PPO loss history"),
+        ("studio-evaluation.png", "Studio saved skill verdict and rollout player"),
     ):
         graph = attempt.audit_dir / graph_name
         if graph.is_file():
@@ -1149,13 +1154,14 @@ def render_attempt(attempt: Attempt, output_dir: Path) -> list[str]:
                 f"/tmp/swing-bootstrap-reproduction/swing.safetensors.json {run_rel}/",
                 "```", "",
             ])
-        elif scenario == "running" and attempt.recipe.get("resumeFromCheckpoint"):
-            base_recipe_rel = "docs/remaining-scenarios-e2e/recipes/running-base.json"
-            base_run = "running-base-reproduction-YYYYMMDD-HHMMSS"
+        elif scenario in ("running", "stilts") and attempt.recipe.get("resumeFromCheckpoint"):
+            base_recipe_rel = f"docs/remaining-scenarios-e2e/recipes/{scenario}-base.json"
+            base_run = f"{scenario}-base-reproduction-YYYYMMDD-HHMMSS"
             base_api_rel = f"rlx/artifacts/scenarios-e2e-20260907/{base_run}-api.json"
-            base_run_rel = f"rlx/runs/studio/running/{base_run}"
+            base_run_rel = f"rlx/runs/studio/{scenario}/{base_run}"
+            base_label = "Running v3" if scenario == "running" else "Stilt v2"
             lines.extend([
-                "Running v4 resumes the Running v3 final checkpoint. Train the tracked "
+                f"This continuation resumes the {base_label} final checkpoint. Train the tracked "
                 "base recipe first. The recorded base completed training but failed its "
                 "skill gate, so the API runner exits nonzero for that skill failure. "
                 "Retain its failed verdict. Reuse its completed checkpoint only if the "
@@ -1174,7 +1180,7 @@ def render_attempt(attempt: Attempt, output_dir: Path) -> list[str]:
                 "base_status=0",
                 (
                     "node duck-viewer/scripts/rlx-dance-api-e2e.mjs --execute "
-                    "--base-url http://127.0.0.1:63317 --experiment running "
+                    f"--base-url http://127.0.0.1:63317 --experiment {scenario} "
                     f"--recipe-json {base_recipe_rel} --run {base_run} "
                     f"--report {base_api_rel} --timeout-seconds 7200 || base_status=$?"
                 ),
@@ -1184,7 +1190,7 @@ def render_attempt(attempt: Attempt, output_dir: Path) -> list[str]:
                 "from pathlib import Path",
                 "report = json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))",
                 "recipe = report.get('requestedRecipe') or {}",
-                "if recipe.get('experimentId') != 'running' or recipe.get('runName') != sys.argv[2]:",
+                f"if recipe.get('experimentId') != '{scenario}' or recipe.get('runName') != sys.argv[2]:",
                 "    raise SystemExit('Base API report does not match this run')",
                 "operations = {op['action']: op for op in report.get('operations', [])}",
                 "train = operations.get('train', {})",
@@ -1192,7 +1198,7 @@ def render_attempt(attempt: Attempt, output_dir: Path) -> list[str]:
                 "    raise SystemExit('Base training did not succeed; refusing checkpoint copy')",
                 "failure = report.get('failure')",
                 "if int(sys.argv[3]) != 0:",
-                "    expected = 'Full Running skill evaluation failed; render and export evidence were collected.'",
+                f"    expected = 'Full {scenario.capitalize()} skill evaluation failed; render and export evidence were collected.'",
                 "    evaluation = (operations.get('eval', {}).get('state') or {}).get('evaluation') or {}",
                 "    if (failure or {}).get('message') != expected or evaluation.get('skill_status') != 'failed':",
                 "        raise SystemExit('Unexpected runner failure; refusing checkpoint copy')",
@@ -1203,51 +1209,17 @@ def render_attempt(attempt: Attempt, output_dir: Path) -> list[str]:
                 "elif failure:",
                 "    raise SystemExit('Runner status contradicts API failure; refusing checkpoint copy')",
                 "PY",
-                f"test -s {base_run_rel}/running.safetensors",
-                f"test -s {base_run_rel}/running.safetensors.json",
+                f"test -s {base_run_rel}/{scenario}.safetensors",
+                f"test -s {base_run_rel}/{scenario}.safetensors.json",
                 f"mkdir -p {run_rel}",
-                f"cp {base_run_rel}/running.safetensors "
-                f"{base_run_rel}/running.safetensors.json {run_rel}/",
+                f"cp {base_run_rel}/{scenario}.safetensors "
+                f"{base_run_rel}/{scenario}.safetensors.json {run_rel}/",
                 ")",
                 "```",
                 "",
                 "After this block succeeds, the continuation runner below uses the "
                 "target-local checkpoint and the selected recipe's reward weights. "
                 "It does not reuse the base run's skill verdict.",
-                "",
-            ])
-        elif scenario == "stilts" and attempt.recipe.get("resumeFromCheckpoint"):
-            base_recipe_rel = (
-                "docs/remaining-scenarios-e2e/recipes/stilts-base.json"
-            )
-            base_run = "stilts-base-reproduction-YYYYMMDD-HHMMSS"
-            base_api_rel = (
-                "rlx/artifacts/scenarios-e2e-20260907/"
-                f"{base_run}-api.json"
-            )
-            base_run_rel = f"rlx/runs/studio/stilts/{base_run}"
-            lines.extend([
-                "This recipe is a continuation of the Stilt v2 base policy. First train the "
-                "tracked base recipe under its own unique run name. Preserve that base run and "
-                "its API verdict as separate evidence; the continuation does not retroactively "
-                "change it.",
-                "",
-                "```bash",
-                (
-                    "node duck-viewer/scripts/rlx-dance-api-e2e.mjs --execute "
-                    "--base-url http://127.0.0.1:63317 --experiment stilts "
-                    f"--recipe-json {base_recipe_rel} --run {base_run} "
-                    f"--report {base_api_rel} --timeout-seconds 7200"
-                ),
-                f"mkdir -p {run_rel}",
-                f"test ! -e {run_rel}/stilts.safetensors",
-                f"test ! -e {run_rel}/stilts.safetensors.json",
-                f"cp {base_run_rel}/stilts.safetensors "
-                f"{base_run_rel}/stilts.safetensors.json {run_rel}/",
-                "```",
-                "",
-                "The copy seeds the target run with both files required by the Studio API. "
-                "The continuation runner below then resumes from that target-local checkpoint.",
                 "",
             ])
         lines.extend(
@@ -1316,7 +1288,7 @@ def render_report(
         "This report is generated from saved JSON and artifacts. It does not infer a "
         "successful skill from training completion, reward magnitude, finite output, "
         "an exported ONNX file, or a playable video. A selected scenario is complete "
-        "only when its independent audit passes and its video validation passes.",
+        "only when its API jobs, independent audit, video validation, and matching current artifact hashes all pass.",
         "",
     ]
     rows = []
@@ -1346,8 +1318,13 @@ def render_report(
     lines.extend(
         [
             "",
-            "> The aggregate result remains failed/incomplete if any selected scenario is "
-            "missing or failed. This snapshot must not be described as \"all verified.\"",
+            (
+                "> All selected evidence chains pass under the stated nominal simulation conditions. "
+                "Swing is teacher-initialized PPO; repeated nominal Swing seeds are not independent robustness trials."
+                if overall_pass else
+                "> The aggregate result remains failed/incomplete if any selected scenario is "
+                "missing or failed. This snapshot must not be described as \"all verified.\""
+            ),
             "",
             "## 2. Evidence boundaries",
             "",
@@ -1403,8 +1380,8 @@ def render_report(
         [
             "## 4. Repository-wide validation context",
             "",
-            "These are saved workflow logs, not newly rerun suites. They remain relevant "
-            "limitations on the evidence package:",
+            "These are recorded validation results from commands run during this workflow. "
+            "Known broader-suite limitations remain separate from the native acceptance checks:",
             "",
         ]
     )
@@ -1443,9 +1420,20 @@ def render_report(
             or (evidence_root / f"{identifier}-api.json").is_file()
         )
     for attempt in historical_attempts:
-        rendered = render_attempt(attempt, output_dir)
-        rendered[0] = f"## {section}. Historical {attempt.label}: `{attempt.identifier}`"
-        lines.extend(rendered)
+        lines.extend([
+            f"## {section}. Historical {attempt.label}: `{attempt.identifier}`", "",
+            f"**Recorded skill status: {attempt.status}.** Not a selected final policy.", "",
+        ])
+        if attempt.audit:
+            lines.extend(table(["Training evidence", "Value"], training_rows(attempt)))
+            lines.extend(["", "Recorded per-episode failures:", ""])
+            lines.extend(episode_failure_lines(attempt, "trained"))
+        failure = training_failure_summary(attempt.api)
+        if failure:
+            lines.extend(["", f"Training stopped at {format_value(failure['steps'])} transitions: {failure['last_log'] or failure['message']}"])
+        lines.extend(["", "Full raw evaluations, historical curves, and videos remain linked below:", ""])
+        lines.extend(artifact_lines(attempt, output_dir))
+        lines.append("")
         section += 1
 
     lines.extend(render_activation_diagnosis(evidence_root, output_dir, section))
@@ -1490,8 +1478,9 @@ def render_report(
     )
     if overall_pass:
         lines.append(
-            "All three selected scenarios have passing independent audits and passing video "
-            "validation. This remains simulation-only evidence under the stated XML conditions."
+            "All three selected scenarios have matching successful API jobs, passing independent audits, "
+            "passing video validation, and current artifact hashes. This remains simulation-only evidence "
+            "under the stated XML conditions; Swing uses a teacher-assisted initializer before PPO."
         )
     else:
         failing = ", ".join(

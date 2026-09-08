@@ -280,6 +280,23 @@ class ReportGeneratorTests(unittest.TestCase):
                 self.assertIn("completed training but failed its skill gate", text)
                 self.assertNotIn("|| true", text)
 
+    def test_stilts_uses_the_same_tested_fail_closed_base_guard(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            blocks = {}
+            for scenario in ("running", "stilts"):
+                identifier = f"{scenario}-v3"
+                (root / f"{identifier}.json").write_text(json.dumps({
+                    "experimentId": scenario, "resumeFromCheckpoint": True,
+                }))
+                attempt = REPORT.load_attempt(root, scenario, scenario, identifier)
+                text = "\n".join(REPORT.render_attempt(attempt, root))
+                blocks[scenario] = re.findall(r"```bash\n(.*?)\n```", text, re.DOTALL)[0]
+            self.assertEqual(
+                blocks["running"].replace("running", "stilts").replace("Running", "Stilts"),
+                blocks["stilts"],
+            )
+
     def test_running_base_copy_guard_executes_fail_closed(self) -> None:
         runner_stub = '''node() {
 python3 - "$@" <<'FAKE_RUNNER'
