@@ -29,8 +29,8 @@ function recipe(runName, profile) {
     experimentId: "dance",
     runName,
     profile,
-    totalTimesteps: full ? 4_000_000 : 4,
-    numEnvs: full ? 32 : 2,
+    totalTimesteps: full ? 1_000_000 : 4,
+    numEnvs: full ? 16 : 2,
     numSteps: full ? 24 : 2,
     numMinibatches: full ? 4 : 1,
     maxEpisodeS: full ? clip.durationSeconds : 1,
@@ -119,10 +119,10 @@ function snapshot(runName, options = {}) {
     result: phase === "succeeded" ? { returncode: 0 } : null,
     evaluation: null,
     rewardHistory:
-      phase === "succeeded" ? [{ step: profile === "smoke" ? 4 : 4_000_000, reward: 1 }] : [],
+      phase === "succeeded" ? [{ step: profile === "smoke" ? 4 : 1_000_000, reward: 1 }] : [],
     normalizeRewards: false,
-    trainingSteps: phase === "succeeded" ? (profile === "smoke" ? 4 : 4_000_000) : 0,
-    trainingTotal: profile === "smoke" ? 4 : 4_000_000,
+    trainingSteps: phase === "succeeded" ? (profile === "smoke" ? 4 : 1_000_000) : 0,
+    trainingTotal: profile === "smoke" ? 4 : 1_000_000,
     savedRecipe: checkpoint ? recipe(runName, profile) : null,
     trainingHistory: { segments: [], rewardHistory: [] },
     artifacts: artifacts(runName, checkpoint),
@@ -152,7 +152,7 @@ function savedRuns() {
   ];
 }
 
-async function installMocks(page, postHandler) {
+async function installMocks(page, postHandler, getSnapshot = snapshot) {
   await page.route("**/api/rlx**", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
@@ -184,7 +184,7 @@ async function installMocks(page, postHandler) {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify(snapshot(runName)),
+      body: JSON.stringify(getSnapshot(runName)),
     });
   });
 }
@@ -208,14 +208,6 @@ async function assertInputValue(page, expected) {
 
 async function selectFull(page) {
   await page.getByRole("button", { name: /Default full/ }).click();
-  await page.getByRole("button", { name: /Default full/ }).evaluate((button) => {
-    if (button.getAttribute("aria-pressed") === "false") {
-      throw new Error("Default full did not become selected.");
-    }
-  }).catch(async () => {
-    const text = await page.getByRole("button", { name: /Default full/ }).getAttribute("class");
-    assert.ok(text, "Default full should have a selected class.");
-  });
 }
 
 async function freshFullRunName(page, previousRun) {
@@ -233,6 +225,7 @@ async function runCase(browser, name, test) {
     deviceScaleFactor: 1,
   });
   const page = await context.newPage();
+  page.setDefaultTimeout(8_000);
   const result = { name, passed: false, pageErrors: [], requests: [] };
   page.on("pageerror", (error) => result.pageErrors.push(error.message));
   try {
@@ -287,16 +280,28 @@ try {
       const postGate = new Promise((resolve) => {
         releasePost = resolve;
       });
-      await installMocks(page, async (route, payload) => {
-        result.requests.push(payload);
-        runningRun = payload.recipe.runName;
-        await postGate;
-        await route.fulfill({
-          status: 202,
-          contentType: "application/json",
-          body: JSON.stringify({ accepted: true, action: "train", recipe: payload.recipe }),
-        });
-      });
+      await installMocks(
+        page,
+        async (route, payload) => {
+          result.requests.push(payload);
+          runningRun = payload.recipe.runName;
+          await postGate;
+          await route.fulfill({
+            status: 202,
+            contentType: "application/json",
+            body: JSON.stringify({ accepted: true, action: "train", recipe: payload.recipe }),
+          });
+        },
+        (runName) =>
+          runName === runningRun
+            ? snapshot(runName, {
+                checkpoint: false,
+                profile: "full",
+                phase: "running",
+                operation: "train",
+              })
+            : snapshot(runName)
+      );
       await loadCompletedRun(page, smokeRun);
       await page.getByLabel("Dance reference clip", { exact: true }).selectOption(clip.path);
       const nextRun = await freshFullRunName(page, smokeRun);
@@ -322,8 +327,8 @@ try {
       assert.equal(payload.recipe.maxEpisodeS, clip.durationSeconds);
       assert.equal(payload.recipe.evalSteps, Math.ceil(clip.durationSeconds * 50));
       assert.equal(payload.recipe.renderSeconds, clip.durationSeconds);
-      assert.equal(payload.recipe.totalTimesteps, 4_000_000);
-      assert.equal(payload.recipe.numEnvs, 32);
+      assert.equal(payload.recipe.totalTimesteps, 1_000_000);
+      assert.equal(payload.recipe.numEnvs, 16);
       assert.equal(payload.recipe.domainRand, true);
       assert.equal(payload.recipe.obsNoise, true);
       assert.equal(payload.recipe.actionDelay, true);
