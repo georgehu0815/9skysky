@@ -1,0 +1,194 @@
+{
+  "passed": true,
+  "experiment": "swing",
+  "run": "swing-e2e-20260907-v3",
+  "policy_sha256": "d0599d4453fe80bcac4e92cb61d858dae2c86310090885c2a5ecb07ed2bbc916",
+  "audit_sha256": "e571d732c0f3b7ff19bdcd8c12efbfebda2b49d53533a6e0ad4725334cb5c3a4",
+  "download_matches_local": true,
+  "byte_range_passed": true,
+  "playback": {
+    "duration": 24,
+    "width": 640,
+    "height": 360,
+    "currentTime": 12,
+    "error": null
+  },
+  "videos": [
+    {
+      "file": "/Volumes/ExternalSSD/geoagent/microduck-lab/rlx/artifacts/scenarios-e2e-20260907/swing-v3-audit/api-video.mp4",
+      "sha256": "dee5b2805efcd8339f9e2389c78fbc6bcd4d095e4caa693d2f2e872bdfeb54ea",
+      "probe": {
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+            "profile": "High",
+            "codec_type": "video",
+            "codec_tag_string": "avc1",
+            "codec_tag": "0x31637661",
+            "mime_codec_string": "avc1.64001e",
+            "width": 640,
+            "height": 360,
+            "coded_width": 640,
+            "coded_height": 368,
+            "has_b_frames": 2,
+            "pix_fmt": "yuv420p",
+            "level": 30,
+            "chroma_location": "left",
+            "field_order": "progressive",
+            "refs": 4,
+            "is_avc": "true",
+            "nal_length_size": "4",
+            "id": "0x1",
+            "r_frame_rate": "25/1",
+            "avg_frame_rate": "25/1",
+            "time_base": "1/12800",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 307200,
+            "duration": "24.000000",
+            "bit_rate": "716024",
+            "bits_per_raw_sample": "8",
+            "nb_frames": "600",
+            "nb_read_frames": "600",
+            "extradata_size": 46,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "VideoHandler",
+              "encoder": "Lavc61.19.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "filename": "/Volumes/ExternalSSD/geoagent/microduck-lab/rlx/artifacts/scenarios-e2e-20260907/swing-v3-audit/api-video.mp4",
+          "nb_streams": 1,
+          "nb_programs": 0,
+          "nb_stream_groups": 0,
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "format_long_name": "QuickTime / MOV",
+          "start_time": "0.000000",
+          "duration": "24.000000",
+          "size": "2155746",
+          "bit_rate": "718582",
+          "probe_score": 100,
+          "tags": {
+            "major_brand": "isom",
+            "minor_version": "512",
+            "compatible_brands": "isomiso2avc1mp41",
+            "encoder": "Lavf61.7.100"
+          }
+        }
+      }
+    },
+    {
+      "file": "/Volumes/ExternalSSD/geoagent/microduck-lab/rlx/artifacts/scenarios-e2e-20260907/swing-v3-audit/comparison.mp4",
+      "sha256": "7e0ee67139bf014e8f513d7fe4c4c325c4a84bd68f7d15ec59760106310cac64",
+      "probe": {
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+            "profile": "High",
+            "codec_type": "video",
+            "codec_tag_string": "avc1",
+            "codec_tag": "0x31637661",
+            "mime_codec_string": "avc1.64001e",
+            "width": 960,
+            "height": 412,
+            "coded_width": 960,
+            "coded_height": 416,
+            "has_b_frames": 2,
+            "pix_fmt": "yuv420p",
+            "level": 30,
+            "chroma_location": "left",
+            "field_order": "progressive",
+            "refs": 4,
+            "is_avc": "true",
+            "nal_length_size": "4",
+            "id": "0x1",
+            "r_frame_rate": "25/1",
+            "avg_frame_rate": "25/1",
+            "time_base": "1/12800",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 307200,
+            "duration": "24.000000",
+            "bit_rate": "755901",
+            "bits_per_raw_sample": "8",
+            "nb_frames": "600",
+            "nb_read_frames": "600",
+            "extradata_size": 46,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "VideoHandler",
+              "encoder": "Lavc61.19.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "filename": "/Volumes/ExternalSSD/geoagent/microduck-lab/rlx/artifacts/scenarios-e2e-20260907/swing-v3-audit/comparison.mp4",
+          "nb_streams": 1,
+          "nb_programs": 0,
+          "nb_stream_groups": 0,
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "format_long_name": "QuickTime / MOV",
+          "start_time": "0.000000",
+          "duration": "24.000000",
+          "size": "2275553",
+          "bit_rate": "758517",
+          "probe_score": 100,
+          "tags": {
+            "major_brand": "isom",
+            "minor_version": "512",
+            "compatible_brands": "isomiso2avc1mp41",
+            "encoder": "Lavf61.7.100"
+          }
+        }
+      }
+    }
+  ]
+}

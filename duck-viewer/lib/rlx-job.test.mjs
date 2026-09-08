@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { test } from "node:test";
 import { createRequire } from "node:module";
@@ -25,21 +26,57 @@ function load(filename, dependencies = {}) {
 }
 const experiments = load("experiments.ts");
 const { evaluationVerdict } = load("evaluation.ts");
+const plain = (value) => JSON.parse(JSON.stringify(value));
 
 function fixture() {
   const files = new Map();
   const children = [];
   const reads = [];
+  let clock = 0;
   let writeImplementation;
+  const fsDependency = {
+    existsSync: (file) => file.endsWith("examples/ppo_microduck_dance.py") || files.has(file),
+    realpathSync: (file) => file,
+    statSync: (file) => {
+      if (!files.has(file)) throw new Error("ENOENT");
+      const value = files.get(file);
+      return {
+        isFile: () => true,
+        size: Buffer.byteLength(value),
+        mtimeMs: clock,
+      };
+    },
+    readFileSync: (file, encoding) => {
+      reads.push(file);
+      if (!files.has(file)) throw new Error("ENOENT");
+      const value = files.get(file);
+      return encoding ? String(value) : Buffer.from(value);
+    },
+    writeFileSync: (file, data) => {
+      clock += 1;
+      files.set(file, data);
+    },
+    renameSync: (source, destination) => {
+      clock += 1;
+      files.set(destination, files.get(source));
+      files.delete(source);
+    },
+  };
+  const history = load("rlx-history.ts", {
+    "node:fs": fsDependency,
+  });
   const api = load("rlx-job.ts", {
     "@/lib/experiments": experiments,
-    "node:fs": {
-      existsSync: (file) => file.endsWith("examples/ppo_microduck_dance.py") || files.has(file),
-      realpathSync: (file) => file,
-      statSync: (file) => ({ isFile: () => files.has(file) }),
+    "@/lib/rlx-history": history,
+    "@/lib/rlx-render-evidence": {
+      prepareRenderEvidence: (input) => input,
+      finalizeRenderEvidence: () => null,
+      readRenderEvidence: () => null,
     },
+    "node:fs": fsDependency,
     "node:fs/promises": {
       readFile: async (file) => {
+        if (typeof file !== "string") file = fileURLToPath(file);
         reads.push(file);
         if (!files.has(file)) throw new Error("ENOENT");
         return files.get(file);
@@ -99,6 +136,41 @@ function finish(child, report, code = 0) {
 function progress(child) {
   child.stdout.emit("data", '{"event":"training_progress","steps":4,"total":4,"mean_reward":2.5}\n');
 }
+
+test("restart drain lock rejects every launch without spawning or changing artifacts", () => {
+  const f = fixture();
+  const lock = path.resolve(process.cwd(), "../.restart-lab/lock");
+  f.files.set(lock, "locked");
+  for (const operation of ["train", "eval", "render", "export"]) {
+    assert.throws(() => f.api.startJob(operation, input()), /Lab restart in progress/);
+  }
+  assert.equal(f.children.length, 0);
+  assert.equal(f.files.size, 1);
+  f.files.delete(lock);
+  f.api.startJob("train", input());
+  assert.equal(f.children.length, 1);
+});
+
+test("a preinstalled Python runtime bypasses uv for all four operation commands", () => {
+  const previous = process.env.MICRODUCK_STUDIO_PYTHON_DIRECT;
+  process.env.MICRODUCK_STUDIO_PYTHON_DIRECT = "/installed/env/bin/python";
+  try {
+    for (const operation of ["train", "eval", "render", "export"]) {
+      const f = fixture();
+      if (operation !== "train") f.add("test-a");
+      f.api.startJob(operation, input());
+      const child = f.children[0];
+      assert.equal(child.command, "/usr/bin/env");
+      assert.equal(child.args[0], "/installed/env/bin/python");
+      assert.equal(child.args[1], "examples/ppo_microduck_studio.py");
+      assert.equal(child.args[2], operation);
+      assert.equal(child.args.includes("--with-editable"), false);
+    }
+  } finally {
+    if (previous === undefined) delete process.env.MICRODUCK_STUDIO_PYTHON_DIRECT;
+    else process.env.MICRODUCK_STUDIO_PYTHON_DIRECT = previous;
+  }
+});
 
 test("export includes the CLI-required recipe and checkpoint/output without environment arguments", () => {
   const f = fixture();
@@ -212,6 +284,8 @@ test("Dance API flow preserves its PPO, evaluation, render, and export contract"
   assert.equal(evaluated.evaluation.evaluation_request.evaluation_mode, "skill");
   assert.equal(evaluated.evaluation.evaluation_request.eval_steps, 900);
   assert.equal(evaluated.evaluation.evaluation_request.recipe.danceClip, danceClip);
+  assert.equal(evaluated.savedRecipe.danceClip, danceClip);
+  assert.equal(evaluated.savedRecipe.totalTimesteps, 1_024);
 
   f.api.startJob("render", recipeInput);
   const render = f.children[2];
@@ -383,6 +457,81 @@ test("training keeps its PPO arguments and never receives evaluation-only flags"
   assert.throws(() => f.api.startJob("train", input("test-b")), /already running/);
 });
 
+test("fresh training refuses to overwrite an existing checkpoint before touching history", () => {
+  const f = fixture();
+  f.add("saved-run");
+  const metrics = path.join(
+    path.dirname(f.artifact("saved-run")),
+    "training-metrics.jsonl"
+  );
+  f.files.set(metrics, "existing durable telemetry\n");
+  assert.throws(
+    () => f.api.startJob("train", input("saved-run")),
+    /Choose a new run name or enable resume/
+  );
+  assert.equal(f.children.length, 0);
+  assert.equal(f.files.get(metrics), "existing durable telemetry\n");
+});
+
+test("live reward history retains the full selected invocation beyond 240 samples", async () => {
+  const f = fixture();
+  f.api.startJob("train", input("long-run", { totalTimesteps: 600 }));
+  const child = f.children[0];
+  for (let step = 1; step <= 300; step += 1) {
+    child.stdout.emit(
+      "data",
+      `${JSON.stringify({
+        event: "training_progress",
+        steps: step,
+        total: 600,
+        mean_reward: step / 10,
+      })}\n`
+    );
+  }
+  const snapshot = await f.api.snapshot();
+  assert.equal(snapshot.rewardHistory.length, 300);
+  assert.deepEqual(plain(snapshot.rewardHistory.at(-1)), { step: 300, reward: 30 });
+});
+
+test("cold snapshots restore the latest invocation graph and counters from disk", async () => {
+  const f = fixture();
+  const metadata = f.artifact("saved-run", "metadata");
+  const runDirectory = path.dirname(metadata);
+  f.files.set(metadata, JSON.stringify({
+    metadata: {
+      steps: 40,
+      ppo: {
+        total_timesteps: 40,
+        normalize_rewards: true,
+      },
+    },
+  }));
+  f.files.set(path.join(runDirectory, "training-metrics.jsonl"), [
+    JSON.stringify({
+      phase: "collection",
+      steps: 20,
+      env_steps: 20,
+      seconds: 0.1,
+      mean_reward: 1.25,
+    }),
+    JSON.stringify({
+      phase: "collection",
+      steps: 20,
+      env_steps: 40,
+      seconds: 0.1,
+      mean_reward: 2.5,
+    }),
+  ].join("\n"));
+  const snapshot = await f.api.snapshot("swing", "saved-run");
+  assert.deepEqual(plain(snapshot.rewardHistory), [
+    { step: 20, reward: 1.25 },
+    { step: 40, reward: 2.5 },
+  ]);
+  assert.equal(snapshot.trainingSteps, 40);
+  assert.equal(snapshot.trainingTotal, 40);
+  assert.equal(snapshot.normalizeRewards, true);
+});
+
 for (const operation of ["eval", "render"]) {
   for (const otherExperiment of [false, true]) {
     test(`${operation} clears old-run telemetry and evaluation on ${otherExperiment ? "experiment" : "name"} change`, async () => {
@@ -440,7 +589,7 @@ test("same-run eval/render preserve training stats and persist settings with aut
   assert.equal(rendered.trainingTotal, 4);
   assert.equal(rendered.rewardHistory[0].reward, 2.5);
   assert.equal(rendered.evaluation.source_sha256, report.source_sha256);
-  f.api.startJob("train", input());
+  f.api.startJob("train", input("test-a", { resumeFromCheckpoint: true }));
   const restarted = await f.api.snapshot();
   assert.equal(restarted.trainingSteps, 0);
   assert.equal(restarted.rewardHistory.length, 0);
@@ -524,7 +673,7 @@ for (const changedKind of ["checkpoint", "metadata"]) {
     f.api.startJob("eval", input("test-a", { profile: "full" }));
     finish(f.children[0], sourceReport(f, "test-a", "checkpoint"));
     assert.equal((await f.api.snapshot()).evaluation.passed, true);
-    f.api.startJob("train", input());
+    f.api.startJob("train", input("test-a", { resumeFromCheckpoint: true }));
     f.files.set(f.artifact("test-a", changedKind), "retrained bytes");
     finish(f.children[1]);
     f.api.startJob("render", input());
@@ -548,6 +697,41 @@ test("missing checkpoint sidecars and missing sidecar hashes invalidate saved ev
   assert.equal((await f.api.snapshot("swing", "test-a")).evaluation, null);
 });
 
+test("changing reference clip bytes invalidates a saved dance verdict and recipe", async () => {
+  const f = fixture();
+  f.add("dance-input-test", "onnx", "dance");
+  const clip = f.addClip("reference.json");
+  const recipe = { experimentId: "dance", runName: "dance-input-test", profile: "full", danceClip: clip };
+  const report = {
+    ...sourceReport(f, "dance-input-test", "policy", "dance"),
+    recipe: "dance",
+    evaluation_request: { recipe },
+    evaluation: { environment: { recipe_options: { dance_clip: clip, dance_clip_sha256: createHash("sha256").update("{}").digest("hex") } } },
+  };
+  f.files.set(path.join(path.dirname(f.artifact("dance-input-test", "onnx", "dance")), "evaluation.json"), JSON.stringify(report));
+  assert.equal((await f.api.snapshot("dance", "dance-input-test")).evaluation.passed, true);
+  f.files.set(clip, "changed clip bytes");
+  const invalidated = await f.api.snapshot("dance", "dance-input-test");
+  assert.equal(invalidated.evaluation.skill_status, "not_assessed");
+  assert.equal(invalidated.savedRecipe, null);
+  assert.equal(invalidated.renderVerified, false);
+});
+
+test("nominal rendering retains the evaluation of its unchanged randomized recipe", async () => {
+  const f = fixture();
+  f.add("randomized");
+  f.add("randomized", "onnx");
+  const recipe = input("randomized", { profile: "full", domainRand: true, obsNoise: true, actionDelay: true, maxEpisodeS: 24, renderSeconds: 24 });
+  f.api.startJob("eval", recipe);
+  finish(f.children[0], { ...sourceReport(f, "randomized"), recipe: "swing" });
+  assert.equal((await f.api.snapshot()).evaluation.passed, true);
+  f.api.startJob("render", recipe);
+  finish(f.children[1]);
+  assert.equal((await f.api.snapshot()).evaluation.passed, true);
+  f.api.startJob("render", { ...recipe, swingPlanarActions: false });
+  assert.equal((await f.api.snapshot()).evaluation.skill_status, "not_assessed");
+});
+
 test("source hashes never authorize reads of report-supplied paths", async () => {
   const f = fixture();
   f.add("test-a", "onnx");
@@ -562,6 +746,25 @@ test("source hashes never authorize reads of report-supplied paths", async () =>
   f.files.set(savedPath, JSON.stringify(report));
   assert.equal((await f.api.snapshot("swing", "test-a")).evaluation, null);
   assert.equal(f.reads.includes("/unowned/secret"), false);
+});
+
+test("saved recipes are exposed only from currently bound evaluation evidence", async () => {
+  const f = fixture();
+  f.add("test-a", "onnx");
+  f.api.startJob("eval", input("test-a", { profile: "full", totalTimesteps: 128 }));
+  finish(f.children[0], sourceReport(f));
+  const bound = await f.api.snapshot();
+  assert.equal(bound.savedRecipe.runName, "test-a");
+  assert.equal(bound.savedRecipe.profile, "full");
+  f.files.set(f.artifact("test-a", "onnx"), "changed");
+  const invalidated = await f.api.snapshot();
+  assert.equal(invalidated.evaluation, null);
+  assert.equal(invalidated.savedRecipe, null);
+  f.files.set(f.artifact("test-a", "onnx"), "artifact");
+  f.api.startJob("render", input("test-a", { profile: "full", seed: 42 }));
+  const mismatched = await f.api.snapshot();
+  assert.equal(mismatched.evaluation.evaluation_settings_match, false);
+  assert.equal(mismatched.savedRecipe, null);
 });
 
 test("reports without source hashes remain visible only as unassessed", async () => {
@@ -595,17 +798,17 @@ test("UI requires authoritative scoped skill verdict, not finite output or large
   assert.equal(evaluationVerdict(pipeline, "swing").skillAssessed, false);
   assert.equal(evaluationVerdict(pipeline, "dance").taskPassed, false);
   assert.equal(evaluationVerdict({ passed: true, finite: true }, "swing").taskPassed, false);
-  const skill = { ...pipeline, evaluation_mode: "skill", skill_status: "failed", swing_span_deg: 175 };
+  const skill = { ...pipeline, recipe: "swing", evaluation_mode: "skill", skill_status: "failed", swing_span_deg: 175 };
   assert.equal(evaluationVerdict(skill, "swing").taskPassed, false);
   assert.equal(evaluationVerdict({ ...skill, skill_status: "passed" }, "swing").taskPassed, true);
   assert.equal(evaluationVerdict({ ...skill, skill_status: "passed", passed: false }, "swing").taskPassed, false);
   assert.equal(evaluationVerdict({ ...skill, skill_status: "not_assessed" }, "dance").taskPassed, false);
   assert.equal(evaluationVerdict({ ...skill, skill_status: "failed" }, "dance").taskPassed, false);
-  assert.equal(evaluationVerdict({ ...skill, skill_status: "passed" }, "dance").taskPassed, true);
+  assert.equal(evaluationVerdict({ ...skill, recipe: "dance", skill_status: "passed" }, "dance").taskPassed, true);
   assert.equal(evaluationVerdict({ ...skill, skill_status: "not_assessed" }, "running").taskPassed, false);
   assert.equal(evaluationVerdict({ ...skill, skill_status: "failed" }, "running").taskPassed, false);
-  assert.equal(evaluationVerdict({ ...skill, skill_status: "passed" }, "running").taskPassed, true);
+  assert.equal(evaluationVerdict({ ...skill, recipe: "running", skill_status: "passed" }, "running").taskPassed, true);
   assert.equal(evaluationVerdict({ ...skill, skill_status: "not_assessed" }, "stilts").taskPassed, false);
-  assert.equal(evaluationVerdict({ ...skill, skill_status: "passed" }, "stilts").taskPassed, true);
+  assert.equal(evaluationVerdict({ ...skill, recipe: "stilts", skill_status: "passed" }, "stilts").taskPassed, true);
   assert.equal(evaluationVerdict({ ...skill, evaluation: { swing_criteria: { min_bidirectional_span_deg: 150 } } }, "swing").swingMinSpanDeg, 150);
 });

@@ -1,0 +1,1993 @@
+{
+  "reference_sha256": "108bf9e56b374b36d2d86c0698bace538ac5d1db0b57d4669d94d4c739190eac",
+  "policy_sha256": "32c27fe239285f1be624b01f77eaa7a411262852c89d51404ae8398ac94bdbd9",
+  "recipe": {
+    "experimentId": "dance",
+    "runName": "dance-e2e-20260907-low-noise",
+    "profile": "full",
+    "danceClip": "/Volumes/ExternalSSD/geoagent/microduck-lab/rlx/artifacts/dance-e2e-20260907/reference.clip.json",
+    "dancePoseSigma": 0.2,
+    "totalTimesteps": 4001792,
+    "numEnvs": 16,
+    "numSteps": 128,
+    "numMinibatches": 4,
+    "updateEpochs": 4,
+    "seed": 7,
+    "maxEpisodeS": 8,
+    "evalSteps": 400,
+    "renderSeconds": 8,
+    "learningRate": 0.0001,
+    "gamma": 0.99,
+    "clipCoefficient": 0.2,
+    "entropyCoefficient": 0,
+    "maxGradNorm": 0.5,
+    "initialStd": 0.1,
+    "normalizeRewards": true,
+    "checkpointInterval": 200000,
+    "domainRand": false,
+    "obsNoise": false,
+    "actionDelay": false,
+    "randomYaw": false,
+    "resumeFromCheckpoint": false,
+    "rewardWeights": {
+      "pose_match": 40,
+      "travel": 0,
+      "save_energy": 0.0005
+    }
+  },
+  "controls": {
+    "trained": [
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 400,
+            "measured_steps": 400,
+            "terminated": false,
+            "truncated": true,
+            "complete": true,
+            "upright_fraction": 1.0,
+            "height_m": {
+              "mean": 0.1163968018493528,
+              "min": 0.11427992574255273
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 400,
+              "unique": 400,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.0812280175048885,
+            "leg_pose_rmse_rad": 0.05401295388677694,
+            "moving_joint_count": 12,
+            "moving_leg_joint_count": 8,
+            "dynamic_tracking_rmse_rad": 0.08694868584834087,
+            "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+            "dynamic_gain": 0.4076646004649035,
+            "mean_joint_correlation": 0.7167908999509421,
+            "leg_dynamic_tracking_rmse_rad": 0.05865471841202323,
+            "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+            "leg_dynamic_gain": 0.5470137313873009,
+            "leg_mean_joint_correlation": 0.9241572719449863,
+            "passed": true,
+            "failures": []
+          }
+        ],
+        "completed_episodes": 1,
+        "incomplete_episodes": 0,
+        "passed_episodes": 1,
+        "passed": true,
+        "failures": [],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 101,
+        "raw_return": 17656.244267997747,
+        "reward_per_step": 44.140610669994366,
+        "finite": true
+      },
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 400,
+            "measured_steps": 400,
+            "terminated": false,
+            "truncated": true,
+            "complete": true,
+            "upright_fraction": 1.0,
+            "height_m": {
+              "mean": 0.11619013247454635,
+              "min": 0.11401729431307946
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 400,
+              "unique": 400,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.08275317365237454,
+            "leg_pose_rmse_rad": 0.054331527362304496,
+            "moving_joint_count": 12,
+            "moving_leg_joint_count": 8,
+            "dynamic_tracking_rmse_rad": 0.08842410973268679,
+            "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+            "dynamic_gain": 0.39761331806206146,
+            "mean_joint_correlation": 0.705498602770746,
+            "leg_dynamic_tracking_rmse_rad": 0.05860012622199124,
+            "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+            "leg_dynamic_gain": 0.5474353430347096,
+            "leg_mean_joint_correlation": 0.9195585523782489,
+            "passed": true,
+            "failures": []
+          }
+        ],
+        "completed_episodes": 1,
+        "incomplete_episodes": 0,
+        "passed_episodes": 1,
+        "passed": true,
+        "failures": [],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 102,
+        "raw_return": 17656.02324735718,
+        "reward_per_step": 44.14005811839295,
+        "finite": true
+      },
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 400,
+            "measured_steps": 400,
+            "terminated": false,
+            "truncated": true,
+            "complete": true,
+            "upright_fraction": 1.0,
+            "height_m": {
+              "mean": 0.11693055737555139,
+              "min": 0.11525638137067609
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 400,
+              "unique": 400,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.09827458157978736,
+            "leg_pose_rmse_rad": 0.06391124817795835,
+            "moving_joint_count": 12,
+            "moving_leg_joint_count": 8,
+            "dynamic_tracking_rmse_rad": 0.10561490682005452,
+            "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+            "dynamic_gain": 0.2805015116934889,
+            "mean_joint_correlation": 0.6890495369483017,
+            "leg_dynamic_tracking_rmse_rad": 0.07025851510884597,
+            "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+            "leg_dynamic_gain": 0.45739842489975624,
+            "leg_mean_joint_correlation": 0.9036529001718429,
+            "passed": true,
+            "failures": []
+          }
+        ],
+        "completed_episodes": 1,
+        "incomplete_episodes": 0,
+        "passed_episodes": 1,
+        "passed": true,
+        "failures": [],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 103,
+        "raw_return": 17352.103035684977,
+        "reward_per_step": 43.38025758921244,
+        "finite": true
+      },
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 400,
+            "measured_steps": 400,
+            "terminated": false,
+            "truncated": true,
+            "complete": true,
+            "upright_fraction": 1.0,
+            "height_m": {
+              "mean": 0.11659262366175728,
+              "min": 0.11461938201161234
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 400,
+              "unique": 400,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.08147763302189003,
+            "leg_pose_rmse_rad": 0.053900660798798156,
+            "moving_joint_count": 12,
+            "moving_leg_joint_count": 8,
+            "dynamic_tracking_rmse_rad": 0.08734333331489798,
+            "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+            "dynamic_gain": 0.4049760760496367,
+            "mean_joint_correlation": 0.7213857950997923,
+            "leg_dynamic_tracking_rmse_rad": 0.05879906597925509,
+            "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+            "leg_dynamic_gain": 0.5458989452689129,
+            "leg_mean_joint_correlation": 0.9296319169424597,
+            "passed": true,
+            "failures": []
+          }
+        ],
+        "completed_episodes": 1,
+        "incomplete_episodes": 0,
+        "passed_episodes": 1,
+        "passed": true,
+        "failures": [],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 104,
+        "raw_return": 17629.769905188492,
+        "reward_per_step": 44.07442476297123,
+        "finite": true
+      },
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 400,
+            "measured_steps": 400,
+            "terminated": false,
+            "truncated": true,
+            "complete": true,
+            "upright_fraction": 1.0,
+            "height_m": {
+              "mean": 0.11625850054410312,
+              "min": 0.11399911547712324
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 400,
+              "unique": 400,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.07815773098601544,
+            "leg_pose_rmse_rad": 0.05559740032867365,
+            "moving_joint_count": 12,
+            "moving_leg_joint_count": 8,
+            "dynamic_tracking_rmse_rad": 0.08387998882024657,
+            "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+            "dynamic_gain": 0.4285700099308831,
+            "mean_joint_correlation": 0.6994020137418616,
+            "leg_dynamic_tracking_rmse_rad": 0.06105336471740445,
+            "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+            "leg_dynamic_gain": 0.528489154524384,
+            "leg_mean_joint_correlation": 0.9069942711382438,
+            "passed": true,
+            "failures": []
+          }
+        ],
+        "completed_episodes": 1,
+        "incomplete_episodes": 0,
+        "passed_episodes": 1,
+        "passed": true,
+        "failures": [],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 105,
+        "raw_return": 17676.06264927268,
+        "reward_per_step": 44.1901566231817,
+        "finite": true
+      }
+    ],
+    "zero": [
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 49,
+            "measured_steps": 49,
+            "terminated": true,
+            "truncated": false,
+            "complete": false,
+            "upright_fraction": 0.7346938775510204,
+            "height_m": {
+              "mean": 0.11014664060495545,
+              "min": 0.07190091025886233
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 49,
+              "unique": 49,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.10855581243962946,
+            "leg_pose_rmse_rad": 0.08565660165993798,
+            "moving_joint_count": 4,
+            "moving_leg_joint_count": 0,
+            "dynamic_tracking_rmse_rad": 0.15133618843711774,
+            "constant_mean_baseline_rmse_rad": 0.09606877581652958,
+            "dynamic_gain": -0.575290068504015,
+            "mean_joint_correlation": 0.39850689329616645,
+            "leg_dynamic_tracking_rmse_rad": null,
+            "leg_constant_mean_baseline_rmse_rad": null,
+            "leg_dynamic_gain": null,
+            "leg_mean_joint_correlation": null,
+            "passed": false,
+            "failures": [
+              "dynamic tracking gain below target",
+              "episode did not cover the requested clip horizon",
+              "episode terminated or fell",
+              "insufficient moving leg joints in reference",
+              "leg dynamic tracking did not improve on baseline",
+              "upright fraction below target"
+            ]
+          }
+        ],
+        "completed_episodes": 0,
+        "incomplete_episodes": 1,
+        "passed_episodes": 0,
+        "passed": false,
+        "failures": [
+          "dynamic tracking gain below target",
+          "episode did not cover the requested clip horizon",
+          "episode terminated or fell",
+          "insufficient moving leg joints in reference",
+          "leg dynamic tracking did not improve on baseline",
+          "upright fraction below target"
+        ],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 101,
+        "raw_return": 1957.6467432121724,
+        "reward_per_step": 39.951974351268824,
+        "finite": true
+      },
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 46,
+            "measured_steps": 46,
+            "terminated": true,
+            "truncated": false,
+            "complete": false,
+            "upright_fraction": 0.717391304347826,
+            "height_m": {
+              "mean": 0.109778746171483,
+              "min": 0.07366229736700708
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 46,
+              "unique": 46,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.10355338762194888,
+            "leg_pose_rmse_rad": 0.08558963450442782,
+            "moving_joint_count": 3,
+            "moving_leg_joint_count": 0,
+            "dynamic_tracking_rmse_rad": 0.15824227950882372,
+            "constant_mean_baseline_rmse_rad": 0.10573649097442922,
+            "dynamic_gain": -0.4965720731841974,
+            "mean_joint_correlation": 0.23908134335665288,
+            "leg_dynamic_tracking_rmse_rad": null,
+            "leg_constant_mean_baseline_rmse_rad": null,
+            "leg_dynamic_gain": null,
+            "leg_mean_joint_correlation": null,
+            "passed": false,
+            "failures": [
+              "dynamic tracking gain below target",
+              "episode did not cover the requested clip horizon",
+              "episode terminated or fell",
+              "insufficient moving leg joints in reference",
+              "leg dynamic tracking did not improve on baseline",
+              "upright fraction below target"
+            ]
+          }
+        ],
+        "completed_episodes": 0,
+        "incomplete_episodes": 1,
+        "passed_episodes": 0,
+        "passed": false,
+        "failures": [
+          "dynamic tracking gain below target",
+          "episode did not cover the requested clip horizon",
+          "episode terminated or fell",
+          "insufficient moving leg joints in reference",
+          "leg dynamic tracking did not improve on baseline",
+          "upright fraction below target"
+        ],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 102,
+        "raw_return": 1842.4576438039676,
+        "reward_per_step": 40.053427039216686,
+        "finite": true
+      },
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 45,
+            "measured_steps": 45,
+            "terminated": true,
+            "truncated": false,
+            "complete": false,
+            "upright_fraction": 0.7111111111111111,
+            "height_m": {
+              "mean": 0.1094145585765716,
+              "min": 0.07177386908256353
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 45,
+              "unique": 45,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.10328726698214256,
+            "leg_pose_rmse_rad": 0.08854449220578396,
+            "moving_joint_count": 3,
+            "moving_leg_joint_count": 0,
+            "dynamic_tracking_rmse_rad": 0.1518114624981722,
+            "constant_mean_baseline_rmse_rad": 0.10422146863971757,
+            "dynamic_gain": -0.45662371178982464,
+            "mean_joint_correlation": 0.19193129318562097,
+            "leg_dynamic_tracking_rmse_rad": null,
+            "leg_constant_mean_baseline_rmse_rad": null,
+            "leg_dynamic_gain": null,
+            "leg_mean_joint_correlation": null,
+            "passed": false,
+            "failures": [
+              "dynamic tracking gain below target",
+              "episode did not cover the requested clip horizon",
+              "episode terminated or fell",
+              "insufficient moving leg joints in reference",
+              "leg dynamic tracking did not improve on baseline",
+              "upright fraction below target"
+            ]
+          }
+        ],
+        "completed_episodes": 0,
+        "incomplete_episodes": 1,
+        "passed_episodes": 0,
+        "passed": false,
+        "failures": [
+          "dynamic tracking gain below target",
+          "episode did not cover the requested clip horizon",
+          "episode terminated or fell",
+          "insufficient moving leg joints in reference",
+          "leg dynamic tracking did not improve on baseline",
+          "upright fraction below target"
+        ],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 103,
+        "raw_return": 1795.8550418728619,
+        "reward_per_step": 39.90788981939693,
+        "finite": true
+      },
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 44,
+            "measured_steps": 44,
+            "terminated": true,
+            "truncated": false,
+            "complete": false,
+            "upright_fraction": 0.7272727272727273,
+            "height_m": {
+              "mean": 0.10969961304232413,
+              "min": 0.07690924718146425
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 44,
+              "unique": 44,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.10202040518504267,
+            "leg_pose_rmse_rad": 0.08591567014004718,
+            "moving_joint_count": 3,
+            "moving_leg_joint_count": 0,
+            "dynamic_tracking_rmse_rad": 0.15262309482808573,
+            "constant_mean_baseline_rmse_rad": 0.10261843592726966,
+            "dynamic_gain": -0.4872872837026734,
+            "mean_joint_correlation": 0.8589791564303905,
+            "leg_dynamic_tracking_rmse_rad": null,
+            "leg_constant_mean_baseline_rmse_rad": null,
+            "leg_dynamic_gain": null,
+            "leg_mean_joint_correlation": null,
+            "passed": false,
+            "failures": [
+              "dynamic tracking gain below target",
+              "episode did not cover the requested clip horizon",
+              "episode terminated or fell",
+              "insufficient moving leg joints in reference",
+              "leg dynamic tracking did not improve on baseline",
+              "upright fraction below target"
+            ]
+          }
+        ],
+        "completed_episodes": 0,
+        "incomplete_episodes": 1,
+        "passed_episodes": 0,
+        "passed": false,
+        "failures": [
+          "dynamic tracking gain below target",
+          "episode did not cover the requested clip horizon",
+          "episode terminated or fell",
+          "insufficient moving leg joints in reference",
+          "leg dynamic tracking did not improve on baseline",
+          "upright fraction below target"
+        ],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 104,
+        "raw_return": 1765.593567857948,
+        "reward_per_step": 40.127126542226094,
+        "finite": true
+      },
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 43,
+            "measured_steps": 43,
+            "terminated": true,
+            "truncated": false,
+            "complete": false,
+            "upright_fraction": 0.6976744186046512,
+            "height_m": {
+              "mean": 0.10922111062067609,
+              "min": 0.07273242291326038
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 43,
+              "unique": 43,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.10102304883086284,
+            "leg_pose_rmse_rad": 0.08756576853060413,
+            "moving_joint_count": 3,
+            "moving_leg_joint_count": 0,
+            "dynamic_tracking_rmse_rad": 0.1460828688787887,
+            "constant_mean_baseline_rmse_rad": 0.1008726709681518,
+            "dynamic_gain": -0.4481907485617287,
+            "mean_joint_correlation": 0.2815872694007643,
+            "leg_dynamic_tracking_rmse_rad": null,
+            "leg_constant_mean_baseline_rmse_rad": null,
+            "leg_dynamic_gain": null,
+            "leg_mean_joint_correlation": null,
+            "passed": false,
+            "failures": [
+              "dynamic tracking gain below target",
+              "episode did not cover the requested clip horizon",
+              "episode terminated or fell",
+              "insufficient moving leg joints in reference",
+              "leg dynamic tracking did not improve on baseline",
+              "upright fraction below target"
+            ]
+          }
+        ],
+        "completed_episodes": 0,
+        "incomplete_episodes": 1,
+        "passed_episodes": 0,
+        "passed": false,
+        "failures": [
+          "dynamic tracking gain below target",
+          "episode did not cover the requested clip horizon",
+          "episode terminated or fell",
+          "insufficient moving leg joints in reference",
+          "leg dynamic tracking did not improve on baseline",
+          "upright fraction below target"
+        ],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 105,
+        "raw_return": 1715.9972468821004,
+        "reward_per_step": 39.90691271818838,
+        "finite": true
+      }
+    ],
+    "frozen_phase": [
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 400,
+            "measured_steps": 400,
+            "terminated": false,
+            "truncated": true,
+            "complete": true,
+            "upright_fraction": 1.0,
+            "height_m": {
+              "mean": 0.11693017716900672,
+              "min": 0.11604330842182307
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 400,
+              "unique": 400,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.15086579397892852,
+            "leg_pose_rmse_rad": 0.13108267239974805,
+            "moving_joint_count": 12,
+            "moving_leg_joint_count": 8,
+            "dynamic_tracking_rmse_rad": 0.16239716026282452,
+            "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+            "dynamic_gain": -0.10632594235443316,
+            "mean_joint_correlation": -0.0238686109338017,
+            "leg_dynamic_tracking_rmse_rad": 0.14562532955810603,
+            "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+            "leg_dynamic_gain": -0.12465418704489184,
+            "leg_mean_joint_correlation": -0.10003877327109925,
+            "passed": false,
+            "failures": [
+              "dynamic tracking gain below target",
+              "leg dynamic tracking did not improve on baseline",
+              "pose RMSE above target"
+            ]
+          }
+        ],
+        "completed_episodes": 1,
+        "incomplete_episodes": 0,
+        "passed_episodes": 0,
+        "passed": false,
+        "failures": [
+          "dynamic tracking gain below target",
+          "leg dynamic tracking did not improve on baseline",
+          "pose RMSE above target"
+        ],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 101,
+        "raw_return": 15610.169365723435,
+        "reward_per_step": 39.02542341430859,
+        "finite": true
+      },
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 400,
+            "measured_steps": 400,
+            "terminated": false,
+            "truncated": true,
+            "complete": true,
+            "upright_fraction": 1.0,
+            "height_m": {
+              "mean": 0.11662561648453128,
+              "min": 0.1150404594776376
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 400,
+              "unique": 400,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.1544030473578121,
+            "leg_pose_rmse_rad": 0.13022975396569172,
+            "moving_joint_count": 12,
+            "moving_leg_joint_count": 8,
+            "dynamic_tracking_rmse_rad": 0.1661439610744734,
+            "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+            "dynamic_gain": -0.13185091417077044,
+            "mean_joint_correlation": -0.06912860002361872,
+            "leg_dynamic_tracking_rmse_rad": 0.14451620295426085,
+            "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+            "leg_dynamic_gain": -0.11608848022203011,
+            "leg_mean_joint_correlation": -0.11008043999048447,
+            "passed": false,
+            "failures": [
+              "dynamic tracking gain below target",
+              "leg dynamic tracking did not improve on baseline",
+              "pose RMSE above target"
+            ]
+          }
+        ],
+        "completed_episodes": 1,
+        "incomplete_episodes": 0,
+        "passed_episodes": 0,
+        "passed": false,
+        "failures": [
+          "dynamic tracking gain below target",
+          "leg dynamic tracking did not improve on baseline",
+          "pose RMSE above target"
+        ],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 102,
+        "raw_return": 15562.405769163612,
+        "reward_per_step": 38.90601442290903,
+        "finite": true
+      },
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 400,
+            "measured_steps": 400,
+            "terminated": false,
+            "truncated": true,
+            "complete": true,
+            "upright_fraction": 1.0,
+            "height_m": {
+              "mean": 0.11723045691116495,
+              "min": 0.11685346980690973
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 400,
+              "unique": 400,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.15148675705663764,
+            "leg_pose_rmse_rad": 0.12925705806304477,
+            "moving_joint_count": 12,
+            "moving_leg_joint_count": 8,
+            "dynamic_tracking_rmse_rad": 0.16323230202741523,
+            "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+            "dynamic_gain": -0.11201532139415926,
+            "mean_joint_correlation": 0.012014994689082237,
+            "leg_dynamic_tracking_rmse_rad": 0.14384712275696135,
+            "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+            "leg_dynamic_gain": -0.11092122087473744,
+            "leg_mean_joint_correlation": 0.03722937358181366,
+            "passed": false,
+            "failures": [
+              "dynamic tracking gain below target",
+              "leg dynamic tracking did not improve on baseline",
+              "pose RMSE above target"
+            ]
+          }
+        ],
+        "completed_episodes": 1,
+        "incomplete_episodes": 0,
+        "passed_episodes": 0,
+        "passed": false,
+        "failures": [
+          "dynamic tracking gain below target",
+          "leg dynamic tracking did not improve on baseline",
+          "pose RMSE above target"
+        ],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 103,
+        "raw_return": 15599.034588523138,
+        "reward_per_step": 38.99758647130785,
+        "finite": true
+      },
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 400,
+            "measured_steps": 400,
+            "terminated": false,
+            "truncated": true,
+            "complete": true,
+            "upright_fraction": 1.0,
+            "height_m": {
+              "mean": 0.11693367698750169,
+              "min": 0.11563049830542302
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 400,
+              "unique": 400,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.145099833093581,
+            "leg_pose_rmse_rad": 0.12815714507548576,
+            "moving_joint_count": 12,
+            "moving_leg_joint_count": 8,
+            "dynamic_tracking_rmse_rad": 0.15628101912518247,
+            "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+            "dynamic_gain": -0.06465990831342094,
+            "mean_joint_correlation": 0.09295628540636613,
+            "leg_dynamic_tracking_rmse_rad": 0.14255356875209577,
+            "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+            "leg_dynamic_gain": -0.10093119419355978,
+            "leg_mean_joint_correlation": 0.10492555158180308,
+            "passed": false,
+            "failures": [
+              "dynamic tracking gain below target",
+              "leg dynamic tracking did not improve on baseline"
+            ]
+          }
+        ],
+        "completed_episodes": 1,
+        "incomplete_episodes": 0,
+        "passed_episodes": 0,
+        "passed": false,
+        "failures": [
+          "dynamic tracking gain below target",
+          "leg dynamic tracking did not improve on baseline"
+        ],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 104,
+        "raw_return": 15673.330970104278,
+        "reward_per_step": 39.18332742526069,
+        "finite": true
+      },
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 400,
+            "measured_steps": 400,
+            "terminated": false,
+            "truncated": true,
+            "complete": true,
+            "upright_fraction": 1.0,
+            "height_m": {
+              "mean": 0.11662605305243492,
+              "min": 0.11535007571392071
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 400,
+              "unique": 400,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.15853121796031747,
+            "leg_pose_rmse_rad": 0.13503893030490297,
+            "moving_joint_count": 12,
+            "moving_leg_joint_count": 8,
+            "dynamic_tracking_rmse_rad": 0.17069254600477746,
+            "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+            "dynamic_gain": -0.16283801703176648,
+            "mean_joint_correlation": -0.2301673615454017,
+            "leg_dynamic_tracking_rmse_rad": 0.15005682722151364,
+            "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+            "leg_dynamic_gain": -0.158878332096817,
+            "leg_mean_joint_correlation": -0.30258251222205534,
+            "passed": false,
+            "failures": [
+              "dynamic tracking gain below target",
+              "leg dynamic tracking did not improve on baseline",
+              "pose RMSE above target"
+            ]
+          }
+        ],
+        "completed_episodes": 1,
+        "incomplete_episodes": 0,
+        "passed_episodes": 0,
+        "passed": false,
+        "failures": [
+          "dynamic tracking gain below target",
+          "leg dynamic tracking did not improve on baseline",
+          "pose RMSE above target"
+        ],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 105,
+        "raw_return": 15392.150903401242,
+        "reward_per_step": 38.480377258503104,
+        "finite": true
+      }
+    ],
+    "untrained": [
+      {
+        "criteria": {
+          "version": 1,
+          "min_upright": 0.9,
+          "min_upright_fraction": 0.95,
+          "max_pose_rmse_rad": 0.15,
+          "min_dynamic_gain": 0.2,
+          "min_leg_dynamic_gain": 0.0,
+          "moving_joint_std_rad": 0.03,
+          "min_moving_leg_joints": 2,
+          "all_episodes_required": true,
+          "required_steps": 400
+        },
+        "episodes": [
+          {
+            "env_index": 0,
+            "episode_index": 0,
+            "steps": 37,
+            "measured_steps": 37,
+            "terminated": true,
+            "truncated": false,
+            "complete": false,
+            "upright_fraction": 0.7027027027027027,
+            "height_m": {
+              "mean": 0.10987161238121726,
+              "min": 0.07794861419574796
+            },
+            "phase_step": {
+              "start": 1,
+              "end": 37,
+              "unique": 37,
+              "contiguous": true
+            },
+            "pose_rmse_rad": 0.11109337657076597,
+            "leg_pose_rmse_rad": 0.10050359586561904,
+            "moving_joint_count": 4,
+            "moving_leg_joint_count": 0,
+            "dynamic_tracking_rmse_rad": 0.13395391803836815,
+            "constant_mean_baseline_rmse_rad": 0.07501057009370089,
+            "dynamic_gain": -0.7858005594549813,
+            "mean_joint_correlation": -0.17223331061767277,
+            "leg_dynamic_tracking_rmse_rad": null,
+            "leg_constant_mean_baseline_rmse_rad": null,
+            "leg_dynamic_gain": null,
+            "leg_mean_joint_correlation": null,
+            "passed": false,
+            "failures": [
+              "dynamic tracking gain below target",
+              "episode did not cover the requested clip horizon",
+              "episode terminated or fell",
+              "insufficient moving leg joints in reference",
+              "leg dynamic tracking did not improve on baseline",
+              "upright fraction below target"
+            ]
+          }
+        ],
+        "completed_episodes": 0,
+        "incomplete_episodes": 1,
+        "passed_episodes": 0,
+        "passed": false,
+        "failures": [
+          "dynamic tracking gain below target",
+          "episode did not cover the requested clip horizon",
+          "episode terminated or fell",
+          "insufficient moving leg joints in reference",
+          "leg dynamic tracking did not improve on baseline",
+          "upright fraction below target"
+        ],
+        "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+        "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+        "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+        "hardware_safe": false,
+        "seed": 101,
+        "raw_return": 1413.03109062885,
+        "reward_per_step": 38.19002947645541,
+        "finite": true,
+        "steps": 0,
+        "checkpoint": "rlx/runs/studio/dance/dance-e2e-20260907-low-noise/checkpoints/step-000000000.safetensors"
+      }
+    ]
+  },
+  "history": [
+    {
+      "criteria": {
+        "version": 1,
+        "min_upright": 0.9,
+        "min_upright_fraction": 0.95,
+        "max_pose_rmse_rad": 0.15,
+        "min_dynamic_gain": 0.2,
+        "min_leg_dynamic_gain": 0.0,
+        "moving_joint_std_rad": 0.03,
+        "min_moving_leg_joints": 2,
+        "all_episodes_required": true,
+        "required_steps": 400
+      },
+      "episodes": [
+        {
+          "env_index": 0,
+          "episode_index": 0,
+          "steps": 37,
+          "measured_steps": 37,
+          "terminated": true,
+          "truncated": false,
+          "complete": false,
+          "upright_fraction": 0.7027027027027027,
+          "height_m": {
+            "mean": 0.10987161238121726,
+            "min": 0.07794861419574796
+          },
+          "phase_step": {
+            "start": 1,
+            "end": 37,
+            "unique": 37,
+            "contiguous": true
+          },
+          "pose_rmse_rad": 0.11109337657076597,
+          "leg_pose_rmse_rad": 0.10050359586561904,
+          "moving_joint_count": 4,
+          "moving_leg_joint_count": 0,
+          "dynamic_tracking_rmse_rad": 0.13395391803836815,
+          "constant_mean_baseline_rmse_rad": 0.07501057009370089,
+          "dynamic_gain": -0.7858005594549813,
+          "mean_joint_correlation": -0.17223331061767277,
+          "leg_dynamic_tracking_rmse_rad": null,
+          "leg_constant_mean_baseline_rmse_rad": null,
+          "leg_dynamic_gain": null,
+          "leg_mean_joint_correlation": null,
+          "passed": false,
+          "failures": [
+            "dynamic tracking gain below target",
+            "episode did not cover the requested clip horizon",
+            "episode terminated or fell",
+            "insufficient moving leg joints in reference",
+            "leg dynamic tracking did not improve on baseline",
+            "upright fraction below target"
+          ]
+        }
+      ],
+      "completed_episodes": 0,
+      "incomplete_episodes": 1,
+      "passed_episodes": 0,
+      "passed": false,
+      "failures": [
+        "dynamic tracking gain below target",
+        "episode did not cover the requested clip horizon",
+        "episode terminated or fell",
+        "insufficient moving leg joints in reference",
+        "leg dynamic tracking did not improve on baseline",
+        "upright fraction below target"
+      ],
+      "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+      "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+      "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+      "hardware_safe": false,
+      "seed": 101,
+      "raw_return": 1413.03109062885,
+      "reward_per_step": 38.19002947645541,
+      "finite": true,
+      "steps": 0,
+      "checkpoint": "rlx/runs/studio/dance/dance-e2e-20260907-low-noise/checkpoints/step-000000000.safetensors"
+    },
+    {
+      "criteria": {
+        "version": 1,
+        "min_upright": 0.9,
+        "min_upright_fraction": 0.95,
+        "max_pose_rmse_rad": 0.15,
+        "min_dynamic_gain": 0.2,
+        "min_leg_dynamic_gain": 0.0,
+        "moving_joint_std_rad": 0.03,
+        "min_moving_leg_joints": 2,
+        "all_episodes_required": true,
+        "required_steps": 400
+      },
+      "episodes": [
+        {
+          "env_index": 0,
+          "episode_index": 0,
+          "steps": 400,
+          "measured_steps": 400,
+          "terminated": false,
+          "truncated": true,
+          "complete": true,
+          "upright_fraction": 1.0,
+          "height_m": {
+            "mean": 0.11681284653641696,
+            "min": 0.11600954310249086
+          },
+          "phase_step": {
+            "start": 1,
+            "end": 400,
+            "unique": 400,
+            "contiguous": true
+          },
+          "pose_rmse_rad": 0.14558447506152783,
+          "leg_pose_rmse_rad": 0.12974493358825298,
+          "moving_joint_count": 12,
+          "moving_leg_joint_count": 8,
+          "dynamic_tracking_rmse_rad": 0.15622780930877422,
+          "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+          "dynamic_gain": -0.06429741798301669,
+          "mean_joint_correlation": 0.0570691072348268,
+          "leg_dynamic_tracking_rmse_rad": 0.1433942412677623,
+          "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+          "leg_dynamic_gain": -0.10742364895776113,
+          "leg_mean_joint_correlation": 0.04696882952746262,
+          "passed": false,
+          "failures": [
+            "dynamic tracking gain below target",
+            "leg dynamic tracking did not improve on baseline"
+          ]
+        }
+      ],
+      "completed_episodes": 1,
+      "incomplete_episodes": 0,
+      "passed_episodes": 0,
+      "passed": false,
+      "failures": [
+        "dynamic tracking gain below target",
+        "leg dynamic tracking did not improve on baseline"
+      ],
+      "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+      "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+      "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+      "hardware_safe": false,
+      "seed": 101,
+      "raw_return": 15346.975714917495,
+      "reward_per_step": 38.367439287293735,
+      "finite": true,
+      "steps": 401408,
+      "checkpoint": "rlx/runs/studio/dance/dance-e2e-20260907-low-noise/checkpoints/step-000401408.safetensors"
+    },
+    {
+      "criteria": {
+        "version": 1,
+        "min_upright": 0.9,
+        "min_upright_fraction": 0.95,
+        "max_pose_rmse_rad": 0.15,
+        "min_dynamic_gain": 0.2,
+        "min_leg_dynamic_gain": 0.0,
+        "moving_joint_std_rad": 0.03,
+        "min_moving_leg_joints": 2,
+        "all_episodes_required": true,
+        "required_steps": 400
+      },
+      "episodes": [
+        {
+          "env_index": 0,
+          "episode_index": 0,
+          "steps": 400,
+          "measured_steps": 400,
+          "terminated": false,
+          "truncated": true,
+          "complete": true,
+          "upright_fraction": 1.0,
+          "height_m": {
+            "mean": 0.1169906552704013,
+            "min": 0.11627472513441936
+          },
+          "phase_step": {
+            "start": 1,
+            "end": 400,
+            "unique": 400,
+            "contiguous": true
+          },
+          "pose_rmse_rad": 0.14361377140889156,
+          "leg_pose_rmse_rad": 0.1272120398872308,
+          "moving_joint_count": 12,
+          "moving_leg_joint_count": 8,
+          "dynamic_tracking_rmse_rad": 0.1543327097779545,
+          "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+          "dynamic_gain": -0.05138710741541552,
+          "mean_joint_correlation": 0.0796664100838025,
+          "leg_dynamic_tracking_rmse_rad": 0.14093581867094007,
+          "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+          "leg_dynamic_gain": -0.08843742399654198,
+          "leg_mean_joint_correlation": 0.08715337974412862,
+          "passed": false,
+          "failures": [
+            "dynamic tracking gain below target",
+            "leg dynamic tracking did not improve on baseline"
+          ]
+        }
+      ],
+      "completed_episodes": 1,
+      "incomplete_episodes": 0,
+      "passed_episodes": 0,
+      "passed": false,
+      "failures": [
+        "dynamic tracking gain below target",
+        "leg dynamic tracking did not improve on baseline"
+      ],
+      "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+      "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+      "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+      "hardware_safe": false,
+      "seed": 101,
+      "raw_return": 15544.181420051933,
+      "reward_per_step": 38.86045355012983,
+      "finite": true,
+      "steps": 800768,
+      "checkpoint": "rlx/runs/studio/dance/dance-e2e-20260907-low-noise/checkpoints/step-000800768.safetensors"
+    },
+    {
+      "criteria": {
+        "version": 1,
+        "min_upright": 0.9,
+        "min_upright_fraction": 0.95,
+        "max_pose_rmse_rad": 0.15,
+        "min_dynamic_gain": 0.2,
+        "min_leg_dynamic_gain": 0.0,
+        "moving_joint_std_rad": 0.03,
+        "min_moving_leg_joints": 2,
+        "all_episodes_required": true,
+        "required_steps": 400
+      },
+      "episodes": [
+        {
+          "env_index": 0,
+          "episode_index": 0,
+          "steps": 400,
+          "measured_steps": 400,
+          "terminated": false,
+          "truncated": true,
+          "complete": true,
+          "upright_fraction": 1.0,
+          "height_m": {
+            "mean": 0.11657637987810271,
+            "min": 0.11611563424114826
+          },
+          "phase_step": {
+            "start": 1,
+            "end": 400,
+            "unique": 400,
+            "contiguous": true
+          },
+          "pose_rmse_rad": 0.14148810608646828,
+          "leg_pose_rmse_rad": 0.12252198401493175,
+          "moving_joint_count": 12,
+          "moving_leg_joint_count": 8,
+          "dynamic_tracking_rmse_rad": 0.15152511402481186,
+          "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+          "dynamic_gain": -0.0322604428092188,
+          "mean_joint_correlation": 0.137111947883516,
+          "leg_dynamic_tracking_rmse_rad": 0.13480092244548952,
+          "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+          "leg_dynamic_gain": -0.041058051548249264,
+          "leg_mean_joint_correlation": 0.18917666691498472,
+          "passed": false,
+          "failures": [
+            "dynamic tracking gain below target",
+            "leg dynamic tracking did not improve on baseline"
+          ]
+        }
+      ],
+      "completed_episodes": 1,
+      "incomplete_episodes": 0,
+      "passed_episodes": 0,
+      "passed": false,
+      "failures": [
+        "dynamic tracking gain below target",
+        "leg dynamic tracking did not improve on baseline"
+      ],
+      "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+      "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+      "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+      "hardware_safe": false,
+      "seed": 101,
+      "raw_return": 15635.352117469965,
+      "reward_per_step": 39.088380293674916,
+      "finite": true,
+      "steps": 1200128,
+      "checkpoint": "rlx/runs/studio/dance/dance-e2e-20260907-low-noise/checkpoints/step-001200128.safetensors"
+    },
+    {
+      "criteria": {
+        "version": 1,
+        "min_upright": 0.9,
+        "min_upright_fraction": 0.95,
+        "max_pose_rmse_rad": 0.15,
+        "min_dynamic_gain": 0.2,
+        "min_leg_dynamic_gain": 0.0,
+        "moving_joint_std_rad": 0.03,
+        "min_moving_leg_joints": 2,
+        "all_episodes_required": true,
+        "required_steps": 400
+      },
+      "episodes": [
+        {
+          "env_index": 0,
+          "episode_index": 0,
+          "steps": 400,
+          "measured_steps": 400,
+          "terminated": false,
+          "truncated": true,
+          "complete": true,
+          "upright_fraction": 1.0,
+          "height_m": {
+            "mean": 0.1168264928274784,
+            "min": 0.11594017196665475
+          },
+          "phase_step": {
+            "start": 1,
+            "end": 400,
+            "unique": 400,
+            "contiguous": true
+          },
+          "pose_rmse_rad": 0.13989612469829588,
+          "leg_pose_rmse_rad": 0.11845392338541207,
+          "moving_joint_count": 12,
+          "moving_leg_joint_count": 8,
+          "dynamic_tracking_rmse_rad": 0.1503368515853401,
+          "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+          "dynamic_gain": -0.024165439417623613,
+          "mean_joint_correlation": 0.2236920623104247,
+          "leg_dynamic_tracking_rmse_rad": 0.13111749840823375,
+          "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+          "leg_dynamic_gain": -0.01261122654375324,
+          "leg_mean_joint_correlation": 0.3233515442588707,
+          "passed": false,
+          "failures": [
+            "dynamic tracking gain below target",
+            "leg dynamic tracking did not improve on baseline"
+          ]
+        }
+      ],
+      "completed_episodes": 1,
+      "incomplete_episodes": 0,
+      "passed_episodes": 0,
+      "passed": false,
+      "failures": [
+        "dynamic tracking gain below target",
+        "leg dynamic tracking did not improve on baseline"
+      ],
+      "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+      "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+      "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+      "hardware_safe": false,
+      "seed": 101,
+      "raw_return": 15869.128131882973,
+      "reward_per_step": 39.672820329707434,
+      "finite": true,
+      "steps": 1601536,
+      "checkpoint": "rlx/runs/studio/dance/dance-e2e-20260907-low-noise/checkpoints/step-001601536.safetensors"
+    },
+    {
+      "criteria": {
+        "version": 1,
+        "min_upright": 0.9,
+        "min_upright_fraction": 0.95,
+        "max_pose_rmse_rad": 0.15,
+        "min_dynamic_gain": 0.2,
+        "min_leg_dynamic_gain": 0.0,
+        "moving_joint_std_rad": 0.03,
+        "min_moving_leg_joints": 2,
+        "all_episodes_required": true,
+        "required_steps": 400
+      },
+      "episodes": [
+        {
+          "env_index": 0,
+          "episode_index": 0,
+          "steps": 400,
+          "measured_steps": 400,
+          "terminated": false,
+          "truncated": true,
+          "complete": true,
+          "upright_fraction": 1.0,
+          "height_m": {
+            "mean": 0.11649948288722718,
+            "min": 0.11559981154004915
+          },
+          "phase_step": {
+            "start": 1,
+            "end": 400,
+            "unique": 400,
+            "contiguous": true
+          },
+          "pose_rmse_rad": 0.13962284203941203,
+          "leg_pose_rmse_rad": 0.11136534143895202,
+          "moving_joint_count": 12,
+          "moving_leg_joint_count": 8,
+          "dynamic_tracking_rmse_rad": 0.15005298470623588,
+          "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+          "dynamic_gain": -0.022231604540092986,
+          "mean_joint_correlation": 0.3429745603534143,
+          "leg_dynamic_tracking_rmse_rad": 0.12313084458253418,
+          "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+          "leg_dynamic_gain": 0.04906913972774163,
+          "leg_mean_joint_correlation": 0.49536072330675535,
+          "passed": false,
+          "failures": [
+            "dynamic tracking gain below target"
+          ]
+        }
+      ],
+      "completed_episodes": 1,
+      "incomplete_episodes": 0,
+      "passed_episodes": 0,
+      "passed": false,
+      "failures": [
+        "dynamic tracking gain below target"
+      ],
+      "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+      "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+      "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+      "hardware_safe": false,
+      "seed": 101,
+      "raw_return": 16046.708787463655,
+      "reward_per_step": 40.11677196865914,
+      "finite": true,
+      "steps": 2000896,
+      "checkpoint": "rlx/runs/studio/dance/dance-e2e-20260907-low-noise/checkpoints/step-002000896.safetensors"
+    },
+    {
+      "criteria": {
+        "version": 1,
+        "min_upright": 0.9,
+        "min_upright_fraction": 0.95,
+        "max_pose_rmse_rad": 0.15,
+        "min_dynamic_gain": 0.2,
+        "min_leg_dynamic_gain": 0.0,
+        "moving_joint_std_rad": 0.03,
+        "min_moving_leg_joints": 2,
+        "all_episodes_required": true,
+        "required_steps": 400
+      },
+      "episodes": [
+        {
+          "env_index": 0,
+          "episode_index": 0,
+          "steps": 400,
+          "measured_steps": 400,
+          "terminated": false,
+          "truncated": true,
+          "complete": true,
+          "upright_fraction": 1.0,
+          "height_m": {
+            "mean": 0.11546098520083983,
+            "min": 0.11439243499839155
+          },
+          "phase_step": {
+            "start": 1,
+            "end": 400,
+            "unique": 400,
+            "contiguous": true
+          },
+          "pose_rmse_rad": 0.15569398880036264,
+          "leg_pose_rmse_rad": 0.14778897554102105,
+          "moving_joint_count": 12,
+          "moving_leg_joint_count": 8,
+          "dynamic_tracking_rmse_rad": 0.16672983159680999,
+          "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+          "dynamic_gain": -0.13584214010521833,
+          "mean_joint_correlation": 0.10394583449020377,
+          "leg_dynamic_tracking_rmse_rad": 0.16303113190672675,
+          "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+          "leg_dynamic_gain": -0.2590779754727235,
+          "leg_mean_joint_correlation": 0.09702824076659677,
+          "passed": false,
+          "failures": [
+            "dynamic tracking gain below target",
+            "leg dynamic tracking did not improve on baseline",
+            "pose RMSE above target"
+          ]
+        }
+      ],
+      "completed_episodes": 1,
+      "incomplete_episodes": 0,
+      "passed_episodes": 0,
+      "passed": false,
+      "failures": [
+        "dynamic tracking gain below target",
+        "leg dynamic tracking did not improve on baseline",
+        "pose RMSE above target"
+      ],
+      "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+      "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+      "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+      "hardware_safe": false,
+      "seed": 101,
+      "raw_return": 15385.352579890141,
+      "reward_per_step": 38.463381449725354,
+      "finite": true,
+      "steps": 2400256,
+      "checkpoint": "rlx/runs/studio/dance/dance-e2e-20260907-low-noise/checkpoints/step-002400256.safetensors"
+    },
+    {
+      "criteria": {
+        "version": 1,
+        "min_upright": 0.9,
+        "min_upright_fraction": 0.95,
+        "max_pose_rmse_rad": 0.15,
+        "min_dynamic_gain": 0.2,
+        "min_leg_dynamic_gain": 0.0,
+        "moving_joint_std_rad": 0.03,
+        "min_moving_leg_joints": 2,
+        "all_episodes_required": true,
+        "required_steps": 400
+      },
+      "episodes": [
+        {
+          "env_index": 0,
+          "episode_index": 0,
+          "steps": 400,
+          "measured_steps": 400,
+          "terminated": false,
+          "truncated": true,
+          "complete": true,
+          "upright_fraction": 1.0,
+          "height_m": {
+            "mean": 0.116076100442553,
+            "min": 0.11350104125461956
+          },
+          "phase_step": {
+            "start": 1,
+            "end": 400,
+            "unique": 400,
+            "contiguous": true
+          },
+          "pose_rmse_rad": 0.12535833294199158,
+          "leg_pose_rmse_rad": 0.08082946956999455,
+          "moving_joint_count": 12,
+          "moving_leg_joint_count": 8,
+          "dynamic_tracking_rmse_rad": 0.1345990875896879,
+          "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+          "dynamic_gain": 0.08304762117323505,
+          "mean_joint_correlation": 0.5785066898369055,
+          "leg_dynamic_tracking_rmse_rad": 0.08855156770030345,
+          "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+          "leg_dynamic_gain": 0.31612246519381726,
+          "leg_mean_joint_correlation": 0.7923612796070858,
+          "passed": false,
+          "failures": [
+            "dynamic tracking gain below target"
+          ]
+        }
+      ],
+      "completed_episodes": 1,
+      "incomplete_episodes": 0,
+      "passed_episodes": 0,
+      "passed": false,
+      "failures": [
+        "dynamic tracking gain below target"
+      ],
+      "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+      "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+      "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+      "hardware_safe": false,
+      "seed": 101,
+      "raw_return": 16787.52606805335,
+      "reward_per_step": 41.968815170133375,
+      "finite": true,
+      "steps": 2801664,
+      "checkpoint": "rlx/runs/studio/dance/dance-e2e-20260907-low-noise/checkpoints/step-002801664.safetensors"
+    },
+    {
+      "criteria": {
+        "version": 1,
+        "min_upright": 0.9,
+        "min_upright_fraction": 0.95,
+        "max_pose_rmse_rad": 0.15,
+        "min_dynamic_gain": 0.2,
+        "min_leg_dynamic_gain": 0.0,
+        "moving_joint_std_rad": 0.03,
+        "min_moving_leg_joints": 2,
+        "all_episodes_required": true,
+        "required_steps": 400
+      },
+      "episodes": [
+        {
+          "env_index": 0,
+          "episode_index": 0,
+          "steps": 400,
+          "measured_steps": 400,
+          "terminated": false,
+          "truncated": true,
+          "complete": true,
+          "upright_fraction": 1.0,
+          "height_m": {
+            "mean": 0.1159645841131621,
+            "min": 0.1132137180208219
+          },
+          "phase_step": {
+            "start": 1,
+            "end": 400,
+            "unique": 400,
+            "contiguous": true
+          },
+          "pose_rmse_rad": 0.11364202782621062,
+          "leg_pose_rmse_rad": 0.07111742440323009,
+          "moving_joint_count": 12,
+          "moving_leg_joint_count": 8,
+          "dynamic_tracking_rmse_rad": 0.12190445608556875,
+          "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+          "dynamic_gain": 0.16952942996168519,
+          "mean_joint_correlation": 0.6403910637586888,
+          "leg_dynamic_tracking_rmse_rad": 0.07754199721873836,
+          "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+          "leg_dynamic_gain": 0.40114860437736843,
+          "leg_mean_joint_correlation": 0.8547786209412152,
+          "passed": false,
+          "failures": [
+            "dynamic tracking gain below target"
+          ]
+        }
+      ],
+      "completed_episodes": 1,
+      "incomplete_episodes": 0,
+      "passed_episodes": 0,
+      "passed": false,
+      "failures": [
+        "dynamic tracking gain below target"
+      ],
+      "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+      "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+      "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+      "hardware_safe": false,
+      "seed": 101,
+      "raw_return": 17222.96827301519,
+      "reward_per_step": 43.05742068253798,
+      "finite": true,
+      "steps": 3201024,
+      "checkpoint": "rlx/runs/studio/dance/dance-e2e-20260907-low-noise/checkpoints/step-003201024.safetensors"
+    },
+    {
+      "criteria": {
+        "version": 1,
+        "min_upright": 0.9,
+        "min_upright_fraction": 0.95,
+        "max_pose_rmse_rad": 0.15,
+        "min_dynamic_gain": 0.2,
+        "min_leg_dynamic_gain": 0.0,
+        "moving_joint_std_rad": 0.03,
+        "min_moving_leg_joints": 2,
+        "all_episodes_required": true,
+        "required_steps": 400
+      },
+      "episodes": [
+        {
+          "env_index": 0,
+          "episode_index": 0,
+          "steps": 400,
+          "measured_steps": 400,
+          "terminated": false,
+          "truncated": true,
+          "complete": true,
+          "upright_fraction": 1.0,
+          "height_m": {
+            "mean": 0.11651845820810278,
+            "min": 0.11509268106245646
+          },
+          "phase_step": {
+            "start": 1,
+            "end": 400,
+            "unique": 400,
+            "contiguous": true
+          },
+          "pose_rmse_rad": 0.08763767947426854,
+          "leg_pose_rmse_rad": 0.060876554985577425,
+          "moving_joint_count": 12,
+          "moving_leg_joint_count": 8,
+          "dynamic_tracking_rmse_rad": 0.0936194430632291,
+          "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+          "dynamic_gain": 0.3622202604897773,
+          "mean_joint_correlation": 0.6727218414332374,
+          "leg_dynamic_tracking_rmse_rad": 0.0658688761972089,
+          "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+          "leg_dynamic_gain": 0.4912992977531837,
+          "leg_mean_joint_correlation": 0.8907737638111803,
+          "passed": true,
+          "failures": []
+        }
+      ],
+      "completed_episodes": 1,
+      "incomplete_episodes": 0,
+      "passed_episodes": 1,
+      "passed": true,
+      "failures": [],
+      "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+      "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+      "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+      "hardware_safe": false,
+      "seed": 101,
+      "raw_return": 17600.020520918253,
+      "reward_per_step": 44.00005130229563,
+      "finite": true,
+      "steps": 3600384,
+      "checkpoint": "rlx/runs/studio/dance/dance-e2e-20260907-low-noise/checkpoints/step-003600384.safetensors"
+    },
+    {
+      "criteria": {
+        "version": 1,
+        "min_upright": 0.9,
+        "min_upright_fraction": 0.95,
+        "max_pose_rmse_rad": 0.15,
+        "min_dynamic_gain": 0.2,
+        "min_leg_dynamic_gain": 0.0,
+        "moving_joint_std_rad": 0.03,
+        "min_moving_leg_joints": 2,
+        "all_episodes_required": true,
+        "required_steps": 400
+      },
+      "episodes": [
+        {
+          "env_index": 0,
+          "episode_index": 0,
+          "steps": 400,
+          "measured_steps": 400,
+          "terminated": false,
+          "truncated": true,
+          "complete": true,
+          "upright_fraction": 1.0,
+          "height_m": {
+            "mean": 0.11639828278478731,
+            "min": 0.11427783163725931
+          },
+          "phase_step": {
+            "start": 1,
+            "end": 400,
+            "unique": 400,
+            "contiguous": true
+          },
+          "pose_rmse_rad": 0.08127798191805437,
+          "leg_pose_rmse_rad": 0.05425512476369697,
+          "moving_joint_count": 12,
+          "moving_leg_joint_count": 8,
+          "dynamic_tracking_rmse_rad": 0.08700602829201769,
+          "constant_mean_baseline_rmse_rad": 0.14678961601245488,
+          "dynamic_gain": 0.40727395673114,
+          "mean_joint_correlation": 0.7169479303406986,
+          "leg_dynamic_tracking_rmse_rad": 0.05893982982209251,
+          "leg_constant_mean_baseline_rmse_rad": 0.12948453954610425,
+          "leg_dynamic_gain": 0.5448118360021938,
+          "leg_mean_joint_correlation": 0.9234711673762939,
+          "passed": true,
+          "failures": []
+        }
+      ],
+      "completed_episodes": 1,
+      "incomplete_episodes": 0,
+      "passed_episodes": 1,
+      "passed": true,
+      "failures": [],
+      "measurement_scope": "raw time-aligned control-step joint samples; no smoothing, phase lag, or temporal alignment adjustment",
+      "dynamic_baseline": "per-joint constant mean of the episode reference trajectory",
+      "horizon_definition": "required_steps is the caller-selected clip or excerpt horizon; 400 steps represents 8 seconds at the 50 Hz control rate",
+      "hardware_safe": false,
+      "seed": 101,
+      "raw_return": 17653.692860185663,
+      "reward_per_step": 44.13423215046416,
+      "finite": true,
+      "steps": 4001792,
+      "checkpoint": "rlx/runs/studio/dance/dance-e2e-20260907-low-noise/dance.safetensors"
+    }
+  ],
+  "onnx_parity_max_abs_error": 3.5762786865234375e-07,
+  "onnx_parity_passed": true,
+  "onnx_contract": {
+    "input": [
+      "batch",
+      61
+    ],
+    "output": [
+      "batch",
+      14
+    ],
+    "passed": true
+  },
+  "initial_checkpoint": "rlx/runs/studio/dance/dance-e2e-20260907-low-noise/checkpoints/step-000000000.safetensors",
+  "parameter_l2_change": 12.247028438523373,
+  "training": {
+    "finite": true,
+    "updates": 1954,
+    "optimizer_steps": 31264,
+    "observed_transitions": 4001792,
+    "collection_seconds": 354.8497193278163,
+    "update_seconds": 191.58848621428479,
+    "last_update": {
+      "phase": "update",
+      "steps": 2048,
+      "seconds": 0.10530545801157132,
+      "optimizer_steps": 16,
+      "mean_loss": 0.017904926848132163,
+      "policy_loss": -0.01620156559511088,
+      "value_loss": 0.03410649229772389,
+      "entropy": -14.103708863258362,
+      "approximate_kl": 0.0822541309898952,
+      "clip_fraction": 0.4437255859375,
+      "explained_variance": 0.9282735920604637,
+      "env_steps": 4001792
+    }
+  },
+  "passed": true
+}

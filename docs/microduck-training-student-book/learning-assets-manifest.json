@@ -1,0 +1,18 @@
+{
+  "scope": "Generated teaching diagrams; not measured reward or performance data",
+  "generator": "generate-learning-assets.py",
+  "assets": {
+    "assets/gae-boundaries.svg": "e895311886c30403a5cee1b7e9028a93bfa216f29897f73bc8b33708639bdb3f",
+    "assets/gae-boundaries.pdf": "191ffdc363e5e9285c42593ce747bcea96712c5ca5215aa72baefc433cba9951",
+    "assets/data-routes.svg": "fa2adb9f851f49565961c1e83ba6400d38d61b3f8a33573eef74ad55ff5d430b",
+    "assets/data-routes.pdf": "3be3ddba256915b2287b1821cd1fd6db909c79ed799cacfdbb4eecf5822df29e",
+    "assets/tensor-batch.svg": "73f5e46e1f8c56e83079a661c403ae507e099e3e4302b5028682d2357f363cf7",
+    "assets/tensor-batch.pdf": "7f74c08bcd7cc49e4ddafa1b61c2ccc091210ccc91b363804e52f499c0a5fc19",
+    "assets/transition-accounting.svg": "14bfa3a7efa1d5c5ebf7e7ac662639200e71b48e9bb583e9f57a8fd9776eed29",
+    "assets/transition-accounting.pdf": "be6b40708ec46a3b9319fed5fdf9e8db00f3f0ba9be6d1b130d003a98cc601b3",
+    "assets/transfer-gates.svg": "839f1e1af91cf5b121f8e1286b59c6fd3fb89b356726851e0bd01f118849ee98",
+    "assets/transfer-gates.pdf": "a30cc4e0299e54de148ce6a7bbea920bbad3a7820c32f64fb0cb993412a97a98",
+    "assets/clipped-objective.svg": "aea39205a8ea54d37bdff58e14276285461165201edd85823eaa736ec9c37b3e",
+    "assets/clipped-objective.pdf": "4276c7638fdfe522ae4162302ad6be49490ce7d828714770ad6dcbed2ed8c339"
+  }
+}

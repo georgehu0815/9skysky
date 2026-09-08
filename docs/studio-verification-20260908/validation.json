@@ -1,0 +1,71 @@
+{
+  "passed": true,
+  "date": "2026-09-08T13:47:13.379Z",
+  "scenarios": [
+    {
+      "scenario": "dance",
+      "samples": 1954,
+      "transitions": 4001792,
+      "playbackSeconds": 8,
+      "mobileWidth": 362
+    },
+    {
+      "scenario": "swing",
+      "samples": 128,
+      "transitions": 524288,
+      "playbackSeconds": 24,
+      "mobileWidth": 362
+    },
+    {
+      "scenario": "running",
+      "samples": 1024,
+      "transitions": 2097152,
+      "playbackSeconds": 12,
+      "mobileWidth": 362
+    },
+    {
+      "scenario": "stilts",
+      "samples": 512,
+      "transitions": 1048576,
+      "playbackSeconds": 10,
+      "mobileWidth": 362
+    }
+  ],
+  "tests": {
+    "studio": {
+      "passed": 110,
+      "failed": 0
+    },
+    "nativeRlx": {
+      "passed": 418,
+      "skipped": 2,
+      "optionalMjlabExcluded": true
+    },
+    "lint": "passed",
+    "typecheck": "passed",
+    "productionBuild": "passed",
+    "browser": "4/4 desktop and mobile passed"
+  },
+  "apiSmoke": "Cumbia selected clip: 4 training transitions, eval, render, export passed; not a learned-skill claim",
+  "review": {
+    "decision": "approve",
+    "critical": 0,
+    "high": 0
+  },
+  "reports": {
+    "markdown": "6c65f3e3b40f88bf0257b26240e126f1e15793f4d8f28a31931ac0f64e282e06",
+    "pdf": "163684b4d61dfd9906e2d2ed43a7d5c36da3b742b8c046a269ee32eb80adefa3",
+    "localEvidenceLinks": 17
+  },
+  "evidence": {
+    "policy": "rlx/artifacts/studio-ui-20260908/verification.json",
+    "render": "rlx/artifacts/studio-ui-20260908/render-refresh/verification.json",
+    "browser": "rlx/artifacts/studio-ui-20260908/browser/verification.json"
+  },
+  "limitations": [
+    "Nominal simulation, not physical hardware",
+    "Existing final policies re-evaluated, not newly trained from scratch",
+    "Swing acquisition used BC/DAgger before PPO refinement",
+    "Raw artifact API is a local analysis interface, not an authorization boundary"
+  ]
+}

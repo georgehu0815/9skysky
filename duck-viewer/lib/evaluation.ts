@@ -11,8 +11,9 @@ export function evaluationVerdict(
   const supportsSkillAssessment =
     experimentId === "dance" || experimentId === "swing" ||
     experimentId === "running" || experimentId === "stilts";
-  const skillAssessed = scope === "skill" &&
-    supportsSkillAssessment && explicitSkillStatus;
+  const matchingScenario = report?.recipe === experimentId;
+  const skillAssessed = scope === "skill" && matchingScenario &&
+    report?.evaluation_settings_match !== false && supportsSkillAssessment && explicitSkillStatus;
   const settings = report?.evaluation as Record<string, unknown> | undefined;
   const criteria = settings?.swing_criteria as Record<string, unknown> | undefined;
   const target = criteria?.min_bidirectional_span_deg;
@@ -21,7 +22,7 @@ export function evaluationVerdict(
     scope: scope === "skill" || scope === "pipeline" ? scope : null,
     pipelinePassed: report?.pipeline_passed === true,
     skillAssessed,
-    taskPassed: skillAssessed && report?.passed === true &&
+    taskPassed: skillAssessed && report?.pipeline_passed === true && report?.passed === true &&
       report?.skill_status === "passed",
   };
 }

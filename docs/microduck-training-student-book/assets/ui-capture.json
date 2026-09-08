@@ -1,0 +1,60 @@
+{
+  "capturedAt": "2026-09-08T14:05:29.142Z",
+  "baseUrl": "http://127.0.0.1:63317",
+  "deviceScaleFactor": 3,
+  "viewport": [
+    1600,
+    1100
+  ],
+  "note": "Read-only inspection of saved runs. No training actions were submitted. Recipe controls show current UI values, not reconstructed historical recipes.",
+  "receipts": [
+    {
+      "scenario": "dance",
+      "run": "dance-e2e-20260907-low-noise",
+      "accepted": true,
+      "playback": {
+        "src": "http://127.0.0.1:63317/api/rlx/artifact?experiment=dance&run=dance-e2e-20260907-low-noise&kind=video&inline=1&source=32c27fe239285f1be624b01f77eaa7a411262852c89d51404ae8398ac94bdbd9",
+        "duration": 8,
+        "time": 6.220225,
+        "error": null
+      },
+      "contentBottomPixels": 4053
+    },
+    {
+      "scenario": "running",
+      "run": "running-e2e-20260907-v4",
+      "accepted": true,
+      "playback": {
+        "src": "http://127.0.0.1:63317/api/rlx/artifact?experiment=running&run=running-e2e-20260907-v4&kind=video&inline=1&source=f48dc18840a428c66dbca23d83a1f36a82a6657e88b7450acd7e7c23d7cc5745",
+        "duration": 12,
+        "time": 5.26408,
+        "error": null
+      },
+      "contentBottomPixels": 4190
+    },
+    {
+      "scenario": "stilts",
+      "run": "stilts-e2e-20260907-v3",
+      "accepted": true,
+      "playback": {
+        "src": "http://127.0.0.1:63317/api/rlx/artifact?experiment=stilts&run=stilts-e2e-20260907-v3&kind=video&inline=1&source=4e1bdf737c10ef253cc209097509bf3229c08496e71e455b15d2683f37e6cb24",
+        "duration": 10,
+        "time": 3.846334,
+        "error": null
+      },
+      "contentBottomPixels": 4190
+    },
+    {
+      "scenario": "swing",
+      "run": "swing-e2e-20260907-v3",
+      "accepted": true,
+      "playback": {
+        "src": "http://127.0.0.1:63317/api/rlx/artifact?experiment=swing&run=swing-e2e-20260907-v3&kind=video&inline=1&source=d0599d4453fe80bcac4e92cb61d858dae2c86310090885c2a5ecb07ed2bbc916",
+        "duration": 24,
+        "time": 4.122965,
+        "error": null
+      },
+      "contentBottomPixels": 4287
+    }
+  ]
+}

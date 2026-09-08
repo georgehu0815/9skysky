@@ -3,6 +3,8 @@ import { existsSync, realpathSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { prepareRenderEvidence, finalizeRenderEvidence, readRenderEvidence } from "@/lib/rlx-render-evidence";
 
 import {
   defaultRewardWeights,
@@ -10,6 +12,13 @@ import {
   isExperimentId,
   type ExperimentId,
 } from "@/lib/experiments";
+import {
+  collectTrainingHistory,
+  prepareTrainingHistory,
+  restoreTrainingInvocation,
+  type RlxActiveTrainingHistory,
+  type RlxTrainingHistory,
+} from "@/lib/rlx-history";
 
 export type RlxOperation = "train" | "eval" | "render" | "export";
 export type RlxJobPhase =
@@ -77,6 +86,8 @@ export interface RlxRewardPoint {
 }
 
 export interface RlxJobSnapshot {
+  renderVerified: boolean;
+  renderEvidenceId: string | null;
   phase: RlxJobPhase;
   operation: RlxOperation | null;
   activeJob: {
@@ -93,7 +104,9 @@ export interface RlxJobSnapshot {
   logs: string[];
   result: Record<string, unknown> | null;
   evaluation: Record<string, unknown> | null;
+  savedRecipe: RlxRecipe | null;
   rewardHistory: RlxRewardPoint[];
+  trainingHistory: RlxTrainingHistory;
   normalizeRewards: boolean;
   trainingSteps: number;
   trainingTotal: number;
@@ -117,6 +130,7 @@ interface MutableRlxJob {
   normalizeRewards: boolean;
   trainingSteps: number;
   trainingTotal: number;
+  trainingHistoryContext: RlxActiveTrainingHistory | null;
   stdoutBuffer: string;
   stderrBuffer: string;
   child: ChildProcess | null;
@@ -143,6 +157,7 @@ const INITIAL_JOB: MutableRlxJob = {
   normalizeRewards: false,
   trainingSteps: 0,
   trainingTotal: 0,
+  trainingHistoryContext: null,
   stdoutBuffer: "",
   stderrBuffer: "",
   child: null,
@@ -157,6 +172,7 @@ job.normalizeRewards ??=
   job.child?.spawnargs?.includes("--normalize-rewards") ?? false;
 job.trainingSteps ??= 0;
 job.trainingTotal ??= 0;
+job.trainingHistoryContext ??= null;
 job.stdoutBuffer ??= "";
 job.stderrBuffer ??= "";
 
@@ -200,6 +216,7 @@ function pathsFor(experimentId: ExperimentId, runName: string) {
     renderSheet: path.join(runDirectory, "render", "ep0_sheet.png"),
     renderVideo: path.join(runDirectory, "render", "ep0.mp4"),
     evaluation: path.join(runDirectory, "evaluation.json"),
+    trainingMetrics: path.join(runDirectory, "training-metrics.jsonl"),
   };
 }
 
@@ -262,9 +279,6 @@ function appendLine(line: string) {
             job.rewardHistory[job.rewardHistory.length - 1] = point;
           } else {
             job.rewardHistory.push(point);
-            if (job.rewardHistory.length > 240) {
-              job.rewardHistory.splice(0, job.rewardHistory.length - 240);
-            }
           }
         }
         return;
@@ -674,6 +688,9 @@ export function normalizeExperimentId(value: unknown): ExperimentId {
 }
 
 function pythonArgs(): string[] {
+  if (process.env.MICRODUCK_STUDIO_PYTHON_DIRECT) {
+    return [process.env.MICRODUCK_STUDIO_PYTHON_DIRECT];
+  }
   const configured = process.env.MICRODUCK_STUDIO_PYTHON;
   const preferred = configured || "/usr/local/bin/python3.12";
   return [
@@ -760,6 +777,16 @@ function evaluationSettings(recipe: RlxRecipe) {
       ? { swing_min_span_deg: recipe.swingMinSpanDeg }
       : {}),
     recipe,
+  };
+}
+
+function renderEvidenceInputs(recipe: RlxRecipe, source: string, sourceType: string) {
+  const paths = pathsFor(recipe.experimentId, recipe.runName);
+  return {
+    source,
+    sourceFiles: sourceType === "checkpoint" ? [source, paths.metadata] : [source],
+    recipeKey: evaluationEnvironmentKey(recipe),
+    clipPath: recipe.experimentId === "dance" ? recipe.danceClip ?? path.join(paths.root, "assets/clips/dance-120bpm.json") : null,
   };
 }
 
@@ -904,6 +931,19 @@ async function boundEvaluation(
     const hash = createHash("sha256").update(bytes).digest("hex");
     if (hash !== hashes[file] || (file === source && hash !== report.source_sha256)) return null;
   }
+  if (experimentId === "dance") {
+    const options = (report.evaluation as { environment?: { recipe_options?: Record<string, unknown> } } | undefined)?.environment?.recipe_options;
+    if (typeof options?.dance_clip_sha256 === "string") {
+      try {
+        const clip = normalizeDanceClip("dance", options.dance_clip);
+        if (!clip || createHash("sha256").update(await readFile(pathToFileURL(clip))).digest("hex") !== options.dance_clip_sha256) {
+          return { ...report, passed: false, skill_status: "not_assessed", evaluation_settings_match: false };
+        }
+      } catch {
+        return { ...report, passed: false, skill_status: "not_assessed", evaluation_settings_match: false };
+      }
+    }
+  }
   if (environmentKey !== undefined) {
     const request = report.evaluation_request as { recipe?: Partial<RlxRecipe> } | undefined;
     let matches = false;
@@ -950,7 +990,55 @@ export async function snapshot(
     runName,
     environmentKey
   );
+  let savedRecipe: RlxRecipe | null = null;
+  if (evaluation?.evaluation_settings_match !== false) {
+    const request = evaluation?.evaluation_request;
+    const recipe =
+      typeof request === "object" && request !== null && !Array.isArray(request)
+        ? (request as { recipe?: Partial<RlxRecipe> }).recipe
+        : null;
+    if (recipe) {
+      try {
+        savedRecipe = normalizeRecipe(recipe);
+        if (savedRecipe.experimentId !== experimentId || savedRecipe.runName !== runName) savedRecipe = null;
+      } catch {
+        savedRecipe = null;
+      }
+    }
+  }
+  const paths = pathsFor(experimentId, runName);
+  const renderSource = evaluation?.source_type === "policy" ? paths.onnx : paths.checkpoint;
+  const renderEvidence = savedRecipe && evaluation?.source_sha256
+    ? readRenderEvidence(path.join(paths.renderDirectory, "evidence.json"), {
+        ...renderEvidenceInputs(savedRecipe, renderSource, String(evaluation.source_type)),
+        recipeKey: evaluationEnvironmentKey(savedRecipe, "render"),
+        video: paths.renderVideo,
+        sheet: paths.renderSheet,
+      }) : null;
+  const evaluatedClipHash = (evaluation?.evaluation as { environment?: { recipe_options?: Record<string, unknown> } } | undefined)?.environment?.recipe_options?.dance_clip_sha256;
+  const renderVerified = renderEvidence !== null && (experimentId !== "dance" ||
+    (typeof evaluatedClipHash === "string" && renderEvidence.clipSha256 === evaluatedClipHash));
+  const trainingHistory = collectTrainingHistory(
+    paths.root,
+    paths.runDirectory,
+    paths.metadata,
+    paths.trainingMetrics,
+    sameRun ? state.trainingHistoryContext : null
+  );
+  const restoredTraining = restoreTrainingInvocation(
+    paths.runDirectory,
+    paths.metadata,
+    trainingHistory
+  );
+  const hasMemoryTraining =
+    sameRun &&
+    (state.trainingHistoryContext !== null ||
+      state.rewardHistory.length > 0 ||
+      state.trainingSteps > 0 ||
+      state.trainingTotal > 0);
   return {
+    renderVerified,
+    renderEvidenceId: renderVerified ? renderEvidence?.video.sha256 ?? null : null,
     phase: sameRun ? state.phase : "idle",
     operation: sameRun ? state.operation : null,
     activeJob:
@@ -970,10 +1058,21 @@ export async function snapshot(
     logs: sameRun ? state.logs : [],
     result: sameRun ? state.result : null,
     evaluation,
-    rewardHistory: sameRun ? state.rewardHistory : [],
-    normalizeRewards: sameRun ? state.normalizeRewards : false,
-    trainingSteps: sameRun ? state.trainingSteps : 0,
-    trainingTotal: sameRun ? state.trainingTotal : 0,
+    savedRecipe,
+    rewardHistory:
+      sameRun && state.rewardHistory.length
+        ? state.rewardHistory
+        : restoredTraining.rewardHistory,
+    trainingHistory,
+    normalizeRewards: hasMemoryTraining
+      ? state.normalizeRewards
+      : restoredTraining.normalizeRewards,
+    trainingSteps: hasMemoryTraining
+      ? state.trainingSteps
+      : restoredTraining.trainingSteps,
+    trainingTotal: hasMemoryTraining
+      ? state.trainingTotal
+      : restoredTraining.trainingTotal,
     artifacts: await artifactState(experimentId, runName),
   };
 }
@@ -982,6 +1081,9 @@ export function startJob(
   operation: RlxOperation,
   recipeInput: Partial<RlxRecipe>
 ): RlxRecipe {
+  if (existsSync(path.resolve(rlxRoot(), "../.restart-lab/lock"))) {
+    throw new Error("Lab restart in progress. Wait for restart verification to finish before launching RLX jobs.");
+  }
   if (job.child && job.phase === "running") {
     throw new Error(`${job.operation ?? "RLX"} is already running.`);
   }
@@ -1006,8 +1108,31 @@ export function startJob(
       "This run has no checkpoint to continue. Run the Discovery stage first."
     );
   }
+  if (
+    operation === "train" &&
+    !recipe.resumeFromCheckpoint &&
+    existsSync(paths.checkpoint)
+  ) {
+    throw new Error(
+      "This run already has a checkpoint. Choose a new run name or enable resume to preserve the saved artifacts."
+    );
+  }
+  const trainingStartStep =
+    operation === "train"
+      ? prepareTrainingHistory(
+          paths.root,
+          paths.runDirectory,
+          paths.metadata,
+          paths.trainingMetrics
+        )
+      : 0;
 
-  const child = spawn("uv", commandFor(operation, recipe), {
+  const renderSource = existsSync(paths.onnx) ? paths.onnx : paths.checkpoint;
+  const renderContext = operation === "render" ? prepareRenderEvidence({
+    ...renderEvidenceInputs(recipe, renderSource, existsSync(paths.onnx) ? "policy" : "checkpoint"),
+    recipeKey: evaluationEnvironmentKey(recipe, "render"),
+  }) : null;
+  const child = spawn(process.env.MICRODUCK_STUDIO_PYTHON_DIRECT ? "/usr/bin/env" : "uv", commandFor(operation, recipe), {
     cwd: paths.root,
     env: {
       ...process.env,
@@ -1020,7 +1145,7 @@ export function startJob(
   const changedRun =
     job.experimentId !== recipe.experimentId || job.runName !== recipe.runName;
   if (operation !== "export") {
-    job.environmentKeys[`${recipe.experimentId}/${recipe.runName}`] = evaluationEnvironmentKey(recipe, operation);
+    job.environmentKeys[`${recipe.experimentId}/${recipe.runName}`] = evaluationEnvironmentKey(recipe);
   }
   job.phase = "running";
   job.operation = operation;
@@ -1041,11 +1166,19 @@ export function startJob(
     job.normalizeRewards = recipe.normalizeRewards;
     job.trainingSteps = 0;
     job.trainingTotal = recipe.totalTimesteps;
+    job.trainingHistoryContext = {
+      id: `active-${job.startedAt}`,
+      startStep: recipe.resumeFromCheckpoint ? trainingStartStep : 0,
+      normalizeRewards: recipe.normalizeRewards,
+      totalTimesteps: recipe.totalTimesteps,
+      status: "active",
+    };
   } else if (changedRun) {
     job.evaluation = null;
     job.rewardHistory = [];
     job.trainingSteps = 0;
     job.trainingTotal = 0;
+    job.trainingHistoryContext = null;
   }
   job.stdoutBuffer = "";
   job.stderrBuffer = "";
@@ -1073,6 +1206,20 @@ export function startJob(
     job.finishedAt = new Date().toISOString();
     job.child = null;
     job.phase = code === 0 ? "succeeded" : "failed";
+    if (code === 0 && renderContext) {
+      const receipt = finalizeRenderEvidence(renderContext, {
+        video: paths.renderVideo,
+        sheet: paths.renderSheet,
+        receipt: path.join(paths.renderDirectory, "evidence.json"),
+      });
+      if (!receipt) appendLine("[studio] Render completed but source/media provenance could not be verified; visual review remains gated.");
+    }
+    if (operation === "train" && job.trainingHistoryContext) {
+      job.trainingHistoryContext = {
+        ...job.trainingHistoryContext,
+        status: "complete",
+      };
+    }
     if (signal) appendLine(`[studio] process ended by ${signal}`);
     const jsonLine = [...job.logs]
       .reverse()

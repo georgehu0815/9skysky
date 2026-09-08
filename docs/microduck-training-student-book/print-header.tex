@@ -1,0 +1,26 @@
+\usepackage{eso-pic}
+\usepackage{fvextra}
+\usepackage{etoolbox}
+\usepackage{fancyhdr}
+\setkeys{Gin}{keepaspectratio}
+\fvset{breaklines=true,breakanywhere=true,fontsize=\footnotesize}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\},breaklines=true,breakanywhere=true,fontsize=\footnotesize}
+\renewenvironment{Shaded}{\par\smallskip}{\par\smallskip}
+\AtBeginEnvironment{longtable}{\footnotesize}
+\setlength{\emergencystretch}{4em}
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily Training Microduck}
+\fancyhead[R]{\small\sffamily George Hu}
+\fancyfoot[L]{\footnotesize\sffamily Local simulation · evidence edition}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\pretocmd{\section}{\clearpage}{}{}
+\renewcommand{\maketitle}{%
+  \newgeometry{margin=0pt}%
+  \thispagestyle{empty}%
+  \AddToShipoutPictureBG*{\AtPageLowerLeft{\includegraphics[width=\paperwidth,height=\paperheight]{assets/cover.pdf}}}%
+  \null\clearpage%
+  \restoregeometry%
+}

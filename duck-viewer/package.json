@@ -8,6 +8,7 @@
     "start": "next start",
     "test": "node --test lib/*.test.mjs",
     "e2e:rlx:dance": "node scripts/rlx-dance-api-e2e.mjs",
+    "e2e:studio": "node scripts/verify-studio-scenarios.mjs",
     "lint": "eslint"
   },
   "dependencies": {

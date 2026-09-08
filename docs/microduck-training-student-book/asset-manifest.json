@@ -1,0 +1,170 @@
+[
+  {
+    "asset": "assets/dance-reward.png",
+    "source": "rlx/artifacts/dance-e2e-20260907/final-audit/reward-learning.png",
+    "sha256": "4be02b074e57e5a8a812b5255eab8b614877d409baaf1dc08eda517b53da28f2",
+    "pixels": [
+      2040,
+      1360
+    ],
+    "transformation": "byte-identical original plot; no rescaling"
+  },
+  {
+    "asset": "assets/dance-loss.png",
+    "source": "rlx/artifacts/dance-e2e-20260907/final-audit/ppo-losses.png",
+    "sha256": "12a0b95f8912a8335862a65552ee016248dcaabb92fb7e32b9011853c128e820",
+    "pixels": [
+      2040,
+      1700
+    ],
+    "transformation": "byte-identical original plot; no rescaling"
+  },
+  {
+    "asset": "assets/dance-tracking.png",
+    "source": "rlx/artifacts/dance-e2e-20260907/final-audit/joint-tracking.png",
+    "sha256": "95ea9b4efa4f5c5b7da0f6c37fd57276e70130e9d8bdeeb3b5d0a33690def67a",
+    "pixels": [
+      2040,
+      2040
+    ],
+    "transformation": "byte-identical original plot; no rescaling"
+  },
+  {
+    "asset": "assets/dance-frame.png",
+    "source": "rlx/artifacts/dance-e2e-20260907/final-audit/api-video.mp4",
+    "source_sha256": "3414cb45a46aa74e662c30967ebf7a7ee72aafdd2b98cdff1b831e801f39a363",
+    "sha256": "a6c1b2764831822574b4cc1147ea6f1d3caf69aafb3bc08b2f6ab3e23d8b903d",
+    "timestamp_s": 3,
+    "pixels": [
+      640,
+      360
+    ],
+    "transformation": "decoded native-resolution frame; no AI imagery"
+  },
+  {
+    "asset": "assets/running-reward.png",
+    "source": "rlx/artifacts/scenarios-e2e-20260907/running-v4-audit/reward-learning.png",
+    "sha256": "78aa85a12c5ccdaf6e9c987f82781ad8196d3a6174a2989059d5951896d6423a",
+    "pixels": [
+      1920,
+      1280
+    ],
+    "transformation": "byte-identical original plot; no rescaling"
+  },
+  {
+    "asset": "assets/running-loss.png",
+    "source": "rlx/artifacts/scenarios-e2e-20260907/running-v4-audit/ppo-losses.png",
+    "sha256": "e50c299b8f0aae0ab329de5ce50f6d8af2176763919bb5752c5c46d06ed16ed8",
+    "pixels": [
+      1920,
+      1920
+    ],
+    "transformation": "byte-identical original plot; no rescaling"
+  },
+  {
+    "asset": "assets/running-tracking.png",
+    "source": "rlx/artifacts/scenarios-e2e-20260907/running-v4-audit/physical-tracking.png",
+    "sha256": "a7dc713266c57f04286df80c69dd228bcf0cce56f080ec1f39d620de93380fb3",
+    "pixels": [
+      1920,
+      1280
+    ],
+    "transformation": "byte-identical original plot; no rescaling"
+  },
+  {
+    "asset": "assets/running-frame.png",
+    "source": "rlx/artifacts/scenarios-e2e-20260907/running-v4-audit/api-video.mp4",
+    "source_sha256": "cf1b3fc6abd932ae0693451993ff3fcf0f081a8046ab42c68e0f211966e23655",
+    "sha256": "67e799780262df934eea827d2638110039fc274e0527c2b48b708721636a9a92",
+    "timestamp_s": 6,
+    "pixels": [
+      640,
+      360
+    ],
+    "transformation": "decoded native-resolution frame; no AI imagery"
+  },
+  {
+    "asset": "assets/stilts-reward.png",
+    "source": "rlx/artifacts/scenarios-e2e-20260907/stilts-v3-audit/reward-learning.png",
+    "sha256": "d09c4c1592d0cc76f32f37401a377351604083ffaaead2002819a07312405893",
+    "pixels": [
+      1920,
+      1280
+    ],
+    "transformation": "byte-identical original plot; no rescaling"
+  },
+  {
+    "asset": "assets/stilts-loss.png",
+    "source": "rlx/artifacts/scenarios-e2e-20260907/stilts-v3-audit/ppo-losses.png",
+    "sha256": "52cb03b00487e24c5aef90112083973782c7fd5c4216698a6f2ce83940e00e97",
+    "pixels": [
+      1920,
+      1920
+    ],
+    "transformation": "byte-identical original plot; no rescaling"
+  },
+  {
+    "asset": "assets/stilts-tracking.png",
+    "source": "rlx/artifacts/scenarios-e2e-20260907/stilts-v3-audit/physical-tracking.png",
+    "sha256": "13130001961c57f258af22722954403f966b17140238f7b3a6a5699d812b5bd1",
+    "pixels": [
+      1920,
+      1280
+    ],
+    "transformation": "byte-identical original plot; no rescaling"
+  },
+  {
+    "asset": "assets/stilts-frame.png",
+    "source": "rlx/artifacts/scenarios-e2e-20260907/stilts-v3-audit/api-video.mp4",
+    "source_sha256": "7cfddb35396c563d568d805dcda302aa83c41b805d2f3deaaaae89d85a67ada8",
+    "sha256": "822508d373c631c9e6aa5150ac9703027a05c7f1c6ce9c2b074ff7b95ab6e297",
+    "timestamp_s": 5,
+    "pixels": [
+      640,
+      360
+    ],
+    "transformation": "decoded native-resolution frame; no AI imagery"
+  },
+  {
+    "asset": "assets/swing-reward.png",
+    "source": "rlx/artifacts/scenarios-e2e-20260907/swing-v3-audit/reward-learning.png",
+    "sha256": "c9577b684f4f2478a6eeb873f26478a43e57fe002e3bb596c86aca9ebd975520",
+    "pixels": [
+      1920,
+      1280
+    ],
+    "transformation": "byte-identical original plot; no rescaling"
+  },
+  {
+    "asset": "assets/swing-loss.png",
+    "source": "rlx/artifacts/scenarios-e2e-20260907/swing-v3-audit/ppo-losses.png",
+    "sha256": "2a5906835b76b9e842895b11ef0bcc14c9a71565138837150e1d4d4b647459d9",
+    "pixels": [
+      1920,
+      1920
+    ],
+    "transformation": "byte-identical original plot; no rescaling"
+  },
+  {
+    "asset": "assets/swing-tracking.png",
+    "source": "rlx/artifacts/scenarios-e2e-20260907/swing-v3-audit/physical-tracking.png",
+    "sha256": "932448909624d357c2895170b756c23f0d2b91ddd15f72b2ae39a2f35bd4d09d",
+    "pixels": [
+      1920,
+      1280
+    ],
+    "transformation": "byte-identical original plot; no rescaling"
+  },
+  {
+    "asset": "assets/swing-frame.png",
+    "source": "rlx/artifacts/scenarios-e2e-20260907/swing-v3-audit/api-video.mp4",
+    "source_sha256": "dee5b2805efcd8339f9e2389c78fbc6bcd4d095e4caa693d2f2e872bdfeb54ea",
+    "sha256": "c5e6d8f47cfe48c04e913a1a3f321e4badeabf461bd99e7465aeea0230e2285b",
+    "timestamp_s": 18,
+    "pixels": [
+      640,
+      360
+    ],
+    "transformation": "decoded native-resolution frame; no AI imagery"
+  }
+]

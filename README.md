@@ -74,6 +74,54 @@ side-by-side checkouts (see setup).
 
 ## Quick start
 
+### Restart the complete local Studio
+
+After the initial dependency setup, run `./restart-lab.sh` from any directory.
+It restarts the streaming lab on port 8788 and the UI plus Next.js API on port
+63317. **RLX is an on-demand Python subprocess of `/api/rlx`, not a separate
+daemon.** The restart preflights the API's exact Python environment, executes
+an MLX operation, and resets/steps Dance, Swing, Running, and Stilt Walking with
+the 61-observation/14-action contract before stopping existing services.
+
+```bash
+./restart-lab.sh                   # restart and require four saved accepted runs
+./restart-lab.sh --check           # read-only service and saved-evidence check
+./restart-lab.sh --readiness-only  # new workspace without trained evidence yet
+./restart-lab.sh --stop-jobs       # deliberately discard active unsaved progress
+node --test scripts/restart-lab.test.mjs
+```
+
+The default restart refuses active training/evaluation/rendering, foreign port
+owners, and failed runtime preflight. It never reinstalls npm dependencies,
+deletes the roster, or overwrites policy/evaluation/video artifacts. Shutdown is
+scoped to workspace-owned service process trees, rather than global `pkill`.
+Two simultaneous restarts are rejected. Logs, process IDs, runtime preflight,
+and the JSON verification receipt are stored in ignored `.restart-lab/`.
+
+Strict verification discovers an accepted run for each scenario and checks its
+saved recipe, source-matched evaluation/video receipt, restored PPO reward/loss
+segments, and MP4 response. A failure exits nonzero; a listening port alone is
+not success. `--readiness-only` explicitly relaxes **saved-evidence** checks, not
+runtime preflight. Neither mode launches full training or proves hardware skill.
+
+The existing `rlx/.venv-microduck/bin/python` is reused by default, avoiding
+dependency resolution on every restart or API job. Override it with
+`MICRODUCK_STUDIO_PYTHON_DIRECT=/absolute/path/to/installed/venv/bin/python`.
+The environment must already contain RLX, microduck-local, MLX, and the rendering
+and export dependencies; preflight verifies it before shutdown. When that venv
+is absent, the original `uv run --isolated` launcher remains the fallback.
+Set `MICRODUCK_STUDIO_PYTHON` to a system Python 3.12 executable to explicitly
+use that uv path (default `/usr/local/bin/python3.12`, then `PATH`).
+Optional `PORT`, `LAB_PORT`, and
+`MICRODUCK_RESTART_TIMEOUT` override 63317, 8788, and the 120-second startup wait.
+The printed UI URL includes the correct `?lab=` override. If startup fails, inspect
+`.restart-lab/viewer.log`, `.restart-lab/lab.log`, and `.restart-lab/rlx-preflight.log`.
+Surviving services remain available for diagnosis. A stale `.restart-lab/lock`
+after an uncatchable interruption must be inspected using its `pid` file before
+manual removal.
+
+### First-time setup
+
 Prereqs: macOS on Apple Silicon (Linux works too), [uv](https://docs.astral.sh/uv/),
 Node 20+, ~3 GB of disk for the checkouts and models.
 

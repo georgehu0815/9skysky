@@ -1,0 +1,36 @@
+{
+  "markdown_sha256": "2214f4c0268e1f7ada012baddd0bca9fad4ee10345db4c1f98697ca95362d87a",
+  "pdf_sha256": "5c654d61684d8c4329b8c71640721fe4c37459dc09d3be289ce502e0f62b50ea",
+  "source_revision": "993d203e492afcb3386f42a3e3a1489db2781795",
+  "chapters": {
+    "chapters/00-orientation.md": "44bb4d5a0bdd7d2ecbc9695dec8e2d735b2579d2bd3f983d8c1fed3be391a601",
+    "chapters/02-foundations.md": "81fcfcebbbb5aeba1ca529f67ab6d44f038a752c7d734a3f23e9661a8029e15b",
+    "chapters/02a-ppo-code-lab.md": "5bbcf6a95ae91fa5b568a68ac4bef802f6bbea69a7a5730cd9bd0655ade7fef3",
+    "chapters/02b-gae-workshop.md": "aec77dba41cf9c059970a7c5b7453b8584a2ae0bfdcd92dee237a992b317e807",
+    "chapters/03-parameters-ui.md": "796a13b90e2a6766f167221f0be6eab1f1e1d061a374f9e10da842e52328a7cd",
+    "chapters/04-dance.md": "582d176720a349d47875305d296f216e525ad63ff87c7d0240444bcbae674e78",
+    "chapters/05-stilts.md": "8c1afb4ddc415200cbd08cffc3e719790f987be1c7e89ca3d18f69fff820d8c9",
+    "chapters/06-running.md": "f5a499ca947d8f50b71c685ed4bc3e2565b8a08dd3b9db196b17bc258765c5e7",
+    "chapters/07-swing.md": "ea02cc1f751ee28652967f3b2dfa6567c74039ef95732ca1b653554b9735bc4e",
+    "chapters/08-laboratory.md": "720848bcc6967cbda4623e4b4c1b527922329b86e5d8776427438a1cee9e30ad",
+    "chapters/09-sim-to-real-practicum.md": "e5db7e4034824a7a39ec7c59c3a704450f5f7e1dfa6836672f4f3aaa54d60d66"
+  },
+  "ui_assets": {
+    "assets/studio-dance-evaluation.png": "4156f37194308bcb75bedb5410ee2f1bf82d522f3e41ad9e43fac234d7804db4",
+    "assets/studio-dance-summary.png": "fc4f5d721b4e0a41b833488ab55d94da99030bf02a401b3278963a3292b0c9dd",
+    "assets/studio-evaluation-bottom.png": "ee0d8ae218a7a97c317497712a7f7b367510754b50665c181c112dd4061e3436",
+    "assets/studio-evaluation-top.png": "bb263345e854d9f355805cea8e9b57eb5daa8db82bbfe352b5ec5e8acc89a593",
+    "assets/studio-evaluation.png": "c40a029157c6bdc00d2ba57356e742054b2a13c0332322a7acee3dbfa1265f1d",
+    "assets/studio-overview.png": "7dbd73c0f427e201e5f9172fc5639a68ffb681de0f5407254a86181f37bd1287",
+    "assets/studio-parameters-bottom.png": "494c44d3bf1fbe352d16507ec4981db3e108d6962b285e1814dca4fae4461dfe",
+    "assets/studio-parameters-top.png": "eb599786b32e007910d3249fa51e1d6092fe2c8c20cc8482cb331b37814bf9c0",
+    "assets/studio-parameters.png": "0d2bdfd243f9655d912604e798979a98f2996931ba7d379cc3dc593a412c35fd",
+    "assets/studio-running-evaluation.png": "c40a029157c6bdc00d2ba57356e742054b2a13c0332322a7acee3dbfa1265f1d",
+    "assets/studio-running-summary.png": "7cb63f8d4428a35519fe32d08675926f7de35c63b692a5f1ac6cdb1925bd2ede",
+    "assets/studio-stilts-evaluation.png": "972c88acf74b276649e3439d1755a0817202892f5f6ba0692bf9ff95273e682f",
+    "assets/studio-stilts-summary.png": "9766d1a2fef48dec55fde4cf1f2eb724705b67af91c5b5ec2168807c20973868",
+    "assets/studio-swing-evaluation.png": "ca64c22c40a5a19d977f480248e0af83476467b463d4d4c95c20998ee72da06a",
+    "assets/studio-swing-summary.png": "6ea5ff5e269578c764e8ed4ecb46a02a8a5323e6c79c4fcad36ff3d0c5375e44"
+  },
+  "note": "Source revision identifies the inspected checkout; this book can be uncommitted."
+}

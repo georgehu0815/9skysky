@@ -23,6 +23,58 @@
   letter-spacing: 0;
 }
 
+.savedEvidence {
+  margin: 0 0 24px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.savedEvidence h2, .skillSummary h3 { margin: 0 0 10px; }
+.savedEvidence p, .evidenceNote, .clipSelection p, .skillSummary p {
+  color: var(--muted);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.evidenceCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+  gap: 12px;
+}
+.evidenceCards article {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  background: var(--panel-2);
+  border-radius: 8px;
+}
+.evidenceCards small { color: var(--muted); overflow-wrap: anywhere; }
+.evidenceCards button { margin-top: auto; }
+.clipSelection, .skillSummary, .lifecycle {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px 0;
+}
+.clipSelection code, .skillSummary code { overflow-wrap: anywhere; }
+.skillSummary table { table-layout: fixed; width: 100%; }
+.skillSummary th, .skillSummary td { overflow-wrap: anywhere; }
+.skillSummary details, .lifecycle details { margin-top: 12px; }
+.skillSummary summary, .lifecycle summary { cursor: pointer; line-height: 1.6; }
+.skillSummary pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 450px; overflow: auto; font-size: 11px; }
+.lifecycle p { color: var(--muted); line-height: 1.6; overflow-wrap: anywhere; }
+.lifecycle svg { width: 100%; height: auto; display: block; }
+.lifecycle path { fill: none; stroke: var(--mint); stroke-width: 1.5; }
+.lifecycle text { fill: var(--muted); font-size: 9px; }
+.lifecycle article { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 14px; }
+.lifecycle h4 { overflow-wrap: anywhere; margin: 8px 0; }
+.lifecycle a { color: var(--mint); }
+.field select { width: 100%; min-width: 0; background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 10px; }
+
 .app button,
 .app input,
 .app select {

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="886" viewBox="0 0 1040 886">
+<rect width="1040" height="886" rx="18" fill="#f4f8fa"/>
+<text x="38" y="52" font-family="DejaVu Sans" font-size="31" font-weight="bold" fill="#183448">Follow a Swing batch through RLX</text>
+<rect x="38" y="88" width="964" height="90" rx="12" fill="white" stroke="#adc5d0" stroke-width="2"/>
+<text x="60" y="122" font-family="DejaVu Sans" font-size="24" font-weight="bold" fill="#087b79">01  One policy call</text>
+<text x="60" y="153" font-family="DejaVu Sans" font-size="20" font-weight="normal" fill="#183448">16 worlds: observations (16, 61) → actions (16, 14), values (16, 1)</text>
+<path d="M520 179v20m-7-7 7 7 7-7" fill="none" stroke="#087b79" stroke-width="3"/>
+<rect x="38" y="204" width="964" height="90" rx="12" fill="white" stroke="#adc5d0" stroke-width="2"/>
+<text x="60" y="238" font-family="DejaVu Sans" font-size="24" font-weight="bold" fill="#087b79">02  Collect 256 ticks</text>
+<text x="60" y="269" font-family="DejaVu Sans" font-size="20" font-weight="normal" fill="#183448">Observations (256, 16, 61); actions (256, 16, 14)</text>
+<path d="M520 295v20m-7-7 7 7 7-7" fill="none" stroke="#087b79" stroke-width="3"/>
+<rect x="38" y="320" width="964" height="90" rx="12" fill="white" stroke="#adc5d0" stroke-width="2"/>
+<text x="60" y="354" font-family="DejaVu Sans" font-size="24" font-weight="bold" fill="#087b79">03  Compute GAE</text>
+<text x="60" y="385" font-family="DejaVu Sans" font-size="20" font-weight="normal" fill="#183448">Rewards, flags, values → advantages and returns (256, 16)</text>
+<path d="M520 411v20m-7-7 7 7 7-7" fill="none" stroke="#087b79" stroke-width="3"/>
+<rect x="38" y="436" width="964" height="90" rx="12" fill="white" stroke="#adc5d0" stroke-width="2"/>
+<text x="60" y="470" font-family="DejaVu Sans" font-size="24" font-weight="bold" fill="#087b79">04  Flatten time and world</text>
+<text x="60" y="501" font-family="DejaVu Sans" font-size="20" font-weight="normal" fill="#183448">4096 aligned samples; observations (4096, 61), actions (4096, 14)</text>
+<path d="M520 527v20m-7-7 7 7 7-7" fill="none" stroke="#087b79" stroke-width="3"/>
+<rect x="38" y="552" width="964" height="90" rx="12" fill="white" stroke="#adc5d0" stroke-width="2"/>
+<text x="60" y="586" font-family="DejaVu Sans" font-size="24" font-weight="bold" fill="#087b79">05  Shuffle and optimize</text>
+<text x="60" y="617" font-family="DejaVu Sans" font-size="20" font-weight="normal" fill="#183448">4 minibatches of 1024 × 2 epochs = 8 parameter updates</text>
+<path d="M520 643v20m-7-7 7 7 7-7" fill="none" stroke="#087b79" stroke-width="3"/>
+<rect x="38" y="668" width="964" height="90" rx="12" fill="white" stroke="#adc5d0" stroke-width="2"/>
+<text x="60" y="702" font-family="DejaVu Sans" font-size="24" font-weight="bold" fill="#087b79">06  Collect again</text>
+<text x="60" y="733" font-family="DejaVu Sans" font-size="20" font-weight="normal" fill="#183448">Discard old rollout; new actor generates the next 4096 transitions</text>
+<text x="38" y="856" font-family="DejaVu Sans" font-size="18" font-weight="normal" fill="#183448">Derived from the selected Swing recipe, not a measurement of throughput.</text>
+</svg>

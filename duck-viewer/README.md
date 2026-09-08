@@ -185,6 +185,59 @@ are train-only.
 }
 ```
 
+## Reviewing trained Studio scenarios
+
+The single-page Studio now discovers saved evaluations under `rlx/runs/studio/`.
+Use **Review trained policies** or **Saved runs** to load a run and its saved
+evaluation recipe. Typing a run name selects artifacts only; it does not restore
+historical settings. Acceptance is scoped to the scenario and current evaluated
+policy bytes, not to an example animation or an average reward.
+
+- **Dance reference clip** lists validated workspace clips and extracted reference
+  clips. In Full mode, selecting a clip sets one complete clip's episode,
+  evaluation, and video horizons. Smoke remains a wiring test, not a skill test.
+- **Full training lifecycle** restores all recorded PPO reward/loss samples from
+  disk, including hash-identified ancestor runs. Continuations use cumulative
+  step offsets but separate reward scales. Teacher initialization is labeled
+  separately from PPO; absent samples are not invented. Download the full JSON
+  for analysis. The separate live Duck Lab stream is still a bounded live view.
+- **Evaluation gate** shows the worst/best per-episode physical measurements,
+  exact criteria, each episode's result, source hash, and the saved MP4.
+  Visual review requires a render receipt matching the evaluated source,
+  reference, nominal rendering projection of its settings, and video/contact-sheet bytes. Legacy or
+  stale videos remain playable but cannot satisfy the package gate; load the
+  saved recipe and render again.
+  Randomized evaluations keep their own verdict; their videos deliberately show
+  the nominal environment, not every evaluation domain. Raw artifact endpoints
+  remain local analysis tools, not an authorization or hardware-safety boundary.
+- Fresh training cannot overwrite an existing checkpoint. Use a new run name or
+  explicitly select continuation. Continuation timesteps are additional steps.
+- Swing's verified policy uses BC/DAgger acquisition followed by PPO refinement.
+  All four results are nominal XML-actuator simulation results, not hardware
+  certification or proof that arbitrary clips/settings will learn successfully.
+
+Run the real-browser regression against the existing four verified runs:
+
+```bash
+npm run e2e:studio
+```
+
+`STUDIO_URL`, `STUDIO_EVIDENCE_DIR`, and `PLAYWRIGHT_PACKAGE` override the local
+URL, output folder, and installed Playwright package location. No dependency is
+downloaded. The browser test checks real saved policies, complete histories,
+video playback, mobile overflow, stale selection, and form payloads; its two
+intercepted submission tests deliberately do not launch training.
+
+To regenerate source-bound videos for the newest accepted run in each scenario,
+backing up existing videos and contact sheets first:
+
+```bash
+node scripts/refresh-studio-render-evidence.mjs --execute
+```
+
+See `../docs/studio-verification-20260908/REPORT.md` for fresh policy audits,
+actual selected-clip API smoke testing, and verification limitations.
+
 ## Notes for future work
 
 - The scene payload is ~20 MB raw (gzipped over the wire, one-time). If it ever

@@ -18,6 +18,9 @@ import {
   type ExperimentId,
 } from "@/lib/experiments";
 import { evaluationVerdict } from "@/lib/evaluation";
+import { evidenceLabel, skillEvidence } from "@/lib/studio-evidence";
+import type { RlxRecipe } from "@/lib/rlx-job";
+import type { RlxTrainingHistory } from "@/lib/rlx-history";
 import { AnimPanel } from "./AnimPanel";
 import { PolicyPanel } from "./PolicyPanel";
 import { TeachPanel } from "./TeachPanel";
@@ -27,35 +30,19 @@ import styles from "./Studio.module.css";
 type Operation = "train" | "eval" | "render" | "export";
 type Phase = "idle" | "running" | "succeeded" | "failed" | "cancelled";
 
-interface Recipe {
+type Recipe = RlxRecipe;
+
+interface SavedRun {
   experimentId: ExperimentId;
   runName: string;
-  profile: "smoke" | "full";
-  totalTimesteps: number;
-  numEnvs: number;
-  seed: number;
-  learningRate: number;
-  gamma: number;
-  clipCoefficient: number;
-  updateEpochs: number;
-  entropyCoefficient: number;
-  maxGradNorm: number;
-  domainRand: boolean;
-  obsNoise: boolean;
-  actionDelay: boolean;
-  randomYaw: boolean;
-  stiltHeightCm: number;
-  stiltBlend: number;
-  stiltMassKg: number;
-  swingInitialAngleDeg: number;
-  swingInitialRateRadS: number;
-  swingPlanarActions: boolean;
-  swingMinSpanDeg: number;
-  resumeFromCheckpoint: boolean;
-  rewardWeights: Record<string, number>;
+  taskPassed: boolean;
+  skillAssessed: boolean;
+  video: boolean;
 }
 
 interface JobState {
+  renderVerified?: boolean;
+  renderEvidenceId?: string | null;
   phase: Phase;
   operation: Operation | null;
   activeJob?: {
@@ -76,6 +63,8 @@ interface JobState {
   normalizeRewards: boolean;
   trainingSteps: number;
   trainingTotal: number;
+  savedRecipe?: Recipe | null;
+  trainingHistory?: RlxTrainingHistory;
   artifacts: {
     checkpoint: boolean;
     metadata: boolean;
@@ -102,6 +91,18 @@ function recipeDefaults(experimentId: ExperimentId): Recipe {
     profile: "smoke",
     totalTimesteps: 4,
     numEnvs: 2,
+    numSteps: 2,
+    numMinibatches: 1,
+    maxEpisodeS: 1,
+    evalSteps: 4,
+    renderSeconds: experiment.maxEpisodeSeconds,
+    danceClip: null,
+    dancePoseSigma: null,
+    locomotionForwardCommand: null,
+    initialStd: experimentId === "swing" ? 0.1 : Math.exp(-0.5),
+    normalizeRewards: experimentId === "swing",
+    freezeObservationNormalization: false,
+    checkpointInterval: 0,
     seed: 1,
     learningRate: experiment.ppo.learningRate,
     gamma: experiment.ppo.gamma,
@@ -123,6 +124,11 @@ function recipeDefaults(experimentId: ExperimentId): Recipe {
     resumeFromCheckpoint: false,
     rewardWeights: defaultRewardWeights(experimentId),
   };
+}
+
+function fullHorizon(experimentId: ExperimentId, danceDuration?: number) {
+  const seconds = experimentId === "dance" && danceDuration !== undefined ? danceDuration : Math.max(experimentId === "running" ? 12 : 0, getExperiment(experimentId).maxEpisodeSeconds);
+  return { numSteps: experimentId === "swing" ? 64 : 24, numMinibatches: 4, maxEpisodeS: seconds, evalSteps: experimentId === "dance" ? Math.ceil(seconds * 50) : Math.max(500, Math.ceil(seconds * 50)), renderSeconds: seconds };
 }
 
 const DEFAULT_RECIPE = recipeDefaults("dance");
@@ -173,11 +179,12 @@ function formatNumber(value: number) {
 
 function formatAxisNumber(value: number) {
   const absolute = Math.abs(value);
+  if (absolute > 0 && absolute < 0.01) return value.toExponential(1);
   if (absolute >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
   if (absolute >= 1_000) return `${Math.round(value / 1_000)}k`;
   if (absolute >= 100) return Math.round(value).toString();
   if (absolute >= 10) return value.toFixed(0);
-  return value.toFixed(1);
+  return value.toFixed(absolute < 1 ? 3 : 1);
 }
 
 function rewardChart(points: RewardPoint[], totalSteps: number) {
@@ -217,6 +224,49 @@ function rewardChart(points: RewardPoint[], totalSteps: number) {
     yLabels: [maximum, (maximum + minimum) / 2, minimum],
     xLabels: [0, xMaximum / 3, (xMaximum * 2) / 3, xMaximum],
   };
+}
+
+function HistoryPlot({ title, points, start, end }: { title: string; points: RewardPoint[]; start: number; end: number }) {
+  const plot = rewardChart(points.map((point) => ({ ...point, step: point.step - start })), end - start);
+  return <div>
+    <h4>{title} · {points.length} samples</h4>
+    {plot ? <svg viewBox="0 0 450 145" role="img" aria-label={`${title}, complete segment from ${start} to ${end} transitions`}>
+      <path d={plot.line} />
+      {plot.yLabels.map((label, index) => <text key={`y-${index}`} x="0" y={18 + index * 49}>{formatAxisNumber(label)}</text>)}
+      {plot.xLabels.map((label, index) => <text key={`x-${index}`} x={34 + index * 126} y="132">{formatAxisNumber(label + start)}</text>)}
+      <circle cx={plot.lastX} cy={plot.lastY} r="2" fill="currentColor" />
+    </svg> : <p>No measurements recorded for this series.</p>}
+  </div>;
+}
+
+function TrainingLifecycle({ history }: { history: RlxTrainingHistory | undefined }) {
+  if (!history?.segments.length) return null;
+  const steps = history.segments.reduce((total, segment) => total + segment.trainedSteps, 0);
+  function download() {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(history, null, 2)], { type: "application/json" }));
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "ppo-training-lifecycle.json";
+    anchor.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  return <section className={styles.lifecycle} aria-label="Full training lifecycle">
+    <h3>Full training lifecycle</h3>
+    <p>{formatNumber(steps)} recorded PPO transitions · {history.segments.length} stage{history.segments.length === 1 ? "" : "s"}. All recorded samples, from the first rollout through the final update; no 240-sample tail window.</p>
+    <p>Stages remain separate: running reward normalization changes the scale. Rollout reward is not deterministic evaluation return, and PPO losses need not decrease monotonically. Missing history is not reconstructed as invented data.</p>
+    <button type="button" className={styles.button} onClick={download}>Download full reward and loss history</button>
+    {history.segments.map((segment) => <article key={segment.id} data-history-segment={segment.id}>
+      <h4 title={segment.id}>{segment.kind === "bc-initializer" ? "Teacher initialization (not PPO)" : "PPO training stage"} · {segment.id.split("/").at(-1)}</h4>
+      {segment.initializer ? <p>{segment.initializer.label} · {segment.initializer.teacherSamples ?? "Unknown"} teacher samples. Skill acquisition can precede PPO refinement.</p> : <>
+        <p>{formatNumber(segment.startStep)}–{formatNumber(segment.endStep)} cumulative transitions · {segment.normalizationLabel} · {segment.status === "active" ? "recording" : "recorded history (not a skill verdict)"}</p>
+        {segment.episodes.length > 0 && <HistoryPlot title="Raw training episode return" points={segment.episodes.map((sample) => ({ step: sample.step, reward: sample.meanRawReturn }))} start={segment.startStep} end={segment.endStep} />}
+        {segment.episodes.length > 0 && <p>Raw episode returns mix episode lengths and training seeds/resets. Increasing returns can reflect longer survival; physical skill is checked independently below.</p>}
+        <HistoryPlot title={segment.normalizationLabel} points={segment.collections.map((sample) => ({ step: sample.step, reward: sample.meanReward }))} start={segment.startStep} end={segment.endStep} />
+        <HistoryPlot title="Policy loss" points={segment.updates.flatMap((sample) => sample.policyLoss === null ? [] : [{ step: sample.step, reward: sample.policyLoss }])} start={segment.startStep} end={segment.endStep} />
+        <HistoryPlot title="Value loss" points={segment.updates.flatMap((sample) => sample.valueLoss === null ? [] : [{ step: sample.step, reward: sample.valueLoss }])} start={segment.startStep} end={segment.endStep} />
+      </>}
+    </article>)}
+  </section>;
 }
 
 function elapsed(startedAt: string | null, endedAt: string | null, now: number) {
@@ -305,13 +355,22 @@ export default function Studio() {
   const [selectedExperimentId, setSelectedExperimentId] =
     useState<ExperimentId>("dance");
   const [recipe, setRecipe] = useState(DEFAULT_RECIPE);
-  const [job, setJob] = useState<JobState>(EMPTY_JOB);
+  const [receivedJob, setJob] = useState<JobState>(EMPTY_JOB);
+  const job = receivedJob.experimentId === recipe.experimentId && receivedJob.runName === recipe.runName
+    ? receivedJob : { ...EMPTY_JOB, experimentId: recipe.experimentId, runName: recipe.runName };
+  const [savedRuns, setSavedRuns] = useState<SavedRun[]>([]);
+  const [catalogError, setCatalogError] = useState<string | null>(null);
+  const [danceClips, setDanceClips] = useState<{ path: string; name: string; durationSeconds: number }[]>([]);
+  const [clipError, setClipError] = useState<string | null>(null);
   const [frame, setFrame] = useState<Frame | null>(null);
   const [connected, setConnected] = useState(false);
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [advanced, setAdvanced] = useState(false);
   const [logsOpen, setLogsOpen] = useState(false);
-  const [visualReviewed, setVisualReviewed] = useState(false);
+  const [reviewedEvidence, setReviewedEvidence] = useState<string | null>(null);
+  const reviewIdentity = `${recipe.experimentId}/${recipe.runName}/${job.evaluation?.source_sha256 ?? "unverified"}/${job.renderEvidenceId ?? "unbound"}`;
+  const visualReviewed = reviewedEvidence === reviewIdentity;
+  function setVisualReviewed(reviewed: boolean) { setReviewedEvidence(reviewed ? reviewIdentity : null); }
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [pendingAction, setPendingAction] = useState<Operation | "cancel" | null>(null);
@@ -336,6 +395,7 @@ export default function Studio() {
   const guidanceExperiment = guidanceExperimentId
     ? getExperiment(guidanceExperimentId)
     : null;
+  const selectedDanceDuration = danceClips.find((clip) => recipe.danceClip === clip.path || recipe.danceClip?.endsWith(`/${clip.path}`))?.durationSeconds;
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -347,6 +407,26 @@ export default function Studio() {
   useEffect(() => {
     fetchPolicies().then(setPolicies).catch(() => setPolicies([]));
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/rlx/clips", { cache: "no-store" }).then(async (response) => {
+      if (!response.ok) throw new Error("Dance clip catalog unavailable.");
+      const data = await response.json();
+      if (active) setDanceClips(data.clips);
+    }).catch((error) => { if (active) setClipError(String(error)); });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/rlx/runs", { cache: "no-store" }).then(async (response) => {
+      if (!response.ok) throw new Error("Saved run catalog unavailable.");
+      const data = await response.json();
+      if (active) { setSavedRuns(data.runs); setCatalogError(null); }
+    }).catch((error) => { if (active) setCatalogError(String(error)); });
+    return () => { active = false; };
+  }, [job.phase]);
 
   useEffect(() => {
     if (!viewerExpanded) return;
@@ -468,6 +548,7 @@ export default function Studio() {
     ? "Normalized rollout reward history"
     : "Rollout reward history";
   const evaluation = job.evaluation;
+  const evidence = skillEvidence(evaluation, selectedExperimentId);
   const recipeMetric = recipeMetricNumber(evaluation, selectedExperiment);
   const verdict = evaluationVerdict(evaluation, selectedExperimentId);
   const evalPassed = verdict.pipelinePassed;
@@ -499,7 +580,7 @@ export default function Studio() {
         ? 2
         : 3;
   const deployReady =
-    job.artifacts.onnx && taskPassed && job.artifacts.renderSheet && visualReviewed;
+    job.artifacts.onnx && taskPassed && job.renderVerified && job.artifacts.renderSheet && visualReviewed;
   const reward = chartPoints.at(-1)?.reward ?? null;
   const activeJob = job.activeJob;
   const anotherRunActive = Boolean(
@@ -535,23 +616,12 @@ export default function Studio() {
   ].join("\n");
   const activePolicies = policies.filter((policy) => policy.group === "runs").length;
 
-  const recipeFlags = recipe.profile === "smoke"
-    ? "--num-envs 2 --num-steps 2 --num-minibatches 1 --update-epochs 1 --total-timesteps 4 --no-domain-rand --no-obs-noise --no-action-delay --no-random-yaw"
-    : `--num-envs ${recipe.numEnvs} --num-steps ${recipe.experimentId === "swing" ? 64 : 24} --num-minibatches 4 --update-epochs ${recipe.updateEpochs} --total-timesteps ${recipe.totalTimesteps}`;
-  const stiltFlags = recipe.experimentId === "stilts"
-    ? ` --stilt-height-cm ${recipe.stiltHeightCm} --stilt-blend ${recipe.stiltBlend} --stilt-mass-kg ${recipe.stiltMassKg}`
-    : "";
-  const swingFlags = recipe.experimentId === "swing"
-    ? ` --swing-initial-angle-deg ${recipe.swingInitialAngleDeg} --swing-initial-rate-rad-s ${recipe.swingInitialRateRadS} --gae-lambda 0.98 ${recipe.swingPlanarActions ? "--swing-planar-actions" : "--no-swing-planar-actions"}${recipe.resumeFromCheckpoint ? ` --init-from runs/studio/${recipe.experimentId}/${recipe.runName}/${selectedExperiment.artifactStem}.safetensors` : ""}`
-    : "";
-  const rewardFlags = ` --weight-overrides '${JSON.stringify(recipe.rewardWeights)}'`;
-  const ppoFlags = ` --learning-rate ${recipe.learningRate} --gamma ${recipe.gamma} --clip-coefficient ${recipe.clipCoefficient} --entropy-coefficient ${recipe.entropyCoefficient} --max-grad-norm ${recipe.maxGradNorm}`;
-  const recipeCommand = `uv run examples/ppo_microduck_studio.py train --recipe ${recipe.experimentId} --checkpoint runs/studio/${recipe.experimentId}/${recipe.runName}/${selectedExperiment.artifactStem}.safetensors ${recipeFlags}${ppoFlags}${stiltFlags}${swingFlags}${rewardFlags}`;
+  const recipeCommand = `POST /api/rlx\n${JSON.stringify({ action: "train", recipe }, null, 2)}`;
 
   async function runAction(action: Operation | "cancel", recipeOverride?: Recipe) {
     setBusy(true);
     setPendingAction(action);
-    const activeRecipe = recipeOverride ?? recipe;
+    let activeRecipe = recipeOverride ?? recipe;
     const actionLabel =
       action === "train"
         ? "Training"
@@ -573,9 +643,14 @@ export default function Studio() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, recipe: activeRecipe }),
       });
-      const data = (await response.json()) as { error?: string };
+      const data = (await response.json()) as { error?: string; recipe?: Recipe };
       if (!response.ok) throw new Error(data.error || "The action could not start.");
+      if (data.recipe) {
+        activeRecipe = data.recipe;
+        setRecipe(activeRecipe);
+      }
       if (action !== "cancel") {
+        setVisualReviewed(false);
         setJob((current) => ({
           ...current,
           phase: "running",
@@ -634,6 +709,25 @@ export default function Studio() {
     setNotice(null);
   }
 
+  async function loadSavedRun(experimentId: ExperimentId, runName: string) {
+    setBusy(true);
+    try {
+      const response = await fetch(`/api/rlx?experiment=${experimentId}&run=${encodeURIComponent(runName)}`, { cache: "no-store" });
+      if (!response.ok) throw new Error("Cannot load saved run.");
+      const data = await response.json() as JobState;
+      setSelectedExperimentId(experimentId);
+      setRecipe(data.savedRecipe ?? { ...recipeDefaults(experimentId), runName });
+      setJob(data);
+      setVisualReviewed(false);
+      setNotice(data.savedRecipe ? "Loaded the saved evaluation recipe. Changes affect future jobs only." : "Artifacts loaded; historical recipe unavailable. Current controls are defaults, not training provenance.");
+      document.getElementById("evaluation")?.scrollIntoView({ behavior: "smooth" });
+    } catch (error) {
+      setNotice(String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function previewSelectedExperiment() {
     if (selectedExperimentId === "dance") {
       setSessionTab("animate");
@@ -652,6 +746,7 @@ export default function Studio() {
     const fullRecipe: Recipe = {
       ...recipe,
       profile: "full",
+      ...fullHorizon(recipe.experimentId, selectedDanceDuration),
       totalTimesteps: Math.max(
         recipe.totalTimesteps,
         selectedExperiment.fullTimesteps
@@ -672,6 +767,7 @@ export default function Studio() {
       ...current,
       runName: "swing-curriculum-01",
       profile: "full",
+      ...fullHorizon("swing"),
       totalTimesteps: 250_000,
       numEnvs: 16,
       seed: 2,
@@ -701,6 +797,7 @@ export default function Studio() {
     setRecipe((current) => ({
       ...current,
       profile: "full",
+      ...fullHorizon("swing"),
       totalTimesteps: 500_000,
       numEnvs: 16,
       seed: 2,
@@ -954,6 +1051,24 @@ export default function Studio() {
                   </span>
                 </div>
               );
+            })}
+          </div>
+        </section>
+
+        <section className={styles.savedEvidence} aria-label="Saved scenario evidence">
+          <h2>Review trained policies</h2>
+          <p>Current checkpoint-bound evaluations, not preview animations. Nominal MuJoCo simulation only; not hardware certification.</p>
+          {catalogError && <p role="alert">{catalogError}</p>}
+          <div className={styles.evidenceCards}>
+            {EXPERIMENTS.map((experiment) => {
+              const run = savedRuns.find((candidate) => candidate.experimentId === experiment.id && candidate.taskPassed)
+                ?? savedRuns.find((candidate) => candidate.experimentId === experiment.id);
+              return <article key={experiment.id}>
+                <strong>{experiment.title}</strong>
+                <span>{run ? run.taskPassed ? "Skill passed · saved evaluation" : run.skillAssessed ? "Skill failed" : "Skill not assessed" : "No evaluated run found"}</span>
+                <small>{run?.runName ?? "Train and evaluate to create evidence"}</small>
+                <button className={styles.button} disabled={!run || busy} onClick={() => run && void loadSavedRun(experiment.id, run.runName)}>Review {experiment.shortTitle}</button>
+              </article>;
             })}
           </div>
         </section>
@@ -1213,7 +1328,7 @@ export default function Studio() {
               </div>
               <div className={styles.chartHead}>
                 <div className={styles.chartTitle}>
-                  <strong>{rewardHistoryLabel}</strong>
+                  <strong>{rewardHistoryLabel} · {useRlxTelemetry ? "current PPO stage" : "live Duck Lab stream (up to 240 samples)"}</strong>
                   <button
                     type="button"
                     className={styles.historyIndicator}
@@ -1263,6 +1378,7 @@ export default function Studio() {
                   </text>
                 )}
               </svg>
+              <TrainingLifecycle history={job.trainingHistory} />
               <div className={styles.trainingActions}>
                 {job.phase === "running" ? (
                   <button className={styles.button} onClick={() => runAction("cancel")} disabled={busy}>
@@ -1322,7 +1438,7 @@ export default function Studio() {
               <h2><Icon>✦</Icon>Microduck PPO Recipe</h2>
               <StatusPill tone="live">RECOMMENDED</StatusPill>
             </div>
-            <form className={styles.recipeBody} onSubmit={startLabTraining}>
+            <form className={styles.recipeBody} onSubmit={(event) => { event.preventDefault(); if (!busy) void runAction("train"); }}>
               <div className={styles.recipeIntro}>
                 <div className={styles.recipeMark}>PPO</div>
                 <div>
@@ -1340,6 +1456,35 @@ export default function Studio() {
                   required
                 />
               </label>
+              <label className={styles.field}>
+                <span>Saved runs</span>
+                <select aria-label="Saved runs" value="" disabled={busy} onChange={(event) => { if (event.target.value) void loadSavedRun(recipe.experimentId, event.target.value); }}>
+                  <option value="">Load a run and its saved evaluation recipe…</option>
+                  {savedRuns.filter((run) => run.experimentId === recipe.experimentId).map((run) => <option key={run.runName} value={run.runName}>{run.taskPassed ? "Passed" : run.skillAssessed ? "Failed" : "Not assessed"} · {run.runName}</option>)}
+                </select>
+              </label>
+              <p className={styles.evidenceNote}>Typing a run name selects artifacts only. Use Saved runs to restore the exact saved evaluation settings, including clip, command, horizon, and PPO parameters. The checkpoint metadata records training provenance.</p>
+              {job.artifacts.checkpoint && <p className={styles.evidenceNote}>This run already has a checkpoint. Choose a new run name for fresh training, or explicitly enable Continue current checkpoint in Advanced settings. Timesteps on continuation are additional, not the lifetime total.</p>}
+              {recipe.experimentId === "dance" && <section className={styles.clipSelection}>
+                <label className={styles.field}>
+                  <span>Dance reference clip</span>
+                  <select aria-label="Dance reference clip" value={recipe.danceClip ?? ""} onChange={(event) => {
+                    const selected = danceClips.find((clip) => clip.path === event.target.value);
+                    setRecipe((current) => ({ ...current, danceClip: selected?.path ?? null, ...(current.profile === "full" ? {
+                      maxEpisodeS: selected?.durationSeconds ?? getExperiment("dance").maxEpisodeSeconds,
+                      evalSteps: Math.ceil((selected?.durationSeconds ?? getExperiment("dance").maxEpisodeSeconds) * 50),
+                      renderSeconds: selected?.durationSeconds ?? getExperiment("dance").maxEpisodeSeconds,
+                    } : {}) }));
+                  }}>
+                    <option value="">Built-in default choreography</option>
+                    {recipe.danceClip && !danceClips.some((clip) => clip.path === recipe.danceClip) && <option value={recipe.danceClip}>Saved reference · {recipe.danceClip.split("/").at(-1)}</option>}
+                    {danceClips.map((clip) => <option key={clip.path} value={clip.path}>{clip.name} · {clip.durationSeconds.toFixed(2)} s</option>)}
+                  </select>
+                </label>
+                <p>Joint-angle reference for PPO, evaluation, and rendering—not an animation-only preview. In Full mode, selection sets the episode, evaluation, and video horizons to one complete clip. Changing the clip does not retrain an existing checkpoint or change its saved verdict. Catalog clips are not guaranteed physically learnable; train and verify each one.</p>
+                <code>{recipe.danceClip ?? "Built-in reference"}</code>
+                {clipError && <p role="alert">{clipError}</p>}
+              </section>}
               <div className={styles.segmented} aria-label="Training profile">
                 <button
                   type="button"
@@ -1349,6 +1494,10 @@ export default function Studio() {
                     profile: "smoke",
                     totalTimesteps: 4,
                     numEnvs: 2,
+                    numSteps: 2,
+                    numMinibatches: 1,
+                    maxEpisodeS: 1,
+                    evalSteps: 4,
                     domainRand: false,
                     obsNoise: false,
                     actionDelay: false,
@@ -1371,6 +1520,7 @@ export default function Studio() {
                   onClick={() => setRecipe((current) => ({
                     ...current,
                     profile: "full",
+                    ...fullHorizon(current.experimentId, selectedDanceDuration),
                     totalTimesteps: selectedExperiment.fullTimesteps,
                     numEnvs: selectedExperiment.fullEnvs,
                     domainRand: true,
@@ -1484,6 +1634,20 @@ export default function Studio() {
               {advanced && (
                 <div className={styles.advancedSettings}>
                   <div className={styles.advancedGrid}>
+                    {([
+                      ["numSteps", "Rollout steps per environment", 1, 100000, 1],
+                      ["numMinibatches", "Minibatches per PPO epoch", 1, 100000, 1],
+                      ["maxEpisodeS", "Episode horizon (seconds)", 0.02, 3600, 0.02],
+                      ["evalSteps", "Evaluation steps per environment", 1, 10000000, 1],
+                      ["renderSeconds", "Video horizon (seconds)", 0.02, 3600, 0.02],
+                      ["initialStd", "Initial exploration standard deviation", 0.001, 10, 0.01],
+                      ["checkpointInterval", "Checkpoint interval (transitions; 0 disables)", 0, 40000000, 1],
+                    ] as const).map(([key, label, minimum, maximum, step]) => <label className={styles.field} key={key}><span>{label}</span><input type="number" min={minimum} max={maximum} step={step} value={recipe[key]} onChange={(event) => setRecipe((current) => ({ ...current, [key]: Number(event.target.value) }))} /></label>)}
+                    <Toggle label="Normalize rewards" checked={recipe.normalizeRewards} onChange={(checked) => setRecipe((current) => ({ ...current, normalizeRewards: checked }))} />
+                    <Toggle label="Freeze observation normalization" checked={recipe.freezeObservationNormalization} onChange={(checked) => setRecipe((current) => ({ ...current, freezeObservationNormalization: checked }))} />
+                    {recipe.experimentId !== "swing" && <Toggle label="Continue current checkpoint" checked={recipe.resumeFromCheckpoint} onChange={(checked) => setRecipe((current) => ({ ...current, resumeFromCheckpoint: checked }))} />}
+                    {recipe.experimentId === "dance" && <label className={styles.field}><span>Dance pose sigma (blank uses default)</span><input type="number" min="0.001" step="0.01" value={recipe.dancePoseSigma ?? ""} onChange={(event) => setRecipe((current) => ({ ...current, dancePoseSigma: event.target.value === "" ? null : Number(event.target.value) }))} /></label>}
+                    {(recipe.experimentId === "running" || recipe.experimentId === "stilts") && <label className={styles.field}><span>Fixed forward command (m/s; blank samples commands)</span><input type="number" min="0.01" max="1.5" step="0.01" value={recipe.locomotionForwardCommand ?? ""} onChange={(event) => setRecipe((current) => ({ ...current, locomotionForwardCommand: event.target.value === "" ? null : Number(event.target.value) }))} /></label>}
                     <label className={styles.field}><span>Total timesteps</span><input type="number" min="4" max="40000000" value={recipe.totalTimesteps} onChange={(event) => setRecipe((current) => ({ ...current, totalTimesteps: Number(event.target.value) }))} /></label>
                     <label className={styles.field}><span>Parallel envs</span><input type="number" min="1" max="64" value={recipe.numEnvs} onChange={(event) => setRecipe((current) => ({ ...current, numEnvs: Number(event.target.value) }))} /></label>
                     <label className={styles.field}><span>Learning rate</span><input type="number" min="0.000001" max="0.1" step="0.0001" value={recipe.learningRate} onChange={(event) => setRecipe((current) => ({ ...current, learningRate: Number(event.target.value) }))} /></label>
@@ -1575,8 +1739,8 @@ export default function Studio() {
                   <Icon>{pendingAction === "train" ? "…" : "▶"}</Icon> {trainButtonLabel}
                 </button>
                 {recipe.experimentId === "dance" ? (
-                  <button type="submit" className={styles.button} disabled={busy || !connected}>
-                    <Icon>⌁</Icon> Teach in Duck Lab
+                  <button type="button" onClick={startLabTraining} className={styles.button} disabled={busy || !connected} title="Separate free-text teaching workflow; does not use this RLX clip or recipe">
+                    <Icon>⌁</Icon> Separate Duck Lab teaching
                   </button>
                 ) : (
                   <a
@@ -1629,18 +1793,35 @@ export default function Studio() {
               </button>
             </div>
             <div className={styles.evaluationBody}>
+              <section className={styles.skillSummary} aria-label="Skill verification summary">
+                <h3>{taskPassed ? "Skill verified in simulation" : verdict.skillAssessed ? "Skill criteria failed" : "Skill not yet verified"}</h3>
+                <p><strong>{evidence.passed} / {evidence.episodes.length} episodes passed</strong> · {recipe.runName}</p>
+                <p>Acceptance requires every complete episode, not just a high average reward. The verdict is bound to current policy bytes; preview clips are not training evidence.</p>
+                {selectedExperimentId === "swing" && <p>Swing acquisition used teacher BC/DAgger initialization followed by PPO refinement. This is not a demonstrated pure-PPO-from-scratch success.</p>}
+                {selectedExperimentId === "dance" && <p>Dance verifies the saved reference horizon and joint-angle tracking, not automatic imitation of the entire source video.</p>}
+                {typeof evaluation?.source_sha256 === "string" && <p>Evaluated source SHA-256: <code>{evaluation.source_sha256}</code></p>}
+                {evidence.ranges.length > 0 && <table aria-label="Measured skill ranges"><thead><tr><th>Measurement</th><th>Episode minimum</th><th>Episode maximum</th></tr></thead><tbody>
+                  {evidence.ranges.map((range) => <tr key={range.metric}><td>{evidenceLabel(range.metric)}<small> · {range.measured}/{evidence.episodes.length} measured</small></td><td>{range.minimum.toFixed(4)}</td><td>{range.maximum.toFixed(4)}</td></tr>)}
+                </tbody></table>}
+                <details><summary>Exact acceptance criteria and per-episode results</summary>
+                  <table><tbody>{Object.entries(evidence.criteria).map(([key, value]) => <tr key={key}><th>{evidenceLabel(key)}</th><td>{JSON.stringify(value)}</td></tr>)}</tbody></table>
+                  {evidence.episodes.map((episode, index) => <details key={index}><summary>Environment {String(episode.env_index)} · episode {String(episode.episode_index)} · {episode.passed === true ? "Passed" : "Failed"} · {String(episode.measured_steps)} measured steps</summary><pre>{JSON.stringify(episode, null, 2)}</pre></details>)}
+                </details>
+                <details><summary>Saved evaluation recipe and raw report</summary><pre>{JSON.stringify(evaluation, null, 2)}</pre></details>
+              </section>
               {job.artifacts.renderVideo && (
                 <section className={styles.rolloutPlayer} aria-labelledby="rollout-player-title">
                   <div>
-                    <p className={styles.eyebrow}>LATEST RUN</p>
+                    <p className={styles.eyebrow}>SELECTED RUN · SAVED VIDEO</p>
                     <h3 id="rollout-player-title">{recipe.runName} rollout</h3>
-                    <p>Watch the complete saved rollout before accepting or continuing training.</p>
+                    <p>{job.renderVerified ? "Policy, clip, and media hashes match. Video settings are the nominal projection of the saved evaluation recipe (randomization disabled); this does not visualize every evaluation domain. Watch the complete rollout before marking reviewed." : "Unbound or stale video: re-render using the saved evaluation recipe before marking reviewed. Legacy videos cannot satisfy the package gate."}</p>
                   </div>
                   <video
+                    key={reviewIdentity}
                     controls
                     playsInline
                     preload="metadata"
-                    src={`${artifactHref("video")}&inline=1`}
+                    src={`${artifactHref("video")}&inline=1&source=${encodeURIComponent(String(evaluation?.source_sha256 ?? "unknown"))}`}
                   >
                     Your browser cannot play this MP4.
                   </video>
@@ -1661,7 +1842,8 @@ export default function Studio() {
                   <tr><td><i className={job.artifacts.onnx ? styles.passDot : styles.mutedDot} />ONNX contract</td><td>obs[batch,61] → actions[batch,14]</td><td>{job.artifacts.onnx ? "Ready" : "Missing"}</td></tr>
                   <tr><td><i className={evalPassed ? styles.passDot : styles.warnDot} />Rollout validity</td><td>Finite observations, rewards, and actions</td><td>{typeof evaluation?.pipeline_passed === "boolean" ? (evalPassed ? "Passed" : "Failed") : "Unavailable"}</td></tr>
                   <tr><td><i className={taskPassed ? styles.passDot : styles.warnDot} />{selectedExperiment.metricLabel}</td><td>{recipeMetric == null ? "Not measured" : `${recipeMetric.toFixed(3)}${selectedExperiment.metricSuffix}`}</td><td>{!verdict.skillAssessed ? "Not assessed" : taskPassed ? "Accepted" : "Failed"}</td></tr>
-                  <tr><td><i className={job.artifacts.renderSheet ? styles.passDot : styles.warnDot} />Visual artifact</td><td>MP4 + contact sheet</td><td>{job.artifacts.renderSheet ? "Ready" : "Required"}</td></tr>
+                  <tr><td><i className={job.artifacts.renderSheet && job.artifacts.renderVideo ? styles.passDot : styles.warnDot} />Visual artifact</td><td>MP4 + contact sheet (separate visual review)</td><td>{job.artifacts.renderSheet && job.artifacts.renderVideo ? "Ready" : "Required"}</td></tr>
+                  <tr><td><i className={job.renderVerified ? styles.passDot : styles.warnDot} />Video provenance</td><td>Source, clip, settings and media hashes</td><td>{job.renderVerified ? "Matched" : "Re-render required"}</td></tr>
                 </tbody>
               </table>
               <div className={styles.evaluationActions}>
@@ -1677,7 +1859,7 @@ export default function Studio() {
                 {job.artifacts.renderSheet && <a className={styles.button} href={artifactHref("sheet")} target="_blank" rel="noreferrer"><Icon>▦</Icon> Contact sheet</a>}
               </div>
               <label className={styles.reviewCheck}>
-                <input type="checkbox" checked={visualReviewed} onChange={(event) => setVisualReviewed(event.target.checked)} disabled={!job.artifacts.renderSheet} />
+                <input type="checkbox" checked={visualReviewed && Boolean(job.renderVerified)} onChange={(event) => setVisualReviewed(event.target.checked)} disabled={!job.renderVerified} />
                 <span><strong>I reviewed the rendered motion</strong><small>Confirm the policy moves as intended and outperforms null controls.</small></span>
               </label>
             </div>
@@ -1733,7 +1915,7 @@ export default function Studio() {
             {[
               ["Checkpoint", "checkpoint", job.artifacts.checkpoint, "Training weights"],
               ["Metadata", "metadata", job.artifacts.metadata, "Recipe and contract"],
-              ["ONNX policy", "onnx", job.artifacts.onnx, "Deployable inference graph"],
+              ["ONNX policy", "onnx", deployReady, "Simulation graph · requires matched visual review"],
               ["Contact sheet", "sheet", job.artifacts.renderSheet, "Visual verification"],
               ["Rollout video", "video", job.artifacts.renderVideo, "Motion review"],
             ].map(([label, kind, ready, detail]) => (

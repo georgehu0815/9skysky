@@ -29,12 +29,26 @@ function load(filename, dependencies = {}) {
 }
 
 const experiments = load("experiments.ts");
+const history = {
+  collectTrainingHistory: () => ({ segments: [] }),
+  prepareTrainingHistory: () => 0,
+  restoreTrainingInvocation: () => ({
+    rewardHistory: [],
+    trainingSteps: 0,
+    trainingTotal: 0,
+    normalizeRewards: false,
+  }),
+};
 
 for (const experimentId of ["running", "stilts"]) {
   test(`${experimentId} yaw-only shaping is optional and reaches the CLI`, () => {
     const { api, children } = fixture();
     assert.equal(api.normalizeRecipe({ experimentId }).rewardWeights.yaw_tracking, 0);
-    const recipe = api.startJob("train", { experimentId, rewardWeights: { yaw_tracking: 8 } });
+    const recipe = api.startJob("train", {
+      experimentId,
+      rewardWeights: { yaw_tracking: 8 },
+      resumeFromCheckpoint: true,
+    });
     assert.equal(recipe.rewardWeights.yaw_tracking, 8);
     const args = children[0].args;
     assert.equal(JSON.parse(args[args.indexOf("--weight-overrides") + 1]).yaw_tracking, 8);
@@ -47,7 +61,13 @@ function fixture() {
   const files = new Map();
   const api = load("rlx-job.ts", {
     "@/lib/experiments": experiments,
-    "node:fs": { existsSync: () => true },
+    "@/lib/rlx-history": history,
+    "@/lib/rlx-render-evidence": {
+      prepareRenderEvidence: (input) => input,
+      finalizeRenderEvidence: () => null,
+      readRenderEvidence: () => null,
+    },
+    "node:fs": { existsSync: (file) => !file.endsWith("/.restart-lab/lock") },
     "node:fs/promises": {
       writeFile: async (file, data) => { writes.set(file, JSON.parse(data)); },
       readFile: async (file) => {
@@ -136,7 +156,6 @@ for (const [experimentId, changes] of [
   ["running", { locomotionForwardCommand: 0.7 }],
   ["running", { locomotionForwardCommand: null }],
   ["running", { seed: 42 }],
-  ["running", { renderSeconds: 15 }],
   ["stilts", { stiltHeightCm: 15 }],
   ["stilts", { stiltBlend: 0.8 }],
   ["stilts", { stiltMassKg: 0.05 }],
@@ -163,20 +182,31 @@ for (const [experimentId, changes] of [
   });
 }
 
+test("changing video duration preserves the saved evaluation but does not grant visual provenance", async () => {
+  const { api, children, recipe } = evaluatedFixture("running");
+  api.startJob("render", { ...recipe, renderSeconds: 15 });
+  finish(children.at(-1));
+  const rendered = await api.snapshot();
+  assert.equal(rendered.evaluation.passed, true);
+  assert.equal(rendered.evaluation.evaluation_request.recipe.renderSeconds, recipe.renderSeconds);
+  assert.equal(rendered.renderVerified, false);
+});
+
 for (const flag of ["domainRand", "obsNoise", "actionDelay", "randomYaw"]) {
-  test(`render's effective ${flag}=false invalidates randomized evaluation despite matching requested flags`, async () => {
+  test(`nominal video projection does not relabel the evaluation's ${flag}=true scope`, async () => {
     const { api, children, recipe } = evaluatedFixture("running", { [flag]: true });
     assert.equal((await api.snapshot()).evaluation.passed, true);
     api.startJob("render", recipe);
-    assert.equal((await api.snapshot()).evaluation.skill_status, "not_assessed");
+    assert.equal((await api.snapshot()).evaluation.skill_status, "passed");
     finish(children.at(-1));
     const rendered = await api.snapshot();
-    assert.equal(rendered.evaluation.passed, false);
-    assert.equal(rendered.evaluation.evaluation_settings_match, false);
+    assert.equal(rendered.evaluation.passed, true);
+    assert.equal(rendered.evaluation.evaluation_request.recipe[flag], true);
+    assert.equal(rendered.renderVerified, false);
   });
 }
 
-test("render compares effective settings rather than ignored requested noise and episode horizon", async () => {
+test("changing the requested evaluation recipe is not hidden by renderer normalization", async () => {
   const { api, children, recipe } = evaluatedFixture("running");
   api.startJob("render", {
     ...recipe,
@@ -184,7 +214,7 @@ test("render compares effective settings rather than ignored requested noise and
     maxEpisodeS: 20,
   });
   finish(children.at(-1));
-  assert.equal((await api.snapshot()).evaluation.passed, true);
+  assert.equal((await api.snapshot()).evaluation.passed, false);
 });
 
 test("forward command preserves absent/null defaults for every recipe", () => {
@@ -296,6 +326,7 @@ for (const [experimentId, command] of [["running", 0.6], ["stilts", 0.15]]) {
       for (const operation of ["train", "eval", "render", "export"]) {
         const recipe = api.startJob(operation, {
           experimentId, profile, locomotionForwardCommand: command,
+          ...(operation === "train" ? { resumeFromCheckpoint: true } : {}),
         });
         const child = children.at(-1);
         const flagIndex = child.args.indexOf("--locomotion-forward-command");
@@ -323,7 +354,11 @@ test("unset forward commands emit no CLI override or evaluation setting", () => 
   for (const experimentId of ["dance", "swing", "running", "stilts"]) {
     for (const locomotionForwardCommand of [undefined, null]) {
       for (const operation of ["train", "eval", "render"]) {
-        api.startJob(operation, { experimentId, locomotionForwardCommand });
+        api.startJob(operation, {
+          experimentId,
+          locomotionForwardCommand,
+          ...(operation === "train" ? { resumeFromCheckpoint: true } : {}),
+        });
         const child = children.at(-1);
         assert.equal(child.args.includes("--locomotion-forward-command"), false);
         child.stdout.emit("data", '{"passed":true}\n');
