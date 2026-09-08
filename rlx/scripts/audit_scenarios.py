@@ -204,13 +204,14 @@ def comparison_video(output, recipe, traces, reports):
 
 
 def audit(args):
+    args.output.mkdir(parents=True, exist_ok=True)
+    (args.output / "audit.json").write_text(json.dumps({"passed": False, "status": "audit_in_progress"}) + "\n")
     import mlx.core as mx
     import onnx
     from rlx.export.microduck_onnx import parity_error
 
     recipe = json.loads(args.recipe_json.read_text())
     scenario = recipe["experimentId"]
-    args.output.mkdir(parents=True, exist_ok=True)
     studio = studio_module()
     checkpoint = args.run / f"{scenario}.safetensors"
     policy = args.run / f"{scenario}.onnx"
@@ -277,6 +278,9 @@ def audit(args):
     controls_failed = all(not report["passed"] for name in negative_names for report in reports[name])
     passed = all(report["passed"] and report["finite"] for report in reports["trained"])
     result = {
+        "run_name": args.run.name,
+        "checkpoint_sha256": hashlib.sha256(checkpoint.read_bytes()).hexdigest(),
+        "training_metrics_sha256": hashlib.sha256((args.run / "training-metrics.jsonl").read_bytes()).hexdigest(),
         "recipe": recipe, "effective_audit_environment": environment_options(recipe),
         "policy_sha256": hashlib.sha256(policy.read_bytes()).hexdigest(),
         "controls": reports, "history": history, "training": training,
@@ -308,7 +312,7 @@ def main():
     parser.add_argument("--run", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--seeds", type=int, nargs="+", default=[101, 102, 103, 104, 105])
-    parser.add_argument("--history-stride", type=int, default=2)
+    parser.add_argument("--history-stride", type=int, default=1)
     parser.add_argument("--render", action="store_true")
     args = parser.parse_args()
     if args.history_stride < 1:

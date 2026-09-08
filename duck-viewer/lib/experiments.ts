@@ -112,6 +112,7 @@ const REWARDS: Record<ExperimentId, RewardDefinition> = {
       { key: "track_turn", label: "Match turn rate", defaultWeight: 2, description: "Match the commanded yaw rate." },
       { key: "air_time", label: "Running flight", defaultWeight: 3, description: "Reward feet spending a useful duration in the air." },
       { key: "flight", label: "Both-feet flight", defaultWeight: 0, description: "Optional bounded reward for both feet off the ground, gated by upright posture and command-directed body speed; disabled by default." },
+      { key: "yaw_tracking", label: "Precise yaw tracking", defaultWeight: 0, description: "Optional yaw-only tracking reward independent of roll and pitch, using observed gyro and commanded turn rate; disabled by default." },
       { key: "stay_upright", label: "Stay upright", defaultWeight: 2, description: "Keep the body upright while permitting running lean." },
       { key: "pose", label: "Running pose", defaultWeight: 1, description: "Track a speed-appropriate leg posture." },
       { key: "head_up", label: "Head posture", defaultWeight: 3.5, description: "Keep the head aligned with its command." },
@@ -130,6 +131,7 @@ const REWARDS: Record<ExperimentId, RewardDefinition> = {
     terms: [
       { key: "track_lin_vel", label: "Match walking speed", defaultWeight: 2.5, description: "Match the requested linear velocity." },
       { key: "track_ang_vel", label: "Match turn rate", defaultWeight: 1, description: "Match the requested yaw rate." },
+      { key: "yaw_tracking", label: "Precise yaw tracking", defaultWeight: 0, description: "Optional yaw-only tracking reward independent of roll and pitch, using observed gyro and commanded turn rate; disabled by default." },
       { key: "upright", label: "Upright balance", defaultWeight: 3, description: "Prioritize a level trunk on the raised contacts." },
       { key: "pose", label: "Leg pose", defaultWeight: 0, description: "Optional pull toward the default leg pose; disabled by default." },
       { key: "head_pose", label: "Head pose", defaultWeight: 0.25, description: "Track the requested head posture without dominating balance." },

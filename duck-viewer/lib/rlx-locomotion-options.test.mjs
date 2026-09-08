@@ -30,6 +30,17 @@ function load(filename, dependencies = {}) {
 
 const experiments = load("experiments.ts");
 
+for (const experimentId of ["running", "stilts"]) {
+  test(`${experimentId} yaw-only shaping is optional and reaches the CLI`, () => {
+    const { api, children } = fixture();
+    assert.equal(api.normalizeRecipe({ experimentId }).rewardWeights.yaw_tracking, 0);
+    const recipe = api.startJob("train", { experimentId, rewardWeights: { yaw_tracking: 8 } });
+    assert.equal(recipe.rewardWeights.yaw_tracking, 8);
+    const args = children[0].args;
+    assert.equal(JSON.parse(args[args.indexOf("--weight-overrides") + 1]).yaw_tracking, 8);
+  });
+}
+
 function fixture() {
   const children = [];
   const writes = new Map();

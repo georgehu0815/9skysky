@@ -180,7 +180,7 @@ export function operationEvidenceError(
     evaluation?.skill_status === "failed";
   const requiresExplicitSkillStatus =
     profile === "full" &&
-    (selectedExperimentId === "dance" || selectedExperimentId === "swing");
+    EXPERIMENT_IDS.includes(selectedExperimentId);
   const acceptedFailedEvaluation =
     action === "eval" &&
     profile === "full" &&

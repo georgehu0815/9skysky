@@ -231,8 +231,9 @@ test("Full Dance eval accepts explicit pass or failure evidence only", () => {
   );
 });
 
-test("Running full eval accepts its evaluator's non-assessed skill status", () => {
-  assert.equal(
+for (const experimentId of ["running", "stilts"]) {
+test(`${experimentId} full eval rejects a non-assessed skill status`, () => {
+  assert.match(
     operationEvidenceError(
       "eval",
       state({
@@ -245,11 +246,12 @@ test("Running full eval accepts its evaluator's non-assessed skill status", () =
         artifacts: { evaluation: true },
       }),
       "full",
-      "running"
+      experimentId
     ),
-    null
+    /explicit skill_status/
   );
 });
+}
 
 test("Full Dance skill failure still renders, exports, and persists its report", async () => {
   const directory = await mkdtemp(path.join(os.tmpdir(), "dance-api-e2e-"));

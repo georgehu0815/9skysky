@@ -95,6 +95,7 @@ RECIPE_REWARD_KEYS = {
     "running": {
         "keep_pace",
         "track_turn",
+        "yaw_tracking",
         "air_time",
         "flight",
         "stay_upright",
@@ -106,7 +107,7 @@ RECIPE_REWARD_KEYS = {
         "no_limit_parking",
         "calm_roll",
     },
-    "stilts": set(STILT_REWARD_WEIGHTS),
+    "stilts": {*STILT_REWARD_WEIGHTS, "yaw_tracking"},
     "swing": set(SWING_REWARD_WEIGHTS),
 }
 
@@ -176,6 +177,15 @@ def _running_flight(env: gym.Env) -> float:
         return 0.0
     return float(np.clip((upright - 0.8) / 0.2, 0.0, 1.0)
                  * np.clip(speed / 0.4, 0.0, 1.0))
+
+
+def _locomotion_yaw_tracking(env: gym.Env) -> float:
+    yaw_rate = float(env._gyro[2])
+    yaw_command = float(env.twist_cmd[2])
+    if not math.isfinite(yaw_rate) or not math.isfinite(yaw_command):
+        return 0.0
+    scaled_error = (yaw_rate - yaw_command) / 0.25
+    return float(math.exp(-(scaled_error * scaled_error)))
 
 
 def _replace_dance_pose_match(env: gym.Env, sigma: float) -> None:
@@ -616,6 +626,11 @@ def _native_environment_classes():
             for key, default_weight in STILT_REWARD_WEIGHTS.items():
                 weight = self.weight_overrides.get(key, default_weight)
                 terms[key] *= weight / base_weights[key]
+            yaw_tracking_weight = self.weight_overrides.get("yaw_tracking", 0.0)
+            if yaw_tracking_weight > 0.0:
+                terms["yaw_tracking"] = (
+                    yaw_tracking_weight * _locomotion_yaw_tracking(self)
+                )
             terms["action_rate_penalty"] *= 0.2
             return float(sum(terms.values())), terms
 
@@ -1095,6 +1110,15 @@ def make_single_recipe_env(
             env = behaviors.BehaviorEnv(**kwargs)
             if weight_overrides.get("flight", 0.0) > 0.0:
                 env._term_rows += (("flight", "flight", 0.0, _running_flight),)
+            if weight_overrides.get("yaw_tracking", 0.0) > 0.0:
+                env._term_rows += (
+                    (
+                        "yaw_tracking",
+                        "yaw_tracking",
+                        0.0,
+                        _locomotion_yaw_tracking,
+                    ),
+                )
     else:
         StiltEnv, SwingEnv = _native_environment_classes()
         if recipe == "stilts":

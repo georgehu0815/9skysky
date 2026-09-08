@@ -16,7 +16,6 @@ const { values } = parseArgs({ options: {
 for (const key of ["recipe-json", "run", "output", "playwright-package"]) {
   assert.ok(values[key], `--${key} is required`);
 }
-const recipe = JSON.parse(await readFile(values["recipe-json"], "utf8"));
 const runName = path.basename(path.resolve(values.run));
 const output = path.resolve(values.output);
 function expectedFrames(seconds) {
@@ -28,6 +27,15 @@ function expectedFrames(seconds) {
   return Math.ceil(Math.max(1, rounded) / 2);
 }
 await mkdir(output, { recursive: true });
+await writeFile(path.join(output, "video-validation.json"), JSON.stringify({ passed: false, status: "verification_in_progress" }) + "\n");
+const recipe = JSON.parse(await readFile(values["recipe-json"], "utf8"));
+const auditBytes = await readFile(path.join(output, "audit.json"));
+const audit = JSON.parse(auditBytes);
+assert.equal(audit.recipe.experimentId, recipe.experimentId);
+assert.equal(audit.run_name, runName);
+const policySha256 = createHash("sha256").update(await readFile(path.join(values.run, `${recipe.experimentId}.onnx`))).digest("hex");
+assert.equal(audit.policy_sha256, policySha256, "Audit must describe the current exported policy");
+const auditSha256 = createHash("sha256").update(auditBytes).digest("hex");
 const url = new URL("/api/rlx/artifact", values["base-url"]);
 url.search = new URLSearchParams({ experiment: recipe.experimentId, run: runName, kind: "video", inline: "1" }).toString();
 const response = await fetch(url, { signal: AbortSignal.timeout(30000) });
@@ -73,6 +81,6 @@ for (const [name, seconds] of [["api-video.mp4", recipe.renderSeconds], ["compar
   assert.equal(stream.avg_frame_rate, "25/1");
   videos.push({ file, sha256: createHash("sha256").update(await readFile(file)).digest("hex"), probe });
 }
-const result = { passed: true, experiment: recipe.experimentId, run: runName, download_matches_local: true, byte_range_passed: true, playback, videos };
+const result = { passed: true, experiment: recipe.experimentId, run: runName, policy_sha256: policySha256, audit_sha256: auditSha256, download_matches_local: true, byte_range_passed: true, playback, videos };
 await writeFile(path.join(output, "video-validation.json"), JSON.stringify(result, null, 2) + "\n");
 console.log(JSON.stringify({ passed: true, playback, videos: videos.map(({ file }) => file) }));

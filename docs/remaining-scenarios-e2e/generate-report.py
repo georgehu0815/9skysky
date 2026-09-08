@@ -20,6 +20,7 @@ SCENARIOS = (
 )
 DEFAULT_EVIDENCE_ROOT = Path("rlx/artifacts/scenarios-e2e-20260907")
 REPO_ROOT = Path(__file__).resolve().parents[2]
+INTERPRETATION_PATH = Path(__file__).with_name("INTERPRETATION.md")
 ARTIFACT_NAMES = (
     "comparison_sheet.png",
     "physical-tracking.png",
@@ -76,6 +77,7 @@ class Attempt:
             and self.audit.get("passed") is True
             and self.video is not None
             and self.video.get("passed") is True
+            and evidence_chain_matches(self)
         )
 
 
@@ -87,9 +89,9 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_EVIDENCE_ROOT,
         help=f"Evidence directory (default: {DEFAULT_EVIDENCE_ROOT})",
     )
-    parser.add_argument("--running", default="running-v3", help="Running attempt ID")
+    parser.add_argument("--running", default="running-v4", help="Running attempt ID")
     parser.add_argument("--stilts", default="stilts-v3", help="Stilt attempt ID")
-    parser.add_argument("--swing", default="swing-v2", help="Swing attempt ID")
+    parser.add_argument("--swing", default="swing-v3", help="Swing attempt ID")
     parser.add_argument(
         "--output",
         type=Path,
@@ -169,6 +171,58 @@ def api_training_failed(api: dict[str, Any] | None) -> bool:
 def api_training_succeeded(api: dict[str, Any] | None) -> bool:
     state = api_operation_state(api, "train")
     return bool(state and state.get("phase") == "succeeded")
+
+
+def evidence_chain_matches(attempt: Attempt) -> bool:
+    audit, video, api = attempt.audit, attempt.video, attempt.api
+    if not audit or not video or not api or api.get("failure"):
+        return False
+    policy_hash = audit.get("policy_sha256")
+    run_name = audit.get("run_name")
+    if not policy_hash or not run_name:
+        return False
+    recipe = api.get("normalizedRecipe") or {}
+    if recipe.get("experimentId") != attempt.scenario or recipe.get("runName") != run_name:
+        return False
+    for key, value in audit.get("recipe", {}).items():
+        if key == "runName":
+            continue
+        if key == "rewardWeights":
+            if any(recipe.get(key, {}).get(term) != weight for term, weight in value.items()):
+                return False
+        elif recipe.get(key) != value:
+            return False
+    if video.get("experiment") != attempt.scenario or video.get("run") != run_name:
+        return False
+    if video.get("policy_sha256") != policy_hash:
+        return False
+    if not attempt.audit_path.is_file() or video.get("audit_sha256") != sha256(attempt.audit_path):
+        return False
+    for action in ("train", "eval", "render", "export"):
+        state = api_operation_state(api, action)
+        if not state or state.get("phase") != "succeeded":
+            return False
+        if state.get("experimentId") != attempt.scenario or state.get("runName") != run_name:
+            return False
+        if action in ("eval", "render"):
+            result = state.get("result") or {}
+            if result.get("source_type") != "policy" or result.get("source_sha256") != policy_hash:
+                return False
+        if action == "eval":
+            assessment = state.get("evaluation") or {}
+            if assessment.get("passed") is not True or assessment.get("skill_status") != "passed":
+                return False
+            source = (state.get("result") or {}).get("source")
+            if not source or not Path(source).is_file() or sha256(Path(source)) != policy_hash:
+                return False
+    videos = video.get("videos")
+    if not isinstance(videos, list) or len(videos) != 2:
+        return False
+    for name, entry in zip(("api-video.mp4", "comparison.mp4"), videos):
+        path = attempt.audit_dir / name
+        if not path.is_file() or entry.get("sha256") != sha256(path):
+            return False
+    return True
 
 
 def training_failure_summary(api: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -768,6 +822,7 @@ def render_activation_diagnosis(
 def render_attempt(attempt: Attempt, output_dir: Path) -> list[str]:
     lines = [f"## {attempt.label}: `{attempt.identifier}`", ""]
     lines.append(f"**Scenario status:** **{attempt.status}**")
+    lines.append(f"**Complete API/audit/video evidence chain:** {'verified' if attempt.evidence_complete else 'not verified'}")
     lines.append("")
     if attempt.audit is None:
         failure = training_failure_summary(attempt.api)
@@ -1065,7 +1120,21 @@ def render_attempt(attempt: Attempt, output_dir: Path) -> list[str]:
         api_rel = f"rlx/artifacts/scenarios-e2e-20260907/{unique_run}-api.json"
         audit_rel = f"rlx/artifacts/scenarios-e2e-20260907/{unique_run}-audit"
         run_rel = f"rlx/runs/studio/{scenario}/{unique_run}"
+        lines.extend([
+            "Run all stages from the repository root with the Studio server at "
+            "`http://127.0.0.1:63317`. Replace `YYYYMMDD-HHMMSS` consistently with a "
+            "fresh timestamp; base and continuation runs must remain distinct.",
+            "",
+        ])
         if scenario == "swing" and attempt.recipe.get("resumeFromCheckpoint"):
+            if attempt.identifier == "swing-v3":
+                lines.extend([
+                    "Swing v3 repeats bootstrap PPO with a 524,288-transition budget, "
+                    "not a continuation of the failed v2 final policy. The v2 524k "
+                    "checkpoint passed while its 1M final failed; this shorter schedule "
+                    "still requires a new held-out audit and is not a predeclared pass.",
+                    "",
+                ])
             lines.extend([
                 "This recipe requires a teacher-assisted initializer. Reproduce the BC/DAgger "
                 "stage first; it uses privileged state only to create training labels, never "
@@ -1079,6 +1148,73 @@ def render_attempt(attempt: Attempt, output_dir: Path) -> list[str]:
                 f"cp /tmp/swing-bootstrap-reproduction/swing.safetensors "
                 f"/tmp/swing-bootstrap-reproduction/swing.safetensors.json {run_rel}/",
                 "```", "",
+            ])
+        elif scenario == "running" and attempt.recipe.get("resumeFromCheckpoint"):
+            base_recipe_rel = "docs/remaining-scenarios-e2e/recipes/running-base.json"
+            base_run = "running-base-reproduction-YYYYMMDD-HHMMSS"
+            base_api_rel = f"rlx/artifacts/scenarios-e2e-20260907/{base_run}-api.json"
+            base_run_rel = f"rlx/runs/studio/running/{base_run}"
+            lines.extend([
+                "Running v4 resumes the Running v3 final checkpoint. Train the tracked "
+                "base recipe first. The recorded base completed training but failed its "
+                "skill gate, so the API runner exits nonzero for that skill failure. "
+                "Retain its failed verdict. Reuse its completed checkpoint only if the "
+                "API train operation succeeded and both checkpoint and sidecar exist. "
+                "The guarded block accepts only the runner's explicit skill-failure "
+                "outcome; missing evidence, failed training, and other runner errors "
+                "stop the copy. Do not ignore failures unconditionally or resume after "
+                "this block fails.",
+                "",
+                "```bash",
+                "(",
+                "set -eu",
+                f"test ! -e {base_run_rel}",
+                f"test ! -e {base_api_rel}",
+                f"test ! -e {run_rel}",
+                "base_status=0",
+                (
+                    "node duck-viewer/scripts/rlx-dance-api-e2e.mjs --execute "
+                    "--base-url http://127.0.0.1:63317 --experiment running "
+                    f"--recipe-json {base_recipe_rel} --run {base_run} "
+                    f"--report {base_api_rel} --timeout-seconds 7200 || base_status=$?"
+                ),
+                f'python3 - {base_api_rel} {base_run} "$base_status" <<\'PY\'',
+                "import json",
+                "import sys",
+                "from pathlib import Path",
+                "report = json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))",
+                "recipe = report.get('requestedRecipe') or {}",
+                "if recipe.get('experimentId') != 'running' or recipe.get('runName') != sys.argv[2]:",
+                "    raise SystemExit('Base API report does not match this run')",
+                "operations = {op['action']: op for op in report.get('operations', [])}",
+                "train = operations.get('train', {})",
+                "if (train.get('state') or {}).get('phase') != 'succeeded' or train.get('error'):",
+                "    raise SystemExit('Base training did not succeed; refusing checkpoint copy')",
+                "failure = report.get('failure')",
+                "if int(sys.argv[3]) != 0:",
+                "    expected = 'Full Running skill evaluation failed; render and export evidence were collected.'",
+                "    evaluation = (operations.get('eval', {}).get('state') or {}).get('evaluation') or {}",
+                "    if (failure or {}).get('message') != expected or evaluation.get('skill_status') != 'failed':",
+                "        raise SystemExit('Unexpected runner failure; refusing checkpoint copy')",
+                "    for action in ('render', 'export'):",
+                "        operation = operations.get(action, {})",
+                "        if (operation.get('state') or {}).get('phase') != 'succeeded' or operation.get('error'):",
+                "            raise SystemExit('Base evidence collection failed; refusing checkpoint copy')",
+                "elif failure:",
+                "    raise SystemExit('Runner status contradicts API failure; refusing checkpoint copy')",
+                "PY",
+                f"test -s {base_run_rel}/running.safetensors",
+                f"test -s {base_run_rel}/running.safetensors.json",
+                f"mkdir -p {run_rel}",
+                f"cp {base_run_rel}/running.safetensors "
+                f"{base_run_rel}/running.safetensors.json {run_rel}/",
+                ")",
+                "```",
+                "",
+                "After this block succeeds, the continuation runner below uses the "
+                "target-local checkpoint and the selected recipe's reward weights. "
+                "It does not reuse the base run's skill verdict.",
+                "",
             ])
         elif scenario == "stilts" and attempt.recipe.get("resumeFromCheckpoint"):
             base_recipe_rel = (
@@ -1129,7 +1265,7 @@ def render_attempt(attempt: Attempt, output_dir: Path) -> list[str]:
                 (
                     "rlx/.venv-microduck/bin/python rlx/scripts/audit_scenarios.py "
                     f"--recipe-json {recipe_rel} --run {run_rel} --output {audit_rel} "
-                    "--seeds 101 102 103 104 105 --render"
+                    "--seeds 501 502 503 504 505 --render"
                 ),
                 (
                     "node duck-viewer/scripts/verify-rlx-video.mjs "
@@ -1327,13 +1463,22 @@ def render_report(
     for scenario, label in SCENARIOS:
         path = Path(__file__).with_name("recipes") / f"{scenario}.json"
         lines.append(f"- {markdown_link(label, path, output_dir)}")
-        if scenario == "stilts":
-            base_path = Path(__file__).with_name("recipes") / "stilts-base.json"
+        if scenario in ("running", "stilts"):
+            base_path = Path(__file__).with_name("recipes") / f"{scenario}-base.json"
             lines.append(
-                f"- {markdown_link('Stilt Walking base', base_path, output_dir)}"
+                f"- {markdown_link(f'{label} base', base_path, output_dir)}"
             )
     lines.append("")
     section += 1
+
+    if INTERPRETATION_PATH.is_file():
+        lines.extend([
+            f"## {section}. Interpretation",
+            "",
+            INTERPRETATION_PATH.read_text(encoding="utf-8").strip(),
+            "",
+        ])
+        section += 1
 
     lines.extend(
         [

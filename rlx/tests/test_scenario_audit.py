@@ -1,6 +1,7 @@
 import importlib.util
 import json
 import sys
+from types import SimpleNamespace
 from pathlib import Path
 
 import pytest
@@ -54,3 +55,11 @@ def test_audit_empty_updates_record_failure(audit_module, tmp_path):
     assert result["passed"] is False
     assert result["max_approximate_kl"] is None
     json.dumps(result, allow_nan=False)
+
+
+def test_failed_audit_invalidates_previous_success(audit_module, tmp_path):
+    (tmp_path / "audit.json").write_text('{"passed": true}')
+    args = SimpleNamespace(output=tmp_path, recipe_json=tmp_path / "missing.json")
+    with pytest.raises((FileNotFoundError, ImportError)):
+        audit_module.audit(args)
+    assert json.loads((tmp_path / "audit.json").read_text())["passed"] is False
