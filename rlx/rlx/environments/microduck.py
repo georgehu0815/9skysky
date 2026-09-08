@@ -56,6 +56,7 @@ class MicroDuckVecEnv:
         *,
         normalize_observations: bool = False,
         normalize_rewards: bool = False,
+        freeze_observation_normalization: bool = False,
         gamma: float = 0.99,
         epsilon: float = 1e-8,
         clip: float = 10.0,
@@ -68,6 +69,7 @@ class MicroDuckVecEnv:
 
         self.normalize_observations = normalize_observations
         self.normalize_rewards = normalize_rewards
+        self.freeze_observation_normalization = freeze_observation_normalization
         self.gamma = gamma
         self.epsilon = epsilon
         self.clip = clip
@@ -107,7 +109,7 @@ class MicroDuckVecEnv:
     def _normalize_observation(self, observation: np.ndarray, *, update: bool = True) -> np.ndarray:
         if not self.normalize_observations:
             return observation
-        if update:
+        if update and not self.freeze_observation_normalization:
             self.observation_rms.update(observation)
         normalized = (observation - self.observation_rms.mean) / np.sqrt(
             self.observation_rms.var + self.epsilon

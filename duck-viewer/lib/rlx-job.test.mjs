@@ -602,6 +602,10 @@ test("UI requires authoritative scoped skill verdict, not finite output or large
   assert.equal(evaluationVerdict({ ...skill, skill_status: "not_assessed" }, "dance").taskPassed, false);
   assert.equal(evaluationVerdict({ ...skill, skill_status: "failed" }, "dance").taskPassed, false);
   assert.equal(evaluationVerdict({ ...skill, skill_status: "passed" }, "dance").taskPassed, true);
-  assert.equal(evaluationVerdict({ ...skill, skill_status: "not_assessed" }, "running").taskPassed, true);
+  assert.equal(evaluationVerdict({ ...skill, skill_status: "not_assessed" }, "running").taskPassed, false);
+  assert.equal(evaluationVerdict({ ...skill, skill_status: "failed" }, "running").taskPassed, false);
+  assert.equal(evaluationVerdict({ ...skill, skill_status: "passed" }, "running").taskPassed, true);
+  assert.equal(evaluationVerdict({ ...skill, skill_status: "not_assessed" }, "stilts").taskPassed, false);
+  assert.equal(evaluationVerdict({ ...skill, skill_status: "passed" }, "stilts").taskPassed, true);
   assert.equal(evaluationVerdict({ ...skill, evaluation: { swing_criteria: { min_bidirectional_span_deg: 150 } } }, "swing").swingMinSpanDeg, 150);
 });

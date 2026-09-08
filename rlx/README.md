@@ -155,6 +155,48 @@ Dance skill evaluation requires full-reference coverage, balance, low pose error
 
 The [detailed end-to-end report](../docs/dance-imitation-e2e/REPORT.md) and [PDF](../docs/dance-imitation-e2e/REPORT.pdf) record a successful eight-second Bachata excerpt, five held-out seeds, two-cycle evaluation, failed experiments, and remaining regression gaps. This is local simulation evidence, not full-source or hardware certification.
 
+## Shared E2E evidence for Swing, Running, and Stilt Walking
+
+The same HTTP driver also accepts `--experiment swing`, `running`, or `stilts`.
+Versioned recipes and the evidence report are in
+[`docs/remaining-scenarios-e2e`](../docs/remaining-scenarios-e2e/REPORT.md).
+Read each scenario's **skill** verdict: completed training, finite rewards, and
+valid MP4 files do not establish that a policy learned the requested motion.
+
+From the workspace root, with Studio running:
+
+```bash
+node duck-viewer/scripts/rlx-dance-api-e2e.mjs --execute \
+  --experiment running \
+  --recipe-json docs/remaining-scenarios-e2e/recipes/running.json \
+  --run running-reproduction --report /tmp/running-api.json
+
+rlx/.venv-microduck/bin/python rlx/scripts/audit_scenarios.py \
+  --recipe-json docs/remaining-scenarios-e2e/recipes/running.json \
+  --run rlx/runs/studio/running/running-reproduction \
+  --output /tmp/running-audit --render
+```
+
+Running requires complete 12-second episodes, meaningful command-directed
+progress, alternating contacts, and actual aerial phases. Stilt Walking uses
+10-second episodes and morphology-appropriate speed floors. Locomotion
+assessment version 2 anchors intended heading per command segment, so circling
+under a zero-turn command cannot masquerade as straight-line progress. An
+optional `--locomotion-forward-command` pins an explicit observable forward
+task without changing the 61-observation/14-action policy contract.
+
+`audit_scenarios.py` saves held-out physical traces, zero-action and initial-policy
+controls, checkpoint history, parameter changes, ONNX parity, raw/normalized
+reward charts, actual PPO loss metrics, and a no-reset comparison MP4. It exits
+nonzero when acceptance fails. `duck-viewer/scripts/verify-rlx-video.mjs` checks
+API bytes/ranges, decoded H.264 frames, and browser playback using an existing
+Playwright installation supplied through `--playwright-package`.
+
+The Microduck actor/critic uses a numerically stable ELU implementation that
+bounds the inactive exponential branch. This preserves the ELU function and
+checkpoint/export layout while preventing finite positive activations from
+creating non-finite gradients. PPO's non-finite guards remain enabled.
+
 ## Evaluate the native Studio Swing recipe
 
 `examples/ppo_microduck_studio.py` separates execution checks from Swing skill acceptance. `--evaluation-mode pipeline` checks finite execution and any explicit return/episode limits; its `skill_status` is `not_assessed`, even when `passed` is true. The default `skill` mode requires every observed Swing episode to complete 1,200 control steps (24 seconds) without termination, from zero initial angle and rate. Partial episodes cannot pass.

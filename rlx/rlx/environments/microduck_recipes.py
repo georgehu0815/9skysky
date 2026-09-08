@@ -96,6 +96,7 @@ RECIPE_REWARD_KEYS = {
         "keep_pace",
         "track_turn",
         "air_time",
+        "flight",
         "stay_upright",
         "pose",
         "head_up",
@@ -155,6 +156,28 @@ def _per_joint_dance_pose_match(env: gym.Env, *, sigma: float) -> float:
     return float(np.mean(np.exp(-np.square(scaled_error))))
 
 
+def _running_flight(env: gym.Env) -> float:
+    """Dense aerial shaping, independent of the per-foot air-time threshold.
+
+    Upright 0.8 -> 1.0 and command-directed speed 0 -> 0.4 m/s ramp
+    credit to one. No credit for grounded, stationary or opposing motion;
+    backward/sideways commands use their own body-frame direction.
+    """
+    contacts = env._foot_contacts()
+    if contacts["left"] or contacts["right"]:
+        return 0.0
+    command = env.twist_cmd[:2]
+    command_norm = math.hypot(*command)
+    if not math.isfinite(command_norm) or command_norm == 0.0:
+        return 0.0
+    upright = float(-env._projected_gravity()[2])
+    speed = float(np.dot(env.body_lin_vel()[:2], command / command_norm))
+    if not math.isfinite(upright) or not math.isfinite(speed):
+        return 0.0
+    return float(np.clip((upright - 0.8) / 0.2, 0.0, 1.0)
+                 * np.clip(speed / 0.4, 0.0, 1.0))
+
+
 def _replace_dance_pose_match(env: gym.Env, sigma: float) -> None:
     replacement = partial(_per_joint_dance_pose_match, sigma=sigma)
     rows = []
@@ -211,6 +234,40 @@ def validate_stilt_options(
     if resolved_mass <= 0.0:
         raise ValueError("stilt mass must be positive")
     return height_cm, blend, resolved_mass
+
+
+def validate_locomotion_forward_command(
+    recipe: str,
+    command_m_s: float | None,
+) -> float | None:
+    if command_m_s is None:
+        return None
+    if recipe not in {"running", "stilts"}:
+        raise ValueError(
+            "locomotion_forward_command is only valid for running and stilts"
+        )
+    if isinstance(command_m_s, bool):
+        raise ValueError(
+            "locomotion_forward_command must be finite, greater than 0, "
+            "and at most 1.5"
+        )
+    command = float(command_m_s)
+    if not math.isfinite(command) or not 0.0 < command <= 1.5:
+        raise ValueError(
+            "locomotion_forward_command must be finite, greater than 0, "
+            "and at most 1.5"
+        )
+    return command
+
+
+def _pin_locomotion_forward_command(env: gym.Env, command_m_s: float) -> None:
+    sample_commands = env._sample_commands
+
+    def sample_pinned_command() -> None:
+        sample_commands()
+        env.twist_cmd[:] = (command_m_s, 0.0, 0.0)
+
+    env._sample_commands = sample_pinned_command
 
 
 def _rounded_rectangle_ring(
@@ -465,6 +522,34 @@ def _recipe_model(key: tuple[Any, ...], builder: Callable[[], Any], cache: bool)
     return model
 
 
+def _locomotion_recipe_metrics(env: gym.Env) -> dict[str, float]:
+    gravity = env._projected_gravity()
+    forward_speed, lateral_speed, _ = env.heading_lin_vel()
+    heading = env._trunk_xmat.reshape(3, 3)[:, 0].astype(np.float64)
+    heading[2] = 0.0
+    heading_norm = float(np.linalg.norm(heading))
+    if heading_norm > 1e-9:
+        heading /= heading_norm
+    else:
+        heading[:] = (1.0, 0.0, 0.0)
+    contacts = env._foot_contacts()
+    return {
+        "forward_speed_m_s": float(forward_speed),
+        "command_forward_m_s": float(env.twist_cmd[0]),
+        "command_lateral_m_s": float(env.twist_cmd[1]),
+        "command_yaw_rad_s": float(env.twist_cmd[2]),
+        "heading_forward_speed_m_s": float(forward_speed),
+        "heading_lateral_speed_m_s": float(lateral_speed),
+        "world_x_m": float(env._trunk_xpos[0]),
+        "world_y_m": float(env._trunk_xpos[1]),
+        "heading_forward_x": float(heading[0]),
+        "heading_forward_y": float(heading[1]),
+        "upright": float(max(0.0, -gravity[2])),
+        "left_foot_contact": float(contacts["left"]),
+        "right_foot_contact": float(contacts["right"]),
+    }
+
+
 @lru_cache(maxsize=1)
 def _native_environment_classes():
     import mujoco
@@ -535,10 +620,8 @@ def _native_environment_classes():
             return float(sum(terms.values())), terms
 
         def recipe_metrics(self) -> dict[str, float]:
-            gravity = self._projected_gravity()
             return {
-                "forward_speed_m_s": float(self.heading_lin_vel()[0]),
-                "upright": float(max(0.0, -gravity[2])),
+                **_locomotion_recipe_metrics(self),
                 "stilt_height_cm": self.stilt_height_cm,
                 "stilt_blend": self.stilt_blend,
                 "stilt_mass_kg": self.stilt_mass_kg,
@@ -894,8 +977,19 @@ class _RecipeMetricsWrapper(gym.Wrapper):
         self.recipe = recipe
 
     def step(self, action):
+        active_command = (
+            self.env.twist_cmd.copy()
+            if self.recipe in {"running", "stilts"}
+            else None
+        )
         observation, reward, terminated, truncated, info = self.env.step(action)
         metrics = recipe_metrics(self.env, self.recipe)
+        if active_command is not None:
+            metrics.update(
+                command_forward_m_s=float(active_command[0]),
+                command_lateral_m_s=float(active_command[1]),
+                command_yaw_rad_s=float(active_command[2]),
+            )
         info = dict(info)
         info["recipe_metrics"] = metrics
         if self.recipe == "dance":
@@ -914,11 +1008,7 @@ def recipe_metrics(env: gym.Env, recipe: str) -> dict[str, float]:
     if metrics_fn is not None:
         return metrics_fn()
     if recipe == "running":
-        gravity = env._projected_gravity()
-        return {
-            "forward_speed_m_s": float(env.heading_lin_vel()[0]),
-            "upright": float(max(0.0, -gravity[2])),
-        }
+        return _locomotion_recipe_metrics(env)
     if recipe == "dance":
         target, _ = env.clip.at(env.step_count)
         next_target, _ = env.clip.at(env.step_count + 1)
@@ -951,6 +1041,7 @@ def make_single_recipe_env(
     weight_overrides: dict[str, float] | None = None,
     dance_clip: str | Path | None = None,
     dance_pose_sigma: float | None = None,
+    locomotion_forward_command: float | None = None,
     stilt_height_cm: float = 2.0,
     stilt_blend: float = 0.0,
     stilt_mass_kg: float | None = None,
@@ -963,6 +1054,9 @@ def make_single_recipe_env(
     if dance_clip is not None and recipe != "dance":
         raise ValueError("dance_clip is only valid for the dance recipe")
     dance_pose_sigma = _validate_dance_pose_sigma(recipe, dance_pose_sigma)
+    locomotion_forward_command = validate_locomotion_forward_command(
+        recipe, locomotion_forward_command
+    )
     weight_overrides = validate_reward_weights(recipe, weight_overrides)
     episode_s = spec.default_episode_s if max_episode_s is None else max_episode_s
     common = {
@@ -999,6 +1093,8 @@ def make_single_recipe_env(
                 _replace_dance_pose_match(env, dance_pose_sigma)
         else:
             env = behaviors.BehaviorEnv(**kwargs)
+            if weight_overrides.get("flight", 0.0) > 0.0:
+                env._term_rows += (("flight", "flight", 0.0, _running_flight),)
     else:
         StiltEnv, SwingEnv = _native_environment_classes()
         if recipe == "stilts":
@@ -1022,6 +1118,8 @@ def make_single_recipe_env(
                 initial_rate_rad_s=swing_initial_rate_rad_s,
                 planar_actions=swing_planar_actions,
             )
+    if locomotion_forward_command is not None:
+        _pin_locomotion_forward_command(env, locomotion_forward_command)
     return _RecipeMetricsWrapper(env, recipe)
 
 
@@ -1040,6 +1138,7 @@ def make_recipe_env(
     weight_overrides: dict[str, float] | None = None,
     dance_clip: str | Path | None = None,
     dance_pose_sigma: float | None = None,
+    locomotion_forward_command: float | None = None,
     stilt_height_cm: float = 2.0,
     stilt_blend: float = 0.0,
     stilt_mass_kg: float | None = None,
@@ -1058,6 +1157,9 @@ def make_recipe_env(
     if dance_clip is not None and recipe != "dance":
         raise ValueError("dance_clip is only valid for the dance recipe")
     dance_pose_sigma = _validate_dance_pose_sigma(recipe, dance_pose_sigma)
+    locomotion_forward_command = validate_locomotion_forward_command(
+        recipe, locomotion_forward_command
+    )
     dance_clip_directory = (
         _resolve_dance_clip(dance_clip)[1] if recipe == "dance" else None
     )
@@ -1079,6 +1181,7 @@ def make_recipe_env(
                 weight_overrides=weight_overrides,
                 dance_clip=dance_clip,
                 dance_pose_sigma=dance_pose_sigma,
+                locomotion_forward_command=locomotion_forward_command,
                 stilt_height_cm=stilt_height_cm,
                 stilt_blend=stilt_blend,
                 stilt_mass_kg=stilt_mass_kg,
@@ -1129,5 +1232,6 @@ __all__ = [
     "make_recipe_env",
     "make_single_recipe_env",
     "recipe_metrics",
+    "validate_locomotion_forward_command",
     "validate_stilt_options",
 ]

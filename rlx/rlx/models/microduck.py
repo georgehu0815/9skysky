@@ -64,13 +64,24 @@ def create_actor_critic(*, initial_std: float | None = None) -> Any:
 
 
 def _mlp(nn: Any, input_dim: int, output_dim: int) -> Any:
+    class StableELU(nn.Module):
+        def __call__(self, values: Any) -> Any:
+            return stable_elu(values)
+
     layers: list[Any] = []
     previous = input_dim
     for width in HIDDEN_DIMS:
-        layers.extend((nn.Linear(previous, width), nn.ELU()))
+        layers.extend((nn.Linear(previous, width), StableELU()))
         previous = width
     layers.append(nn.Linear(previous, output_dim))
     return nn.Sequential(*layers)
+
+
+def stable_elu(values: Any) -> Any:
+    """ELU with a bounded inactive exponential branch and finite gradients."""
+    import mlx.core as mx
+
+    return mx.where(values >= 0, values, mx.exp(mx.minimum(values, 0)) - 1)
 
 
 def normalize_observations(

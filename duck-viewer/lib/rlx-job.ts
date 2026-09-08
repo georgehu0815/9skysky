@@ -32,8 +32,10 @@ export interface RlxRecipe {
   renderSeconds: number;
   danceClip: string | null;
   dancePoseSigma: number | null;
+  locomotionForwardCommand: number | null;
   initialStd: number;
   normalizeRewards: boolean;
+  freezeObservationNormalization: boolean;
   checkpointInterval: number;
   seed: number;
   learningRate: number;
@@ -99,6 +101,7 @@ export interface RlxJobSnapshot {
 }
 
 interface MutableRlxJob {
+  environmentKeys: Record<string, string>;
   generation: number;
   phase: RlxJobPhase;
   operation: RlxOperation | null;
@@ -124,6 +127,7 @@ declare global {
 }
 
 const INITIAL_JOB: MutableRlxJob = {
+  environmentKeys: {},
   generation: 0,
   phase: "idle",
   operation: null,
@@ -145,6 +149,7 @@ const INITIAL_JOB: MutableRlxJob = {
 };
 
 const job = (globalThis.__microduckRlxJob ??= { ...INITIAL_JOB });
+job.environmentKeys ??= {};
 job.generation ??= 0;
 job.experimentId ??= "dance";
 job.rewardHistory ??= [];
@@ -441,6 +446,25 @@ function normalizeDancePoseSigma(
   return value;
 }
 
+function normalizeLocomotionForwardCommand(
+  experimentId: ExperimentId,
+  value: unknown
+): number | null {
+  if (value == null) return null;
+  if (experimentId !== "running" && experimentId !== "stilts") {
+    throw new Error("Locomotion forward command can only be used with running or stilts.");
+  }
+  if (
+    typeof value !== "number" ||
+    !Number.isFinite(value) ||
+    value <= 0 ||
+    value > 1.5
+  ) {
+    throw new Error("Locomotion forward command must be a finite number greater than 0 and at most 1.5.");
+  }
+  return value;
+}
+
 function normalizeRewardWeights(
   experimentId: ExperimentId,
   value: unknown
@@ -469,6 +493,14 @@ function normalizeRewardWeights(
 
 export function normalizeRecipe(input: Partial<RlxRecipe>): RlxRecipe {
   const experimentId = normalizeExperimentId(input.experimentId);
+  const freezeObservationNormalization = explicitBoolean(
+    input.freezeObservationNormalization,
+    false,
+    "Freeze observation normalization"
+  );
+  if (freezeObservationNormalization && input.resumeFromCheckpoint !== true) {
+    throw new Error("Freeze observation normalization requires resumeFromCheckpoint to be true.");
+  }
   const experiment = getExperiment(experimentId);
   const profile = input.profile === "full" ? "full" : "smoke";
   const smoke = profile === "smoke";
@@ -503,10 +535,13 @@ export function normalizeRecipe(input: Partial<RlxRecipe>): RlxRecipe {
   );
   const evalSteps = explicitPositiveInt(
     input.evalSteps,
-    smoke ? 4 : Math.max(500, Math.ceil(maxEpisodeS * 50)),
+    smoke ? 4 : Math.max(experimentId === "running" ? 600 : 500, Math.ceil(maxEpisodeS * 50)),
     10_000_000,
     "Evaluation steps"
   );
+  if (!smoke && experimentId === "running" && (maxEpisodeS < 12 || evalSteps < 600)) {
+    throw new Error("Full Running evaluation requires at least 12 episode seconds and 600 evaluation steps.");
+  }
   const renderSeconds = explicitPositiveFloat(
     input.renderSeconds,
     experimentId === "dance" ? 120 : maxEpisodeS,
@@ -535,6 +570,10 @@ export function normalizeRecipe(input: Partial<RlxRecipe>): RlxRecipe {
       experimentId,
       input.dancePoseSigma
     ),
+    locomotionForwardCommand: normalizeLocomotionForwardCommand(
+      experimentId,
+      input.locomotionForwardCommand
+    ),
     initialStd: explicitPositiveFloat(
       input.initialStd,
       experimentId === "swing" ? 0.1 : Math.exp(-0.5),
@@ -546,6 +585,7 @@ export function normalizeRecipe(input: Partial<RlxRecipe>): RlxRecipe {
       experimentId === "swing",
       "Reward normalization"
     ),
+    freezeObservationNormalization,
     checkpointInterval: explicitNonNegativeInt(
       input.checkpointInterval,
       100_000,
@@ -672,6 +712,9 @@ function commonArgs(recipe: RlxRecipe): string[] {
   if (recipe.dancePoseSigma !== null) {
     args.push("--dance-pose-sigma", String(recipe.dancePoseSigma));
   }
+  if (recipe.locomotionForwardCommand !== null) {
+    args.push("--locomotion-forward-command", String(recipe.locomotionForwardCommand));
+  }
   if (recipe.experimentId === "stilts") {
     args.push(
       "--stilt-height-cm",
@@ -692,10 +735,27 @@ function commonArgs(recipe: RlxRecipe): string[] {
   return args;
 }
 
+function evaluationEnvironmentKey(recipe: RlxRecipe, operation: RlxOperation = "eval"): string {
+  return JSON.stringify(commonArgs({
+    ...recipe,
+    ...(operation === "render" ? {
+      domainRand: false,
+      obsNoise: false,
+      actionDelay: false,
+      randomYaw: false,
+      maxEpisodeS: recipe.renderSeconds,
+    } : {}),
+    rewardWeights: Object.fromEntries(Object.entries(recipe.rewardWeights).sort(([left], [right]) => left.localeCompare(right))),
+  }));
+}
+
 function evaluationSettings(recipe: RlxRecipe) {
   return {
     evaluation_mode: recipe.profile === "smoke" ? "pipeline" : "skill",
     eval_steps: recipe.evalSteps,
+    ...(recipe.locomotionForwardCommand !== null
+      ? { locomotion_forward_command: recipe.locomotionForwardCommand }
+      : {}),
     ...(recipe.experimentId === "swing"
       ? { swing_min_span_deg: recipe.swingMinSpanDeg }
       : {}),
@@ -717,6 +777,9 @@ function commandFor(operation: RlxOperation, recipe: RlxRecipe): string[] {
       paths.checkpoint,
       ...(recipe.resumeFromCheckpoint && existsSync(paths.checkpoint)
         ? ["--init-from", paths.checkpoint]
+        : []),
+      ...(recipe.freezeObservationNormalization
+        ? ["--freeze-observation-normalization"]
         : []),
       "--onnx-output",
       paths.onnx,
@@ -813,7 +876,8 @@ function commandFor(operation: RlxOperation, recipe: RlxRecipe): string[] {
 async function boundEvaluation(
   report: Record<string, unknown> | null,
   experimentId: ExperimentId,
-  runName: string
+  runName: string,
+  environmentKey: string | undefined
 ): Promise<Record<string, unknown> | null> {
   if (!report) return null;
   if (report.source_sha256 == null) {
@@ -840,6 +904,19 @@ async function boundEvaluation(
     const hash = createHash("sha256").update(bytes).digest("hex");
     if (hash !== hashes[file] || (file === source && hash !== report.source_sha256)) return null;
   }
+  if (environmentKey !== undefined) {
+    const request = report.evaluation_request as { recipe?: Partial<RlxRecipe> } | undefined;
+    let matches = false;
+    try {
+      matches = request?.recipe != null &&
+        evaluationEnvironmentKey(normalizeRecipe(request.recipe)) === environmentKey;
+    } catch {
+      matches = false;
+    }
+    if (!matches) {
+      return { ...report, passed: false, skill_status: "not_assessed", evaluation_settings_match: false };
+    }
+  }
   return report;
 }
 
@@ -856,6 +933,7 @@ export async function snapshot(
     : state.runName;
   const sameRun =
     runName === state.runName && experimentId === state.experimentId;
+  const environmentKey = state.environmentKeys[`${experimentId}/${runName}`];
   let savedEvaluation: Record<string, unknown> | null = null;
   try {
     savedEvaluation = JSON.parse(
@@ -869,7 +947,8 @@ export async function snapshot(
       ? state.evaluation
       : (sameRun ? state.evaluation : null) ?? savedEvaluation,
     experimentId,
-    runName
+    runName,
+    environmentKey
   );
   return {
     phase: sameRun ? state.phase : "idle",
@@ -940,6 +1019,9 @@ export function startJob(
   });
   const changedRun =
     job.experimentId !== recipe.experimentId || job.runName !== recipe.runName;
+  if (operation !== "export") {
+    job.environmentKeys[`${recipe.experimentId}/${recipe.runName}`] = evaluationEnvironmentKey(recipe, operation);
+  }
   job.phase = "running";
   job.operation = operation;
   job.experimentId = recipe.experimentId;

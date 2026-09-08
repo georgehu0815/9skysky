@@ -1,0 +1,2680 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Microduck Remaining Scenarios - End-to-End Evidence</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="print.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Microduck Remaining Scenarios - End-to-End
+Evidence</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#microduck-remaining-scenarios-end-to-end-evidence"
+id="toc-microduck-remaining-scenarios-end-to-end-evidence">Microduck
+Remaining Scenarios: End-to-End Evidence</a>
+<ul>
+<li><a href="#1-executive-status" id="toc-1-executive-status">1.
+Executive status</a></li>
+<li><a href="#2-evidence-boundaries" id="toc-2-evidence-boundaries">2.
+Evidence boundaries</a></li>
+<li><a href="#3-historical-attempts-discovered"
+id="toc-3-historical-attempts-discovered">3. Historical attempts
+discovered</a></li>
+<li><a href="#4-repository-wide-validation-context"
+id="toc-4-repository-wide-validation-context">4. Repository-wide
+validation context</a></li>
+<li><a href="#5-running-running-v2" id="toc-5-running-running-v2">5.
+Running: <code>running-v2</code></a></li>
+<li><a href="#6-stilt-walking-stilts-v2"
+id="toc-6-stilt-walking-stilts-v2">6. Stilt Walking:
+<code>stilts-v2</code></a></li>
+<li><a href="#7-swing-swing-v1" id="toc-7-swing-swing-v1">7. Swing:
+<code>swing-v1</code></a></li>
+<li><a href="#8-historical-running-running-v1"
+id="toc-8-historical-running-running-v1">8. Historical Running:
+<code>running-v1</code></a></li>
+<li><a href="#9-historical-stilt-walking-stilts-v1"
+id="toc-9-historical-stilt-walking-stilts-v1">9. Historical Stilt
+Walking: <code>stilts-v1</code></a></li>
+<li><a href="#10-stilt-training-failure-and-elu-diagnosis"
+id="toc-10-stilt-training-failure-and-elu-diagnosis">10. Stilt training
+failure and ELU diagnosis</a></li>
+<li><a href="#11-tracked-reproduction-recipes"
+id="toc-11-tracked-reproduction-recipes">11. Tracked reproduction
+recipes</a></li>
+<li><a href="#12-final-conclusion" id="toc-12-final-conclusion">12.
+Final conclusion</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="microduck-remaining-scenarios-end-to-end-evidence">Microduck
+Remaining Scenarios: End-to-End Evidence</h1>
+<p><strong>Workflow dates:</strong> September 7-8, 2026<br />
+<strong>Evidence root:</strong>
+<code>rlx/artifacts/scenarios-e2e-20260907</code><br />
+<strong>Report result:</strong> <strong>FAIL / INCOMPLETE</strong></p>
+<h2 id="1-executive-status">1. Executive status</h2>
+<p>This report is generated from saved JSON and artifacts. It does not
+infer a successful skill from training completion, reward magnitude,
+finite output, an exported ONNX file, or a playable video. A selected
+scenario is complete only when its independent audit passes and its
+video validation passes.</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Selected attempt</th>
+<th>Skill audit</th>
+<th>Held-out controls</th>
+<th>Video</th>
+<th>E2E</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Running</td>
+<td><code>running-v2</code></td>
+<td>TRAINING ACTIVE</td>
+<td>not available</td>
+<td>missing/fail</td>
+<td>incomplete</td>
+</tr>
+<tr>
+<td>Stilt Walking</td>
+<td><code>stilts-v2</code></td>
+<td>NOT RUN</td>
+<td>not available</td>
+<td>missing/fail</td>
+<td>incomplete</td>
+</tr>
+<tr>
+<td>Swing</td>
+<td><code>swing-v1</code></td>
+<td>NOT RUN</td>
+<td>not available</td>
+<td>missing/fail</td>
+<td>incomplete</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>The aggregate result remains failed/incomplete if any selected
+scenario is missing or failed. This snapshot must not be described as
+"all verified."</p>
+</blockquote>
+<h2 id="2-evidence-boundaries">2. Evidence boundaries</h2>
+<ul>
+<li>Training and deterministic audit are separate. A recipe may use
+assisted Swing resets, but evaluation and audit start at rest.</li>
+<li>The effective audit environment uses the XML actuator model only. It
+is nominal local MuJoCo evidence, not BAM, mjlab GPU, hardware, or
+sim-to-real certification.</li>
+<li>Stilt morphology is part of the experiment identity. The selected
+recipes request 2 cm morphology; reports must not substitute the API
+default of 10 cm.</li>
+<li>Fixed locomotion commands are taken from the selected recipe and
+reported as actual numeric values. They are not reconstructed from
+reward or displacement.</li>
+<li>The built-in recipe metrics wrapper captures the active locomotion
+command before <code>env.step()</code> and attaches physical metrics
+after the transition. This fixes the command/metric boundary when
+commands resample on the step boundary.</li>
+<li>Locomotion evaluator version 2 anchors intended heading at each
+twist-command change and advances it only by commanded yaw. Signed
+displacement therefore measures net progress along the intended command
+path; a closed circle cannot pass by accumulating path length while
+returning to its start.</li>
+<li>API outcome handling accepts an explicitly failed skill evaluation
+long enough to collect render/export evidence. A later successful render
+or export does not change the skill verdict.</li>
+<li>Outcome inference is deliberately limited: without
+<code>audit.json</code>, no skill verdict exists. API JSON and logs may
+establish TRAIN FAILED, TRAINING ACTIVE, TRAINED / UNAUDITED, or NOT
+RUN, but none is a pass. No pass is inferred from filenames, checkpoint
+existence, finite telemetry, HTTP success, screenshots, or videos.</li>
+</ul>
+<h2 id="3-historical-attempts-discovered">3. Historical attempts
+discovered</h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Attempt</th>
+<th>Evidence status</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>running</td>
+<td><code>running-v1</code></td>
+<td>FAIL</td>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/audit.json">audit.json</a></td>
+</tr>
+<tr>
+<td>running</td>
+<td><code>running-v2</code></td>
+<td>TRAINING LOG at 2,224,128/6,000,640</td>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v2-api.log">running-v2-api.log</a></td>
+</tr>
+<tr>
+<td>stilts</td>
+<td><code>stilts-v1</code></td>
+<td>TRAIN FAILED at 1,980,416/4,001,792</td>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/stilts-v1-api.json">stilts-v1-api.json</a></td>
+</tr>
+<tr>
+<td>stilts</td>
+<td><code>stilts-v2</code></td>
+<td>RECIPE ONLY</td>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/stilts-v2.json">stilts-v2.json</a></td>
+</tr>
+<tr>
+<td>swing</td>
+<td><code>swing-v1</code></td>
+<td>RECIPE ONLY</td>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/swing-v1.json">swing-v1.json</a></td>
+</tr>
+</tbody>
+</table>
+<p>Only directories containing <code>audit.json</code> carry a skill
+verdict.</p>
+<h2 id="4-repository-wide-validation-context">4. Repository-wide
+validation context</h2>
+<p>These are saved workflow logs, not newly rerun suites. They remain
+relevant limitations on the evidence package:</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Saved result</th>
+<th>Log</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RLX native suite</td>
+<td>297 passed, 2 skipped</td>
+<td>rlx-native-tests.log</td>
+</tr>
+<tr>
+<td>Broader microduck_local suite</td>
+<td>12 failed, 384 passed, 1 skipped</td>
+<td>microduck-contract-tests.log</td>
+</tr>
+<tr>
+<td>Full RLX collection</td>
+<td>collection blocked: optional <code>mjlab</code> package missing</td>
+<td>rlx-tests.log</td>
+</tr>
+<tr>
+<td>Viewer Node tests</td>
+<td>46 / 46 / 0</td>
+<td>node-tests.log</td>
+</tr>
+<tr>
+<td>Viewer build</td>
+<td>Compiled successfully</td>
+<td>node-build.log</td>
+</tr>
+<tr>
+<td>Viewer lint</td>
+<td>eslint</td>
+<td>node-lint.log</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>The full RLX collection is blocked because the optional
+<code>mjlab</code> package is not installed in the captured environment.
+Native non-mjlab RLX tests passed separately.</li>
+<li>The broader <code>microduck_local</code> run has 12 existing
+failures: 11 BAM/step pre-optimization golden mismatches and one
+symmetry drift assertion. These failures are not hidden or reclassified
+by this report.</li>
+</ul>
+<h2 id="5-running-running-v2">5. Running: <code>running-v2</code></h2>
+<p><strong>Scenario status:</strong> <strong>TRAINING
+ACTIVE</strong></p>
+<p>No <code>audit.json</code> exists because training is active. The
+retained log most recently recorded <strong>2,224,128/6,000,640</strong>
+transitions. The report remains incomplete until training, evaluation,
+audit, and video validation finish.</p>
+<h3 id="recipe-and-effective-audit-environment">Recipe and effective
+audit environment</h3>
+<p>The exact requested recipe follows. These values describe training;
+they do not override the deterministic audit environment.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;actionDelay&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;checkpointInterval&quot;</span><span class="fu">:</span> <span class="dv">1000000</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;clipCoefficient&quot;</span><span class="fu">:</span> <span class="fl">0.2</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;domainRand&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;entropyCoefficient&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;evalSteps&quot;</span><span class="fu">:</span> <span class="dv">600</span><span class="fu">,</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;experimentId&quot;</span><span class="fu">:</span> <span class="st">&quot;running&quot;</span><span class="fu">,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;gamma&quot;</span><span class="fu">:</span> <span class="fl">0.99</span><span class="fu">,</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;initialStd&quot;</span><span class="fu">:</span> <span class="fl">0.6</span><span class="fu">,</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;learningRate&quot;</span><span class="fu">:</span> <span class="fl">0.0003</span><span class="fu">,</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;locomotionForwardCommand&quot;</span><span class="fu">:</span> <span class="fl">0.6</span><span class="fu">,</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;maxEpisodeS&quot;</span><span class="fu">:</span> <span class="dv">12</span><span class="fu">,</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;maxGradNorm&quot;</span><span class="fu">:</span> <span class="fl">0.5</span><span class="fu">,</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;normalizeRewards&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numEnvs&quot;</span><span class="fu">:</span> <span class="dv">16</span><span class="fu">,</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numMinibatches&quot;</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numSteps&quot;</span><span class="fu">:</span> <span class="dv">128</span><span class="fu">,</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;obsNoise&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;profile&quot;</span><span class="fu">:</span> <span class="st">&quot;full&quot;</span><span class="fu">,</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;randomYaw&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;renderSeconds&quot;</span><span class="fu">:</span> <span class="dv">12</span><span class="fu">,</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;resumeFromCheckpoint&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;rewardWeights&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;air_time&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;foot_clearance&quot;</span><span class="fu">:</span> <span class="fl">0.5</span><span class="fu">,</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;head_up&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;keep_pace&quot;</span><span class="fu">:</span> <span class="dv">12</span><span class="fu">,</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;plant_the_foot&quot;</span><span class="fu">:</span> <span class="fl">0.05</span><span class="fu">,</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pose&quot;</span><span class="fu">:</span> <span class="fl">0.1</span><span class="fu">,</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;smooth_moves&quot;</span><span class="fu">:</span> <span class="fl">0.1</span><span class="fu">,</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;stay_upright&quot;</span><span class="fu">:</span> <span class="dv">2</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;runName&quot;</span><span class="fu">:</span> <span class="st">&quot;running-e2e-20260907-v2&quot;</span><span class="fu">,</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;seed&quot;</span><span class="fu">:</span> <span class="dv">7</span><span class="fu">,</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalTimesteps&quot;</span><span class="fu">:</span> <span class="dv">6000640</span><span class="fu">,</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;updateEpochs&quot;</span><span class="fu">:</span> <span class="dv">4</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>No effective-environment object is available in the selected audit.
+The audit implementation fixes XML actuators, disables domain
+randomization, observation noise, action delay, and random yaw, and
+forces Swing audit starts to <code>0 degrees</code> and
+<code>0 rad/s</code>.</p>
+<p>The requested fixed forward command is <strong>0.6000 m/s</strong>.
+If this value is <code>n/a</code>, the environment's native command
+sequence is evaluated rather than a fixed command.</p>
+<h3 id="per-episode-skill-evidence">Per-episode skill evidence</h3>
+<p>No trained-policy episode records are available.</p>
+<h3 id="controls">Controls</h3>
+<h4 id="zero-control">Zero control</h4>
+<p>No records available.</p>
+<h4 id="initial-control">Initial control</h4>
+<p>No records available.</p>
+<h3 id="physics-metric-means">Physics metric means</h3>
+<p>No physical metric aggregates are available.</p>
+<h3 id="ppo-transitions-and-losses">PPO transitions and losses</h3>
+<p>No training audit summary is available.</p>
+<h3 id="onnx-controls-and-source-identity">ONNX, controls, and source
+identity</h3>
+<p>No ONNX or control audit is available.</p>
+<h3 id="api-workflow">API workflow</h3>
+<p>No API workflow JSON is available for this attempt.</p>
+<h3 id="video-and-graph-evidence">Video and graph evidence</h3>
+<p>No <code>video-validation.json</code> is available. Images or MP4
+files, if present, are linked below but are not described as
+browser/transport verified.</p>
+<ul>
+<li><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v2-api.log">running-v2-api.log</a></li>
+</ul>
+<h3 id="source-hashes">Source hashes</h3>
+<table>
+<thead>
+<tr>
+<th>Source/artifact</th>
+<th>Bytes</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="recipes/running.json">running.json</a></td>
+<td>840</td>
+<td><code>d61c43873041c403b1fb4d4bada0b40206815007660c333af4f2c9f9ddcb703d</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v2.json">running-v2.json</a></td>
+<td>780</td>
+<td><code>b20c6273b9f0f67785a3d5c9dc1f0fa685a51c541f6cb404d153714102aaf211</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v2-api.log">running-v2-api.log</a></td>
+<td>5,592</td>
+<td><code>7d5254cf5f51f7e6174dafff683b267da2af415ec95d7e36831bc9c63733d82a</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="reproduction-commands">Reproduction commands</h3>
+<p>Run from the repository root after starting the Studio server at
+<code>http://127.0.0.1:63317</code>:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> duck-viewer/scripts/rlx-dance-api-e2e.mjs <span class="at">--execute</span> <span class="at">--base-url</span> http://127.0.0.1:63317 <span class="at">--experiment</span> running <span class="at">--recipe-json</span> docs/remaining-scenarios-e2e/recipes/running.json <span class="at">--run</span> running-reproduction-YYYYMMDD-HHMMSS <span class="at">--report</span> rlx/artifacts/scenarios-e2e-20260907/running-reproduction-YYYYMMDD-HHMMSS-api.json <span class="at">--timeout-seconds</span> 7200</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">rlx/.venv-microduck/bin/python</span> rlx/scripts/audit_scenarios.py <span class="at">--recipe-json</span> docs/remaining-scenarios-e2e/recipes/running.json <span class="at">--run</span> rlx/runs/studio/running/running-reproduction-YYYYMMDD-HHMMSS <span class="at">--output</span> rlx/artifacts/scenarios-e2e-20260907/running-reproduction-YYYYMMDD-HHMMSS-audit <span class="at">--seeds</span> 101 102 103 104 105 <span class="at">--render</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> duck-viewer/scripts/verify-rlx-video.mjs <span class="at">--recipe-json</span> docs/remaining-scenarios-e2e/recipes/running.json <span class="at">--run</span> rlx/runs/studio/running/running-reproduction-YYYYMMDD-HHMMSS <span class="at">--output</span> rlx/artifacts/scenarios-e2e-20260907/running-reproduction-YYYYMMDD-HHMMSS-audit <span class="at">--base-url</span> http://127.0.0.1:63317 <span class="at">--playwright-package</span> <span class="st">&quot;</span><span class="va">${PLAYWRIGHT_PACKAGE</span><span class="op">:-</span>/Users/ghu/community/package.json<span class="va">}</span><span class="st">&quot;</span></span></code></pre></div>
+<p>The audit command exits nonzero when the strict skill gate fails.
+That nonzero exit is expected evidence for a failed attempt, not
+permission to rewrite the result as successful.</p>
+<h2 id="6-stilt-walking-stilts-v2">6. Stilt Walking:
+<code>stilts-v2</code></h2>
+<p><strong>Scenario status:</strong> <strong>NOT RUN</strong></p>
+<p>No <code>audit.json</code> exists at
+<code>rlx/artifacts/scenarios-e2e-20260907/stilts-v2-audit</code>. The
+recipe may be queued. No result is inferred from a recipe file,
+checkpoint name, API state, or partial artifact.</p>
+<h3 id="recipe-and-effective-audit-environment-1">Recipe and effective
+audit environment</h3>
+<p>The exact requested recipe follows. These values describe training;
+they do not override the deterministic audit environment.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;actionDelay&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;checkpointInterval&quot;</span><span class="fu">:</span> <span class="dv">1000000</span><span class="fu">,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;clipCoefficient&quot;</span><span class="fu">:</span> <span class="fl">0.2</span><span class="fu">,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;domainRand&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;entropyCoefficient&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;evalSteps&quot;</span><span class="fu">:</span> <span class="dv">500</span><span class="fu">,</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;experimentId&quot;</span><span class="fu">:</span> <span class="st">&quot;stilts&quot;</span><span class="fu">,</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;gamma&quot;</span><span class="fu">:</span> <span class="fl">0.99</span><span class="fu">,</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;initialStd&quot;</span><span class="fu">:</span> <span class="fl">0.6</span><span class="fu">,</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;learningRate&quot;</span><span class="fu">:</span> <span class="fl">0.0003</span><span class="fu">,</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;locomotionForwardCommand&quot;</span><span class="fu">:</span> <span class="fl">0.25</span><span class="fu">,</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;maxEpisodeS&quot;</span><span class="fu">:</span> <span class="dv">10</span><span class="fu">,</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;maxGradNorm&quot;</span><span class="fu">:</span> <span class="fl">0.5</span><span class="fu">,</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;normalizeRewards&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numEnvs&quot;</span><span class="fu">:</span> <span class="dv">16</span><span class="fu">,</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numMinibatches&quot;</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numSteps&quot;</span><span class="fu">:</span> <span class="dv">128</span><span class="fu">,</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;obsNoise&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;profile&quot;</span><span class="fu">:</span> <span class="st">&quot;full&quot;</span><span class="fu">,</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;randomYaw&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;renderSeconds&quot;</span><span class="fu">:</span> <span class="dv">10</span><span class="fu">,</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;resumeFromCheckpoint&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;rewardWeights&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;ang_vel_xy_penalty&quot;</span><span class="fu">:</span> <span class="fl">0.02</span><span class="fu">,</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;feet_air_time&quot;</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;head_pose&quot;</span><span class="fu">:</span> <span class="fl">0.1</span><span class="fu">,</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;track_ang_vel&quot;</span><span class="fu">:</span> <span class="fl">0.5</span><span class="fu">,</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;track_lin_vel&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;upright&quot;</span><span class="fu">:</span> <span class="dv">1</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;runName&quot;</span><span class="fu">:</span> <span class="st">&quot;stilts-e2e-20260907-v2&quot;</span><span class="fu">,</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;seed&quot;</span><span class="fu">:</span> <span class="dv">7</span><span class="fu">,</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;stiltBlend&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;stiltHeightCm&quot;</span><span class="fu">:</span> <span class="dv">2</span><span class="fu">,</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;stiltMassKg&quot;</span><span class="fu">:</span> <span class="fl">0.014</span><span class="fu">,</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalTimesteps&quot;</span><span class="fu">:</span> <span class="dv">6000640</span><span class="fu">,</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;updateEpochs&quot;</span><span class="fu">:</span> <span class="dv">4</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>No effective-environment object is available in the selected audit.
+The audit implementation fixes XML actuators, disables domain
+randomization, observation noise, action delay, and random yaw, and
+forces Swing audit starts to <code>0 degrees</code> and
+<code>0 rad/s</code>.</p>
+<p>The requested morphology is <strong>2 cm</strong> stilts, blend
+<strong>0</strong>, mass <strong>0.0140 kg</strong>, with a fixed
+forward command of <strong>0.2500 m/s</strong>.</p>
+<h3 id="per-episode-skill-evidence-1">Per-episode skill evidence</h3>
+<p>No trained-policy episode records are available.</p>
+<h3 id="controls-1">Controls</h3>
+<h4 id="zero-control-1">Zero control</h4>
+<p>No records available.</p>
+<h4 id="initial-control-1">Initial control</h4>
+<p>No records available.</p>
+<h3 id="physics-metric-means-1">Physics metric means</h3>
+<p>No physical metric aggregates are available.</p>
+<h3 id="ppo-transitions-and-losses-1">PPO transitions and losses</h3>
+<p>No training audit summary is available.</p>
+<h3 id="onnx-controls-and-source-identity-1">ONNX, controls, and source
+identity</h3>
+<p>No ONNX or control audit is available.</p>
+<h3 id="api-workflow-1">API workflow</h3>
+<p>No API workflow JSON is available for this attempt.</p>
+<h3 id="video-and-graph-evidence-1">Video and graph evidence</h3>
+<p>No <code>video-validation.json</code> is available. Images or MP4
+files, if present, are linked below but are not described as
+browser/transport verified.</p>
+<ul>
+<li>No audit artifacts are present.</li>
+</ul>
+<h3 id="source-hashes-1">Source hashes</h3>
+<table>
+<thead>
+<tr>
+<th>Source/artifact</th>
+<th>Bytes</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="recipes/stilts.json">stilts.json</a></td>
+<td>873</td>
+<td><code>64bea730061e3e71fb493d4c1d78bdce17adca41929b55fa373bc56ceb68d9f4</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/stilts-v2.json">stilts-v2.json</a></td>
+<td>817</td>
+<td><code>cab5e12bed6e85c866d891ec09a563f7d7cfc19a01d337a64b9354bc02a68e09</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="reproduction-commands-1">Reproduction commands</h3>
+<p>Run from the repository root after starting the Studio server at
+<code>http://127.0.0.1:63317</code>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> duck-viewer/scripts/rlx-dance-api-e2e.mjs <span class="at">--execute</span> <span class="at">--base-url</span> http://127.0.0.1:63317 <span class="at">--experiment</span> stilts <span class="at">--recipe-json</span> docs/remaining-scenarios-e2e/recipes/stilts.json <span class="at">--run</span> stilts-reproduction-YYYYMMDD-HHMMSS <span class="at">--report</span> rlx/artifacts/scenarios-e2e-20260907/stilts-reproduction-YYYYMMDD-HHMMSS-api.json <span class="at">--timeout-seconds</span> 7200</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">rlx/.venv-microduck/bin/python</span> rlx/scripts/audit_scenarios.py <span class="at">--recipe-json</span> docs/remaining-scenarios-e2e/recipes/stilts.json <span class="at">--run</span> rlx/runs/studio/stilts/stilts-reproduction-YYYYMMDD-HHMMSS <span class="at">--output</span> rlx/artifacts/scenarios-e2e-20260907/stilts-reproduction-YYYYMMDD-HHMMSS-audit <span class="at">--seeds</span> 101 102 103 104 105 <span class="at">--render</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> duck-viewer/scripts/verify-rlx-video.mjs <span class="at">--recipe-json</span> docs/remaining-scenarios-e2e/recipes/stilts.json <span class="at">--run</span> rlx/runs/studio/stilts/stilts-reproduction-YYYYMMDD-HHMMSS <span class="at">--output</span> rlx/artifacts/scenarios-e2e-20260907/stilts-reproduction-YYYYMMDD-HHMMSS-audit <span class="at">--base-url</span> http://127.0.0.1:63317 <span class="at">--playwright-package</span> <span class="st">&quot;</span><span class="va">${PLAYWRIGHT_PACKAGE</span><span class="op">:-</span>/Users/ghu/community/package.json<span class="va">}</span><span class="st">&quot;</span></span></code></pre></div>
+<p>The audit command exits nonzero when the strict skill gate fails.
+That nonzero exit is expected evidence for a failed attempt, not
+permission to rewrite the result as successful.</p>
+<h2 id="7-swing-swing-v1">7. Swing: <code>swing-v1</code></h2>
+<p><strong>Scenario status:</strong> <strong>NOT RUN</strong></p>
+<p>No <code>audit.json</code> exists at
+<code>rlx/artifacts/scenarios-e2e-20260907/swing-v1-audit</code>. The
+recipe may be queued. No result is inferred from a recipe file,
+checkpoint name, API state, or partial artifact.</p>
+<h3 id="recipe-and-effective-audit-environment-2">Recipe and effective
+audit environment</h3>
+<p>The exact requested recipe follows. These values describe training;
+they do not override the deterministic audit environment.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;actionDelay&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;checkpointInterval&quot;</span><span class="fu">:</span> <span class="dv">262144</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;clipCoefficient&quot;</span><span class="fu">:</span> <span class="fl">0.1</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;domainRand&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;entropyCoefficient&quot;</span><span class="fu">:</span> <span class="fl">0.005</span><span class="fu">,</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;evalSteps&quot;</span><span class="fu">:</span> <span class="dv">1200</span><span class="fu">,</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;experimentId&quot;</span><span class="fu">:</span> <span class="st">&quot;swing&quot;</span><span class="fu">,</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;gamma&quot;</span><span class="fu">:</span> <span class="fl">0.995</span><span class="fu">,</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;initialStd&quot;</span><span class="fu">:</span> <span class="fl">0.6</span><span class="fu">,</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;learningRate&quot;</span><span class="fu">:</span> <span class="fl">0.0001</span><span class="fu">,</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;maxEpisodeS&quot;</span><span class="fu">:</span> <span class="dv">24</span><span class="fu">,</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;maxGradNorm&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;normalizeRewards&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numEnvs&quot;</span><span class="fu">:</span> <span class="dv">16</span><span class="fu">,</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numMinibatches&quot;</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numSteps&quot;</span><span class="fu">:</span> <span class="dv">128</span><span class="fu">,</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;obsNoise&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;profile&quot;</span><span class="fu">:</span> <span class="st">&quot;full&quot;</span><span class="fu">,</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;randomYaw&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;renderSeconds&quot;</span><span class="fu">:</span> <span class="dv">24</span><span class="fu">,</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;resumeFromCheckpoint&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;runName&quot;</span><span class="fu">:</span> <span class="st">&quot;swing-e2e-20260907-v1&quot;</span><span class="fu">,</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;seed&quot;</span><span class="fu">:</span> <span class="dv">7</span><span class="fu">,</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;swingInitialAngleDeg&quot;</span><span class="fu">:</span> <span class="dv">30</span><span class="fu">,</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;swingInitialRateRadS&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;swingMinSpanDeg&quot;</span><span class="fu">:</span> <span class="dv">150</span><span class="fu">,</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;swingPlanarActions&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalTimesteps&quot;</span><span class="fu">:</span> <span class="dv">1048576</span><span class="fu">,</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;updateEpochs&quot;</span><span class="fu">:</span> <span class="dv">3</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>No effective-environment object is available in the selected audit.
+The audit implementation fixes XML actuators, disables domain
+randomization, observation noise, action delay, and random yaw, and
+forces Swing audit starts to <code>0 degrees</code> and
+<code>0 rad/s</code>.</p>
+<p>Training assistance is explicit in the recipe: initial angle
+<strong>30 degrees</strong>, initial rate <strong>1 rad/s</strong>,
+planar actions <strong>yes</strong>. The independent audit must start at
+rest (<code>0 degrees</code>, <code>0 rad/s</code>); assisted training
+starts never count as acceptance evidence.</p>
+<h3 id="per-episode-skill-evidence-2">Per-episode skill evidence</h3>
+<p>No trained-policy episode records are available.</p>
+<h3 id="controls-2">Controls</h3>
+<h4 id="zero-control-2">Zero control</h4>
+<p>No records available.</p>
+<h4 id="initial-control-2">Initial control</h4>
+<p>No records available.</p>
+<h3 id="physics-metric-means-2">Physics metric means</h3>
+<p>No physical metric aggregates are available.</p>
+<h3 id="ppo-transitions-and-losses-2">PPO transitions and losses</h3>
+<p>No training audit summary is available.</p>
+<h3 id="onnx-controls-and-source-identity-2">ONNX, controls, and source
+identity</h3>
+<p>No ONNX or control audit is available.</p>
+<h3 id="api-workflow-2">API workflow</h3>
+<p>No API workflow JSON is available for this attempt.</p>
+<h3 id="video-and-graph-evidence-2">Video and graph evidence</h3>
+<p>No <code>video-validation.json</code> is available. Images or MP4
+files, if present, are linked below but are not described as
+browser/transport verified.</p>
+<ul>
+<li>No audit artifacts are present.</li>
+</ul>
+<h3 id="source-hashes-2">Source hashes</h3>
+<table>
+<thead>
+<tr>
+<th>Source/artifact</th>
+<th>Bytes</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="recipes/swing.json">swing.json</a></td>
+<td>716</td>
+<td><code>4b279c32981e3da6974355a50cea94a3c74a20d6306395cf66fd505c782bb125</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/swing-v1.json">swing-v1.json</a></td>
+<td>680</td>
+<td><code>1ce7e50c8a89770f89c0cb20cd5694315bf732043aac1e2ed0ddd175bd7d8f44</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="reproduction-commands-2">Reproduction commands</h3>
+<p>Run from the repository root after starting the Studio server at
+<code>http://127.0.0.1:63317</code>:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> duck-viewer/scripts/rlx-dance-api-e2e.mjs <span class="at">--execute</span> <span class="at">--base-url</span> http://127.0.0.1:63317 <span class="at">--experiment</span> swing <span class="at">--recipe-json</span> docs/remaining-scenarios-e2e/recipes/swing.json <span class="at">--run</span> swing-reproduction-YYYYMMDD-HHMMSS <span class="at">--report</span> rlx/artifacts/scenarios-e2e-20260907/swing-reproduction-YYYYMMDD-HHMMSS-api.json <span class="at">--timeout-seconds</span> 7200</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">rlx/.venv-microduck/bin/python</span> rlx/scripts/audit_scenarios.py <span class="at">--recipe-json</span> docs/remaining-scenarios-e2e/recipes/swing.json <span class="at">--run</span> rlx/runs/studio/swing/swing-reproduction-YYYYMMDD-HHMMSS <span class="at">--output</span> rlx/artifacts/scenarios-e2e-20260907/swing-reproduction-YYYYMMDD-HHMMSS-audit <span class="at">--seeds</span> 101 102 103 104 105 <span class="at">--render</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> duck-viewer/scripts/verify-rlx-video.mjs <span class="at">--recipe-json</span> docs/remaining-scenarios-e2e/recipes/swing.json <span class="at">--run</span> rlx/runs/studio/swing/swing-reproduction-YYYYMMDD-HHMMSS <span class="at">--output</span> rlx/artifacts/scenarios-e2e-20260907/swing-reproduction-YYYYMMDD-HHMMSS-audit <span class="at">--base-url</span> http://127.0.0.1:63317 <span class="at">--playwright-package</span> <span class="st">&quot;</span><span class="va">${PLAYWRIGHT_PACKAGE</span><span class="op">:-</span>/Users/ghu/community/package.json<span class="va">}</span><span class="st">&quot;</span></span></code></pre></div>
+<p>The audit command exits nonzero when the strict skill gate fails.
+That nonzero exit is expected evidence for a failed attempt, not
+permission to rewrite the result as successful.</p>
+<h2 id="8-historical-running-running-v1">8. Historical Running:
+<code>running-v1</code></h2>
+<p><strong>Scenario status:</strong> <strong>FAIL</strong></p>
+<h3 id="recipe-and-effective-audit-environment-3">Recipe and effective
+audit environment</h3>
+<p>The exact requested recipe follows. These values describe training;
+they do not override the deterministic audit environment.</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;actionDelay&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;checkpointInterval&quot;</span><span class="fu">:</span> <span class="dv">500000</span><span class="fu">,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;clipCoefficient&quot;</span><span class="fu">:</span> <span class="fl">0.2</span><span class="fu">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;domainRand&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;entropyCoefficient&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;evalSteps&quot;</span><span class="fu">:</span> <span class="dv">600</span><span class="fu">,</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;experimentId&quot;</span><span class="fu">:</span> <span class="st">&quot;running&quot;</span><span class="fu">,</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;gamma&quot;</span><span class="fu">:</span> <span class="fl">0.99</span><span class="fu">,</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;initialStd&quot;</span><span class="fu">:</span> <span class="fl">0.35</span><span class="fu">,</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;learningRate&quot;</span><span class="fu">:</span> <span class="fl">0.0001</span><span class="fu">,</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;maxEpisodeS&quot;</span><span class="fu">:</span> <span class="dv">12</span><span class="fu">,</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;maxGradNorm&quot;</span><span class="fu">:</span> <span class="fl">0.5</span><span class="fu">,</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;normalizeRewards&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numEnvs&quot;</span><span class="fu">:</span> <span class="dv">16</span><span class="fu">,</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numMinibatches&quot;</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numSteps&quot;</span><span class="fu">:</span> <span class="dv">128</span><span class="fu">,</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;obsNoise&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;profile&quot;</span><span class="fu">:</span> <span class="st">&quot;full&quot;</span><span class="fu">,</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;randomYaw&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;renderSeconds&quot;</span><span class="fu">:</span> <span class="dv">12</span><span class="fu">,</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;resumeFromCheckpoint&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;runName&quot;</span><span class="fu">:</span> <span class="st">&quot;running-e2e-20260907-v1&quot;</span><span class="fu">,</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;seed&quot;</span><span class="fu">:</span> <span class="dv">7</span><span class="fu">,</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalTimesteps&quot;</span><span class="fu">:</span> <span class="dv">4001792</span><span class="fu">,</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;updateEpochs&quot;</span><span class="fu">:</span> <span class="dv">4</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>No effective-environment object is available in the selected audit.
+The audit implementation fixes XML actuators, disables domain
+randomization, observation noise, action delay, and random yaw, and
+forces Swing audit starts to <code>0 degrees</code> and
+<code>0 rad/s</code>.</p>
+<p>The requested fixed forward command is <strong>n/a m/s</strong>. If
+this value is <code>n/a</code>, the environment's native command
+sequence is evaluated rather than a fixed command.</p>
+<h3 id="per-episode-skill-evidence-3">Per-episode skill evidence</h3>
+<table>
+<thead>
+<tr>
+<th>Seed</th>
+<th>Episode</th>
+<th>Steps</th>
+<th>Complete</th>
+<th>Upright</th>
+<th>Commanded</th>
+<th>Directed speed</th>
+<th>Displacement</th>
+<th>Speed ratio</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>101</td>
+<td>0</td>
+<td>600</td>
+<td>yes</td>
+<td>1.0000</td>
+<td>1.0000</td>
+<td>0.0009</td>
+<td>0.0119</td>
+<td>0.0039</td>
+<td>FAIL</td>
+</tr>
+<tr>
+<td>102</td>
+<td>0</td>
+<td>600</td>
+<td>yes</td>
+<td>1.0000</td>
+<td>1.0000</td>
+<td>-0.0007</td>
+<td>-0.0115</td>
+<td>-0.0019</td>
+<td>FAIL</td>
+</tr>
+<tr>
+<td>103</td>
+<td>0</td>
+<td>600</td>
+<td>yes</td>
+<td>1.0000</td>
+<td>1.0000</td>
+<td>0.0012</td>
+<td>0.0100</td>
+<td>0.0034</td>
+<td>FAIL</td>
+</tr>
+<tr>
+<td>104</td>
+<td>0</td>
+<td>600</td>
+<td>yes</td>
+<td>1.0000</td>
+<td>1.0000</td>
+<td>-0.0013</td>
+<td>-0.0164</td>
+<td>-0.0040</td>
+<td>FAIL</td>
+</tr>
+<tr>
+<td>105</td>
+<td>0</td>
+<td>600</td>
+<td>yes</td>
+<td>1.0000</td>
+<td>1.0000</td>
+<td>0.0014</td>
+<td>0.0189</td>
+<td>0.0046</td>
+<td>FAIL</td>
+</tr>
+</tbody>
+</table>
+<h4 id="per-episode-physics-details">Per-episode physics details</h4>
+<table>
+<thead>
+<tr>
+<th>Seed</th>
+<th>Episode</th>
+<th>L/R contact</th>
+<th>L/R air</th>
+<th>Aerial</th>
+<th>Support switches</th>
+<th>L/R liftoffs</th>
+<th>L/R touchdowns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>101</td>
+<td>0</td>
+<td>0.9967 / 0.9967</td>
+<td>0.0033 / 0.0033</td>
+<td>0.0033</td>
+<td>0</td>
+<td>0 / 0</td>
+<td>1 / 1</td>
+</tr>
+<tr>
+<td>102</td>
+<td>0</td>
+<td>0.9967 / 0.9750</td>
+<td>0.0033 / 0.0250</td>
+<td>0.0033</td>
+<td>0</td>
+<td>0 / 13</td>
+<td>1 / 14</td>
+</tr>
+<tr>
+<td>103</td>
+<td>0</td>
+<td>0.9983 / 0.9867</td>
+<td>0.0017 / 0.0133</td>
+<td>0.0017</td>
+<td>0</td>
+<td>0 / 7</td>
+<td>1 / 8</td>
+</tr>
+<tr>
+<td>104</td>
+<td>0</td>
+<td>0.9983 / 0.9883</td>
+<td>0.0017 / 0.0117</td>
+<td>0.0017</td>
+<td>0</td>
+<td>0 / 6</td>
+<td>1 / 7</td>
+</tr>
+<tr>
+<td>105</td>
+<td>0</td>
+<td>0.9983 / 0.9867</td>
+<td>0.0017 / 0.0133</td>
+<td>0.0017</td>
+<td>0</td>
+<td>0 / 7</td>
+<td>1 / 8</td>
+</tr>
+</tbody>
+</table>
+<h4 id="per-episode-failures">Per-episode failures</h4>
+<ul>
+<li><strong>seed 101, episode 0:</strong> aerial fraction below running
+target; both feet must lift off and touch down; command speed tracking
+ratio below target; command-directed displacement below target;
+command-directed speed below target; insufficient alternating foot
+support; one or both feet did not leave the ground enough</li>
+<li><strong>seed 102, episode 0:</strong> aerial fraction below running
+target; both feet must lift off and touch down; command speed tracking
+ratio below target; command-directed displacement below target;
+command-directed speed below target; insufficient alternating foot
+support; one or both feet did not leave the ground enough</li>
+<li><strong>seed 103, episode 0:</strong> aerial fraction below running
+target; both feet must lift off and touch down; command speed tracking
+ratio below target; command-directed displacement below target;
+command-directed speed below target; insufficient alternating foot
+support; one or both feet did not leave the ground enough</li>
+<li><strong>seed 104, episode 0:</strong> aerial fraction below running
+target; both feet must lift off and touch down; command speed tracking
+ratio below target; command-directed displacement below target;
+command-directed speed below target; insufficient alternating foot
+support; one or both feet did not leave the ground enough</li>
+<li><strong>seed 105, episode 0:</strong> aerial fraction below running
+target; both feet must lift off and touch down; command speed tracking
+ratio below target; command-directed displacement below target;
+command-directed speed below target; insufficient alternating foot
+support; one or both feet did not leave the ground enough</li>
+</ul>
+<h3 id="controls-3">Controls</h3>
+<h4 id="zero-control-3">Zero control</h4>
+<table>
+<thead>
+<tr>
+<th>Seed</th>
+<th>Episode</th>
+<th>Steps</th>
+<th>Complete</th>
+<th>Upright</th>
+<th>Commanded</th>
+<th>Directed speed</th>
+<th>Displacement</th>
+<th>Speed ratio</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>101</td>
+<td>0</td>
+<td>49</td>
+<td>no</td>
+<td>0.7347</td>
+<td>1.0000</td>
+<td>-0.0875</td>
+<td>-0.0801</td>
+<td>-0.7074</td>
+<td>FAIL</td>
+</tr>
+<tr>
+<td>102</td>
+<td>0</td>
+<td>46</td>
+<td>no</td>
+<td>0.7174</td>
+<td>1.0000</td>
+<td>0.1081</td>
+<td>0.0928</td>
+<td>0.2744</td>
+<td>FAIL</td>
+</tr>
+<tr>
+<td>103</td>
+<td>0</td>
+<td>45</td>
+<td>no</td>
+<td>0.7111</td>
+<td>1.0000</td>
+<td>0.1365</td>
+<td>0.1149</td>
+<td>0.4550</td>
+<td>FAIL</td>
+</tr>
+<tr>
+<td>104</td>
+<td>0</td>
+<td>44</td>
+<td>no</td>
+<td>0.7273</td>
+<td>1.0000</td>
+<td>0.1296</td>
+<td>0.1064</td>
+<td>0.4321</td>
+<td>FAIL</td>
+</tr>
+<tr>
+<td>105</td>
+<td>0</td>
+<td>43</td>
+<td>no</td>
+<td>0.6977</td>
+<td>1.0000</td>
+<td>0.1416</td>
+<td>0.1137</td>
+<td>0.4721</td>
+<td>FAIL</td>
+</tr>
+</tbody>
+</table>
+<p>Physical details:</p>
+<table>
+<thead>
+<tr>
+<th>Seed</th>
+<th>Episode</th>
+<th>L/R contact</th>
+<th>L/R air</th>
+<th>Aerial</th>
+<th>Support switches</th>
+<th>L/R liftoffs</th>
+<th>L/R touchdowns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>101</td>
+<td>0</td>
+<td>0.9388 / 0.9388</td>
+<td>0.0612 / 0.0612</td>
+<td>0.0612</td>
+<td>0</td>
+<td>1 / 1</td>
+<td>1 / 1</td>
+</tr>
+<tr>
+<td>102</td>
+<td>0</td>
+<td>0.9565 / 0.9565</td>
+<td>0.0435 / 0.0435</td>
+<td>0.0435</td>
+<td>0</td>
+<td>0 / 0</td>
+<td>1 / 1</td>
+</tr>
+<tr>
+<td>103</td>
+<td>0</td>
+<td>0.9556 / 0.9778</td>
+<td>0.0444 / 0.0222</td>
+<td>0.0222</td>
+<td>0</td>
+<td>1 / 0</td>
+<td>1 / 1</td>
+</tr>
+<tr>
+<td>104</td>
+<td>0</td>
+<td>0.9773 / 0.9773</td>
+<td>0.0227 / 0.0227</td>
+<td>0.0227</td>
+<td>0</td>
+<td>0 / 0</td>
+<td>1 / 1</td>
+</tr>
+<tr>
+<td>105</td>
+<td>0</td>
+<td>0.9535 / 0.9767</td>
+<td>0.0465 / 0.0233</td>
+<td>0.0233</td>
+<td>0</td>
+<td>1 / 0</td>
+<td>1 / 1</td>
+</tr>
+</tbody>
+</table>
+<p>Failures:</p>
+<ul>
+<li><strong>seed 101, episode 0:</strong> command speed tracking ratio
+below target; command-directed displacement below target;
+command-directed speed below target; episode did not complete the
+required 12-second horizon; episode terminated or fell; insufficient
+alternating foot support; one or both feet did not leave the ground
+enough; upright fraction below target</li>
+<li><strong>seed 102, episode 0:</strong> both feet must lift off and
+touch down; command speed tracking ratio below target; command-directed
+displacement below target; command-directed speed below target; episode
+did not complete the required 12-second horizon; episode terminated or
+fell; insufficient alternating foot support; one or both feet did not
+leave the ground enough; upright fraction below target</li>
+<li><strong>seed 103, episode 0:</strong> aerial fraction below running
+target; both feet must lift off and touch down; command-directed
+displacement below target; command-directed speed below target; episode
+did not complete the required 12-second horizon; episode terminated or
+fell; insufficient alternating foot support; one or both feet did not
+leave the ground enough; upright fraction below target</li>
+<li><strong>seed 104, episode 0:</strong> aerial fraction below running
+target; both feet must lift off and touch down; command-directed
+displacement below target; command-directed speed below target; episode
+did not complete the required 12-second horizon; episode terminated or
+fell; insufficient alternating foot support; one or both feet did not
+leave the ground enough; upright fraction below target</li>
+<li><strong>seed 105, episode 0:</strong> aerial fraction below running
+target; both feet must lift off and touch down; command-directed
+displacement below target; command-directed speed below target; episode
+did not complete the required 12-second horizon; episode terminated or
+fell; insufficient alternating foot support; one or both feet did not
+leave the ground enough; upright fraction below target</li>
+</ul>
+<h4 id="initial-control-3">Initial control</h4>
+<table>
+<thead>
+<tr>
+<th>Seed</th>
+<th>Episode</th>
+<th>Steps</th>
+<th>Complete</th>
+<th>Upright</th>
+<th>Commanded</th>
+<th>Directed speed</th>
+<th>Displacement</th>
+<th>Speed ratio</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>101</td>
+<td>0</td>
+<td>38</td>
+<td>no</td>
+<td>0.7105</td>
+<td>1.0000</td>
+<td>-0.1217</td>
+<td>-0.0853</td>
+<td>-0.9839</td>
+<td>FAIL</td>
+</tr>
+</tbody>
+</table>
+<p>Physical details:</p>
+<table>
+<thead>
+<tr>
+<th>Seed</th>
+<th>Episode</th>
+<th>L/R contact</th>
+<th>L/R air</th>
+<th>Aerial</th>
+<th>Support switches</th>
+<th>L/R liftoffs</th>
+<th>L/R touchdowns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>101</td>
+<td>0</td>
+<td>0.9211 / 0.9211</td>
+<td>0.0789 / 0.0789</td>
+<td>0.0789</td>
+<td>0</td>
+<td>1 / 1</td>
+<td>1 / 1</td>
+</tr>
+</tbody>
+</table>
+<p>Failures:</p>
+<ul>
+<li><strong>seed 101, episode 0:</strong> command speed tracking ratio
+below target; command-directed displacement below target;
+command-directed speed below target; episode did not complete the
+required 12-second horizon; episode terminated or fell; insufficient
+alternating foot support; one or both feet did not leave the ground
+enough; upright fraction below target</li>
+</ul>
+<h3 id="physics-metric-means-3">Physics metric means</h3>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Seed</th>
+<th>Metric</th>
+<th>Mean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>trained</td>
+<td>101</td>
+<td>command_forward_m_s</td>
+<td>0.1391</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>101</td>
+<td>command_lateral_m_s</td>
+<td>-0.0362</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>101</td>
+<td>forward_speed_m_s</td>
+<td>0.0008</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>101</td>
+<td>heading_forward_speed_m_s</td>
+<td>0.0008</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>101</td>
+<td>heading_forward_x</td>
+<td>0.9991</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>101</td>
+<td>heading_forward_y</td>
+<td>-0.0375</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>101</td>
+<td>heading_lateral_speed_m_s</td>
+<td>-0.0007</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>101</td>
+<td>left_foot_contact</td>
+<td>0.9967</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>101</td>
+<td>right_foot_contact</td>
+<td>0.9967</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>101</td>
+<td>upright</td>
+<td>0.9994</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>101</td>
+<td>world_x_m</td>
+<td>0.0036</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>101</td>
+<td>world_y_m</td>
+<td>-0.0037</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>102</td>
+<td>command_forward_m_s</td>
+<td>0.3497</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>102</td>
+<td>command_lateral_m_s</td>
+<td>-0.0841</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>102</td>
+<td>forward_speed_m_s</td>
+<td>-0.0003</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>102</td>
+<td>heading_forward_speed_m_s</td>
+<td>-0.0003</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>102</td>
+<td>heading_forward_x</td>
+<td>0.9741</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>102</td>
+<td>heading_forward_y</td>
+<td>0.2066</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>102</td>
+<td>heading_lateral_speed_m_s</td>
+<td>0.0008</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>102</td>
+<td>left_foot_contact</td>
+<td>0.9967</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>102</td>
+<td>right_foot_contact</td>
+<td>0.9750</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>102</td>
+<td>upright</td>
+<td>0.9985</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>102</td>
+<td>world_x_m</td>
+<td>-0.0019</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>102</td>
+<td>world_y_m</td>
+<td>0.0117</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>103</td>
+<td>command_forward_m_s</td>
+<td>0.3533</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>103</td>
+<td>command_lateral_m_s</td>
+<td>0.0000</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>103</td>
+<td>forward_speed_m_s</td>
+<td>0.0012</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>103</td>
+<td>heading_forward_speed_m_s</td>
+<td>0.0012</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>103</td>
+<td>heading_forward_x</td>
+<td>0.9886</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>103</td>
+<td>heading_forward_y</td>
+<td>0.1146</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>103</td>
+<td>heading_lateral_speed_m_s</td>
+<td>0.0021</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>103</td>
+<td>left_foot_contact</td>
+<td>0.9983</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>103</td>
+<td>right_foot_contact</td>
+<td>0.9867</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>103</td>
+<td>upright</td>
+<td>0.9992</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>103</td>
+<td>world_x_m</td>
+<td>0.0082</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>103</td>
+<td>world_y_m</td>
+<td>0.0293</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>104</td>
+<td>command_forward_m_s</td>
+<td>0.2858</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>104</td>
+<td>command_lateral_m_s</td>
+<td>0.0924</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>104</td>
+<td>forward_speed_m_s</td>
+<td>-0.0010</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>104</td>
+<td>heading_forward_speed_m_s</td>
+<td>-0.0010</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>104</td>
+<td>heading_forward_x</td>
+<td>0.9872</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>104</td>
+<td>heading_forward_y</td>
+<td>0.0588</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>104</td>
+<td>heading_lateral_speed_m_s</td>
+<td>0.0011</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>104</td>
+<td>left_foot_contact</td>
+<td>0.9983</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>104</td>
+<td>right_foot_contact</td>
+<td>0.9883</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>104</td>
+<td>upright</td>
+<td>0.9988</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>104</td>
+<td>world_x_m</td>
+<td>0.0061</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>104</td>
+<td>world_y_m</td>
+<td>0.0214</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>105</td>
+<td>command_forward_m_s</td>
+<td>0.3000</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>105</td>
+<td>command_lateral_m_s</td>
+<td>0.0000</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>105</td>
+<td>forward_speed_m_s</td>
+<td>0.0014</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>105</td>
+<td>heading_forward_speed_m_s</td>
+<td>0.0014</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>105</td>
+<td>heading_forward_x</td>
+<td>0.9986</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>105</td>
+<td>heading_forward_y</td>
+<td>-0.0032</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>105</td>
+<td>heading_lateral_speed_m_s</td>
+<td>-0.0003</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>105</td>
+<td>left_foot_contact</td>
+<td>0.9983</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>105</td>
+<td>right_foot_contact</td>
+<td>0.9867</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>105</td>
+<td>upright</td>
+<td>0.9993</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>105</td>
+<td>world_x_m</td>
+<td>0.0019</td>
+</tr>
+<tr>
+<td>trained</td>
+<td>105</td>
+<td>world_y_m</td>
+<td>-0.0037</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>101</td>
+<td>command_forward_m_s</td>
+<td>-0.0878</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>101</td>
+<td>command_lateral_m_s</td>
+<td>-0.0872</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>101</td>
+<td>forward_speed_m_s</td>
+<td>0.1238</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>101</td>
+<td>heading_forward_speed_m_s</td>
+<td>0.1238</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>101</td>
+<td>heading_forward_x</td>
+<td>0.9999</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>101</td>
+<td>heading_forward_y</td>
+<td>0.0049</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>101</td>
+<td>heading_lateral_speed_m_s</td>
+<td>-0.0005</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>101</td>
+<td>left_foot_contact</td>
+<td>0.9388</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>101</td>
+<td>right_foot_contact</td>
+<td>0.9388</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>101</td>
+<td>upright</td>
+<td>0.8985</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>101</td>
+<td>world_x_m</td>
+<td>0.0222</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>101</td>
+<td>world_y_m</td>
+<td>0.0003</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>102</td>
+<td>command_forward_m_s</td>
+<td>0.3378</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>102</td>
+<td>command_lateral_m_s</td>
+<td>-0.2026</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>102</td>
+<td>forward_speed_m_s</td>
+<td>0.1256</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>102</td>
+<td>heading_forward_speed_m_s</td>
+<td>0.1256</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>102</td>
+<td>heading_forward_x</td>
+<td>0.9999</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>102</td>
+<td>heading_forward_y</td>
+<td>0.0166</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>102</td>
+<td>heading_lateral_speed_m_s</td>
+<td>-0.0007</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>102</td>
+<td>left_foot_contact</td>
+<td>0.9565</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>102</td>
+<td>right_foot_contact</td>
+<td>0.9565</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>102</td>
+<td>upright</td>
+<td>0.8970</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>102</td>
+<td>world_x_m</td>
+<td>0.0200</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>102</td>
+<td>world_y_m</td>
+<td>-4.119e-05</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>103</td>
+<td>command_forward_m_s</td>
+<td>0.3000</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>103</td>
+<td>command_lateral_m_s</td>
+<td>0.0000</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>103</td>
+<td>forward_speed_m_s</td>
+<td>0.1365</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>103</td>
+<td>heading_forward_speed_m_s</td>
+<td>0.1365</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>103</td>
+<td>heading_forward_x</td>
+<td>1.0000</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>103</td>
+<td>heading_forward_y</td>
+<td>0.0004</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>103</td>
+<td>heading_lateral_speed_m_s</td>
+<td>-0.0011</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>103</td>
+<td>left_foot_contact</td>
+<td>0.9556</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>103</td>
+<td>right_foot_contact</td>
+<td>0.9778</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>103</td>
+<td>upright</td>
+<td>0.8895</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>103</td>
+<td>world_x_m</td>
+<td>0.0259</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>103</td>
+<td>world_y_m</td>
+<td>-0.0008</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>104</td>
+<td>command_forward_m_s</td>
+<td>0.3000</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>104</td>
+<td>command_lateral_m_s</td>
+<td>0.0000</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>104</td>
+<td>forward_speed_m_s</td>
+<td>0.1296</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>104</td>
+<td>heading_forward_speed_m_s</td>
+<td>0.1296</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>104</td>
+<td>heading_forward_x</td>
+<td>0.9999</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>104</td>
+<td>heading_forward_y</td>
+<td>-0.0123</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>104</td>
+<td>heading_lateral_speed_m_s</td>
+<td>-0.0017</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>104</td>
+<td>left_foot_contact</td>
+<td>0.9773</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>104</td>
+<td>right_foot_contact</td>
+<td>0.9773</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>104</td>
+<td>upright</td>
+<td>0.8980</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>104</td>
+<td>world_x_m</td>
+<td>0.0227</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>104</td>
+<td>world_y_m</td>
+<td>-0.0010</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>105</td>
+<td>command_forward_m_s</td>
+<td>0.3000</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>105</td>
+<td>command_lateral_m_s</td>
+<td>0.0000</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>105</td>
+<td>forward_speed_m_s</td>
+<td>0.1416</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>105</td>
+<td>heading_forward_speed_m_s</td>
+<td>0.1416</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>105</td>
+<td>heading_forward_x</td>
+<td>1.0000</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>105</td>
+<td>heading_forward_y</td>
+<td>-0.0032</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>105</td>
+<td>heading_lateral_speed_m_s</td>
+<td>0.0024</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>105</td>
+<td>left_foot_contact</td>
+<td>0.9535</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>105</td>
+<td>right_foot_contact</td>
+<td>0.9767</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>105</td>
+<td>upright</td>
+<td>0.8880</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>105</td>
+<td>world_x_m</td>
+<td>0.0262</td>
+</tr>
+<tr>
+<td>zero</td>
+<td>105</td>
+<td>world_y_m</td>
+<td>0.0016</td>
+</tr>
+<tr>
+<td>initial</td>
+<td>101</td>
+<td>command_forward_m_s</td>
+<td>-0.0878</td>
+</tr>
+<tr>
+<td>initial</td>
+<td>101</td>
+<td>command_lateral_m_s</td>
+<td>-0.0872</td>
+</tr>
+<tr>
+<td>initial</td>
+<td>101</td>
+<td>forward_speed_m_s</td>
+<td>0.1584</td>
+</tr>
+<tr>
+<td>initial</td>
+<td>101</td>
+<td>heading_forward_speed_m_s</td>
+<td>0.1584</td>
+</tr>
+<tr>
+<td>initial</td>
+<td>101</td>
+<td>heading_forward_x</td>
+<td>0.9989</td>
+</tr>
+<tr>
+<td>initial</td>
+<td>101</td>
+<td>heading_forward_y</td>
+<td>-0.0273</td>
+</tr>
+<tr>
+<td>initial</td>
+<td>101</td>
+<td>heading_lateral_speed_m_s</td>
+<td>0.0133</td>
+</tr>
+<tr>
+<td>initial</td>
+<td>101</td>
+<td>left_foot_contact</td>
+<td>0.9211</td>
+</tr>
+<tr>
+<td>initial</td>
+<td>101</td>
+<td>right_foot_contact</td>
+<td>0.9211</td>
+</tr>
+<tr>
+<td>initial</td>
+<td>101</td>
+<td>upright</td>
+<td>0.8888</td>
+</tr>
+<tr>
+<td>initial</td>
+<td>101</td>
+<td>world_x_m</td>
+<td>0.0250</td>
+</tr>
+<tr>
+<td>initial</td>
+<td>101</td>
+<td>world_y_m</td>
+<td>0.0015</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ppo-transitions-and-losses-3">PPO transitions and losses</h3>
+<table>
+<thead>
+<tr>
+<th>Training evidence</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Finite optimizer metrics</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>PPO rollout/update cycles</td>
+<td>1,954</td>
+</tr>
+<tr>
+<td>Optimizer minibatches</td>
+<td>31,264</td>
+</tr>
+<tr>
+<td>Observed transitions</td>
+<td>4,001,792</td>
+</tr>
+<tr>
+<td>Requested transitions</td>
+<td>4,001,792</td>
+</tr>
+<tr>
+<td>Monotonic update steps</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Training evidence gate</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>Maximum approximate KL</td>
+<td>0.3795</td>
+</tr>
+<tr>
+<td>Last-100 mean_loss</td>
+<td>-0.0208</td>
+</tr>
+<tr>
+<td>Last-100 policy_loss</td>
+<td>-0.0236</td>
+</tr>
+<tr>
+<td>Last-100 value_loss</td>
+<td>0.0028</td>
+</tr>
+<tr>
+<td>Last-100 entropy</td>
+<td>-2.9254</td>
+</tr>
+<tr>
+<td>Last-100 approximate_kl</td>
+<td>0.0217</td>
+</tr>
+<tr>
+<td>Last-100 clip_fraction</td>
+<td>0.2639</td>
+</tr>
+<tr>
+<td>Last-100 explained_variance</td>
+<td>0.9255</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Transitions</th>
+<th>Steps</th>
+<th>Raw return</th>
+<th>Skill</th>
+<th>Failures</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>38</td>
+<td>215.0771</td>
+<td>FAIL</td>
+<td>command speed tracking ratio below target; command-directed
+displacement below target; command-directed speed below target; episode
+did not complete the required 12-second horizon; episode terminated or
+fell; insufficient alternating foot support; one or both feet did not
+leave the ground enough; upright fraction below target</td>
+</tr>
+<tr>
+<td>1,001,472</td>
+<td>600</td>
+<td>5,427.58</td>
+<td>FAIL</td>
+<td>aerial fraction below running target; both feet must lift off and
+touch down; command speed tracking ratio below target; command-directed
+displacement below target; command-directed speed below target;
+insufficient alternating foot support; one or both feet did not leave
+the ground enough</td>
+</tr>
+<tr>
+<td>2,000,896</td>
+<td>600</td>
+<td>5,259.10</td>
+<td>FAIL</td>
+<td>aerial fraction below running target; both feet must lift off and
+touch down; command speed tracking ratio below target; command-directed
+displacement below target; command-directed speed below target;
+insufficient alternating foot support; one or both feet did not leave
+the ground enough</td>
+</tr>
+<tr>
+<td>3,000,320</td>
+<td>600</td>
+<td>5,506.92</td>
+<td>FAIL</td>
+<td>aerial fraction below running target; both feet must lift off and
+touch down; command speed tracking ratio below target; command-directed
+displacement below target; command-directed speed below target;
+insufficient alternating foot support; one or both feet did not leave
+the ground enough</td>
+</tr>
+<tr>
+<td>4,001,792</td>
+<td>600</td>
+<td>5,520.36</td>
+<td>FAIL</td>
+<td>aerial fraction below running target; both feet must lift off and
+touch down; command speed tracking ratio below target; command-directed
+displacement below target; command-directed speed below target;
+insufficient alternating foot support; one or both feet did not leave
+the ground enough</td>
+</tr>
+</tbody>
+</table>
+<h3 id="onnx-controls-and-source-identity-3">ONNX, controls, and source
+identity</h3>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Policy SHA-256</td>
+<td><code>35897dbac13f06163da7add449325c6f5859023b0882bebbb6940bfb122b56b3</code></td>
+</tr>
+<tr>
+<td>ONNX input</td>
+<td>batch x 61</td>
+</tr>
+<tr>
+<td>ONNX output</td>
+<td>batch x 14</td>
+</tr>
+<tr>
+<td>ONNX contract</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>Native/ONNX max absolute error</td>
+<td>3.576e-07</td>
+</tr>
+<tr>
+<td>Parameter L2 change</td>
+<td>14.1883</td>
+</tr>
+<tr>
+<td>Negative controls failed as required</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Audit scope</td>
+<td>Nominal local simulation only; no hardware certification. No
+assisted Swing starts.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="api-workflow-3">API workflow</h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Accepted</th>
+<th>Phase</th>
+<th>Exit code</th>
+<th>Finished</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>eval</td>
+<td>yes</td>
+<td>failed</td>
+<td>2</td>
+<td>2026-09-08T00:12:59.817Z</td>
+</tr>
+<tr>
+<td>render</td>
+<td>yes</td>
+<td>succeeded</td>
+<td>0</td>
+<td>2026-09-08T00:13:10.249Z</td>
+</tr>
+<tr>
+<td>export</td>
+<td>yes</td>
+<td>succeeded</td>
+<td>0</td>
+<td>2026-09-08T00:13:15.470Z</td>
+</tr>
+</tbody>
+</table>
+<p>Recorded API failure: <strong>Full Running skill evaluation failed;
+render and export evidence were collected.</strong></p>
+<h3 id="video-and-graph-evidence-3">Video and graph evidence</h3>
+<table>
+<thead>
+<tr>
+<th>Video validation</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Validation status</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>API bytes equal local render</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>HTTP byte range</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Browser playback</td>
+<td>{"currentTime": 6, "duration": 12, "error": null, "height": 360,
+"width": 640}</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Codec</th>
+<th>Dimensions</th>
+<th>FPS</th>
+<th>Frames</th>
+<th>Seconds</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/api-video.mp4">api-video.mp4</a></td>
+<td>h264</td>
+<td>640 x 360</td>
+<td>25/1</td>
+<td>300</td>
+<td>12.000000</td>
+<td><code>6b334ebb05e286a07566846a6485f7bfbdd6489d3db42d75d2adffad3dd156da</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/comparison.mp4">comparison.mp4</a></td>
+<td>h264</td>
+<td>960 x 412</td>
+<td>25/1</td>
+<td>300</td>
+<td>12.000000</td>
+<td><code>3c1a807fe6e7d319cb96ef5cc0cef61419f818a1aa7de655b2d69992e4586e3b</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/comparison_sheet.png">comparison_sheet.png</a></li>
+<li><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/physical-tracking.png">physical-tracking.png</a></li>
+<li><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/reward-learning.png">reward-learning.png</a></li>
+<li><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/ppo-losses.png">ppo-losses.png</a></li>
+<li><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/browser-video.png">browser-video.png</a></li>
+<li><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/comparison.mp4">comparison.mp4</a></li>
+<li><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/api-video.mp4">api-video.mp4</a></li>
+<li><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/audit.json">audit.json</a></li>
+<li><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/video-validation.json">video-validation.json</a></li>
+<li><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-api.json">running-v1-api.json</a></li>
+</ul>
+<p><img
+src="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/comparison_sheet.png"
+alt="Running trained-policy and control comparison" /></p>
+<p><img
+src="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/physical-tracking.png"
+alt="Running: Physical tracking" /></p>
+<p><img
+src="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/reward-learning.png"
+alt="Running: Reward and checkpoint learning" /></p>
+<p><img
+src="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/ppo-losses.png"
+alt="Running: PPO loss history" /></p>
+<h3 id="source-hashes-3">Source hashes</h3>
+<table>
+<thead>
+<tr>
+<th>Source/artifact</th>
+<th>Bytes</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1.json">running-v1.json</a></td>
+<td>570</td>
+<td><code>ad3f470d5492a874c3acb652ad38ac71196ea02c20cd92e2b124290aba87567b</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/audit.json">audit.json</a></td>
+<td>72,213</td>
+<td><code>481e327a90ee9794e0800b025f25d796aed698ffac6cd7931b1372f7a84b5c09</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/video-validation.json">video-validation.json</a></td>
+<td>6,215</td>
+<td><code>7077ca733ad7c6eea6e3f195ced51f279d1487192a90838c9a8d4bd59ddea86d</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-api.json">running-v1-api.json</a></td>
+<td>307,396</td>
+<td><code>a415b4196365b10d560799f26f8165f5769c4e72ae110ebbc30bbd707c1ad544</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/comparison_sheet.png">comparison_sheet.png</a></td>
+<td>908,199</td>
+<td><code>41f380f327930207ea70eda75ec581f904d4f0c4a6d7aeaa04cae83a9d223c15</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/physical-tracking.png">physical-tracking.png</a></td>
+<td>199,917</td>
+<td><code>2b13405b65fa5066632329ad36086e5296c20f1083e5dff0358d918b949e256b</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/reward-learning.png">reward-learning.png</a></td>
+<td>217,715</td>
+<td><code>5fc2c4835af8a53380e1a788ad9844735450c82005af0cce1f8bccc5d7263a8c</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/ppo-losses.png">ppo-losses.png</a></td>
+<td>370,488</td>
+<td><code>3098b8569940697204be6330685ae42310c559e9a2a5967d91424ba5fa4d9d35</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/browser-video.png">browser-video.png</a></td>
+<td>124,963</td>
+<td><code>d14cbd589ddf15608f2c508651d1d3f4c39168613c0c4d10b4993a024375e131</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/comparison.mp4">comparison.mp4</a></td>
+<td>425,184</td>
+<td><code>3c1a807fe6e7d319cb96ef5cc0cef61419f818a1aa7de655b2d69992e4586e3b</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/running-v1-audit/api-video.mp4">api-video.mp4</a></td>
+<td>386,402</td>
+<td><code>6b334ebb05e286a07566846a6485f7bfbdd6489d3db42d75d2adffad3dd156da</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="reproduction-commands-3">Reproduction commands</h3>
+<p>Run from the repository root after starting the Studio server at
+<code>http://127.0.0.1:63317</code>:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> duck-viewer/scripts/rlx-dance-api-e2e.mjs <span class="at">--execute</span> <span class="at">--base-url</span> http://127.0.0.1:63317 <span class="at">--experiment</span> running <span class="at">--recipe-json</span> rlx/artifacts/scenarios-e2e-20260907/running-v1.json <span class="at">--run</span> running-reproduction-YYYYMMDD-HHMMSS <span class="at">--report</span> rlx/artifacts/scenarios-e2e-20260907/running-reproduction-YYYYMMDD-HHMMSS-api.json <span class="at">--timeout-seconds</span> 7200</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">rlx/.venv-microduck/bin/python</span> rlx/scripts/audit_scenarios.py <span class="at">--recipe-json</span> rlx/artifacts/scenarios-e2e-20260907/running-v1.json <span class="at">--run</span> rlx/runs/studio/running/running-reproduction-YYYYMMDD-HHMMSS <span class="at">--output</span> rlx/artifacts/scenarios-e2e-20260907/running-reproduction-YYYYMMDD-HHMMSS-audit <span class="at">--seeds</span> 101 102 103 104 105 <span class="at">--render</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> duck-viewer/scripts/verify-rlx-video.mjs <span class="at">--recipe-json</span> rlx/artifacts/scenarios-e2e-20260907/running-v1.json <span class="at">--run</span> rlx/runs/studio/running/running-reproduction-YYYYMMDD-HHMMSS <span class="at">--output</span> rlx/artifacts/scenarios-e2e-20260907/running-reproduction-YYYYMMDD-HHMMSS-audit <span class="at">--base-url</span> http://127.0.0.1:63317 <span class="at">--playwright-package</span> <span class="st">&quot;</span><span class="va">${PLAYWRIGHT_PACKAGE</span><span class="op">:-</span>/Users/ghu/community/package.json<span class="va">}</span><span class="st">&quot;</span></span></code></pre></div>
+<p>The audit command exits nonzero when the strict skill gate fails.
+That nonzero exit is expected evidence for a failed attempt, not
+permission to rewrite the result as successful.</p>
+<p>This historical command uses the retained artifact recipe
+<code>rlx/artifacts/scenarios-e2e-20260907/running-v1.json</code>
+because it does not match the tracked selected
+<code>recipes/running.json</code>. It is not a fresh-checkout
+reproduction unless that historical artifact recipe is separately
+retained.</p>
+<h2 id="9-historical-stilt-walking-stilts-v1">9. Historical Stilt
+Walking: <code>stilts-v1</code></h2>
+<p><strong>Scenario status:</strong> <strong>TRAIN FAILED</strong></p>
+<p>No <code>audit.json</code> exists because training failed before a
+final checkpoint and deterministic audit were produced.</p>
+<table>
+<thead>
+<tr>
+<th>Training failure evidence</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Transitions reached</td>
+<td>1,980,416</td>
+</tr>
+<tr>
+<td>Requested transitions</td>
+<td>4,001,792</td>
+</tr>
+<tr>
+<td>Exit code</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Started</td>
+<td>2026-09-08T00:13:16.008Z</td>
+</tr>
+<tr>
+<td>Finished</td>
+<td>2026-09-08T00:18:21.415Z</td>
+</tr>
+<tr>
+<td>Final checkpoint present</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Final ONNX present</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p>Recorded failure:
+<code>RuntimeError: PPO gradients contains non-finite values: gradient tensors=critic.layers.0.weight, critic.layers.0.bias, critic.layers.2.weight, critic.layers.2.bias; observations[-7.21088..10; nonfinite=0], actions[-1.39449..3.84149; nonfinite=0], old_log_probabilities[-11.5659..8.13558; nonfinite=0], old_values[-1.64562..3.35344; nonfinite=0], advantages[-1.87452..1.62534; nonfinite=0], returns[-0.430656..3.33284; nonfinite=0]</code></p>
+<h3 id="recipe-and-effective-audit-environment-4">Recipe and effective
+audit environment</h3>
+<p>The exact requested recipe follows. These values describe training;
+they do not override the deterministic audit environment.</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;actionDelay&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;checkpointInterval&quot;</span><span class="fu">:</span> <span class="dv">500000</span><span class="fu">,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;clipCoefficient&quot;</span><span class="fu">:</span> <span class="fl">0.2</span><span class="fu">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;domainRand&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;entropyCoefficient&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;evalSteps&quot;</span><span class="fu">:</span> <span class="dv">500</span><span class="fu">,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;experimentId&quot;</span><span class="fu">:</span> <span class="st">&quot;stilts&quot;</span><span class="fu">,</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;gamma&quot;</span><span class="fu">:</span> <span class="fl">0.99</span><span class="fu">,</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;initialStd&quot;</span><span class="fu">:</span> <span class="fl">0.25</span><span class="fu">,</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;learningRate&quot;</span><span class="fu">:</span> <span class="fl">0.0001</span><span class="fu">,</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;locomotionForwardCommand&quot;</span><span class="fu">:</span> <span class="fl">0.15</span><span class="fu">,</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;maxEpisodeS&quot;</span><span class="fu">:</span> <span class="dv">10</span><span class="fu">,</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;maxGradNorm&quot;</span><span class="fu">:</span> <span class="fl">0.5</span><span class="fu">,</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;normalizeRewards&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numEnvs&quot;</span><span class="fu">:</span> <span class="dv">16</span><span class="fu">,</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numMinibatches&quot;</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;numSteps&quot;</span><span class="fu">:</span> <span class="dv">128</span><span class="fu">,</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;obsNoise&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;profile&quot;</span><span class="fu">:</span> <span class="st">&quot;full&quot;</span><span class="fu">,</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;randomYaw&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;renderSeconds&quot;</span><span class="fu">:</span> <span class="dv">10</span><span class="fu">,</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;resumeFromCheckpoint&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;rewardWeights&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;feet_air_time&quot;</span><span class="fu">:</span> <span class="dv">3</span><span class="fu">,</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;track_lin_vel&quot;</span><span class="fu">:</span> <span class="dv">10</span><span class="fu">,</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;upright&quot;</span><span class="fu">:</span> <span class="dv">2</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;runName&quot;</span><span class="fu">:</span> <span class="st">&quot;stilts-e2e-20260907-v1&quot;</span><span class="fu">,</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;seed&quot;</span><span class="fu">:</span> <span class="dv">7</span><span class="fu">,</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;stiltBlend&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;stiltHeightCm&quot;</span><span class="fu">:</span> <span class="dv">2</span><span class="fu">,</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;stiltMassKg&quot;</span><span class="fu">:</span> <span class="fl">0.014</span><span class="fu">,</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;totalTimesteps&quot;</span><span class="fu">:</span> <span class="dv">4001792</span><span class="fu">,</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;updateEpochs&quot;</span><span class="fu">:</span> <span class="dv">4</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>No effective-environment object is available in the selected audit.
+The audit implementation fixes XML actuators, disables domain
+randomization, observation noise, action delay, and random yaw, and
+forces Swing audit starts to <code>0 degrees</code> and
+<code>0 rad/s</code>.</p>
+<p>The requested morphology is <strong>2 cm</strong> stilts, blend
+<strong>0</strong>, mass <strong>0.0140 kg</strong>, with a fixed
+forward command of <strong>0.1500 m/s</strong>.</p>
+<h3 id="per-episode-skill-evidence-4">Per-episode skill evidence</h3>
+<p>No trained-policy episode records are available.</p>
+<h3 id="controls-4">Controls</h3>
+<h4 id="zero-control-4">Zero control</h4>
+<p>No records available.</p>
+<h4 id="initial-control-4">Initial control</h4>
+<p>No records available.</p>
+<h3 id="physics-metric-means-4">Physics metric means</h3>
+<p>No physical metric aggregates are available.</p>
+<h3 id="ppo-transitions-and-losses-4">PPO transitions and losses</h3>
+<p>No training audit summary is available.</p>
+<h3 id="onnx-controls-and-source-identity-4">ONNX, controls, and source
+identity</h3>
+<p>No ONNX or control audit is available.</p>
+<h3 id="api-workflow-4">API workflow</h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Accepted</th>
+<th>Phase</th>
+<th>Exit code</th>
+<th>Finished</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>train</td>
+<td>yes</td>
+<td>failed</td>
+<td>1</td>
+<td>2026-09-08T00:18:21.415Z</td>
+</tr>
+</tbody>
+</table>
+<p>Recorded API failure: <strong>train ended as phase=failed
+operation=train; last log=RuntimeError: PPO gradients contains
+non-finite values: gradient tensors=critic.layers.0.weight,
+critic.layers.0.bias, critic.layers.2.weight, critic.layers.2.bias;
+observations[-7.21088..10; nonfinite=0], actions[-1.39449..3.84149;
+nonfinite=0], old_log_probabilities[-11.5659..8.13558; nonfinite=0],
+old_values[-1.64562..3.35344; nonfinite=0],
+advantages[-1.87452..1.62534; nonfinite=0], returns[-0.430656..3.33284;
+nonfinite=0]</strong></p>
+<h3 id="video-and-graph-evidence-4">Video and graph evidence</h3>
+<p>No <code>video-validation.json</code> is available. Images or MP4
+files, if present, are linked below but are not described as
+browser/transport verified.</p>
+<ul>
+<li><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/stilts-v1-api.json">stilts-v1-api.json</a></li>
+</ul>
+<h3 id="source-hashes-4">Source hashes</h3>
+<table>
+<thead>
+<tr>
+<th>Source/artifact</th>
+<th>Bytes</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/stilts-v1.json">stilts-v1.json</a></td>
+<td>741</td>
+<td><code>25507ddb7074919a4143f3c625f1178caeed92f19ec01fa8d63279c549d3a749</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/stilts-v1-api.json">stilts-v1-api.json</a></td>
+<td>135,906</td>
+<td><code>d01e4a21f56b0a499365a6bdad0fbc58bf5bfcc7ab1697a40002e2c995c2129e</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="reproduction-commands-4">Reproduction commands</h3>
+<p>Run from the repository root after starting the Studio server at
+<code>http://127.0.0.1:63317</code>:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> duck-viewer/scripts/rlx-dance-api-e2e.mjs <span class="at">--execute</span> <span class="at">--base-url</span> http://127.0.0.1:63317 <span class="at">--experiment</span> stilts <span class="at">--recipe-json</span> rlx/artifacts/scenarios-e2e-20260907/stilts-v1.json <span class="at">--run</span> stilts-reproduction-YYYYMMDD-HHMMSS <span class="at">--report</span> rlx/artifacts/scenarios-e2e-20260907/stilts-reproduction-YYYYMMDD-HHMMSS-api.json <span class="at">--timeout-seconds</span> 7200</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">rlx/.venv-microduck/bin/python</span> rlx/scripts/audit_scenarios.py <span class="at">--recipe-json</span> rlx/artifacts/scenarios-e2e-20260907/stilts-v1.json <span class="at">--run</span> rlx/runs/studio/stilts/stilts-reproduction-YYYYMMDD-HHMMSS <span class="at">--output</span> rlx/artifacts/scenarios-e2e-20260907/stilts-reproduction-YYYYMMDD-HHMMSS-audit <span class="at">--seeds</span> 101 102 103 104 105 <span class="at">--render</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> duck-viewer/scripts/verify-rlx-video.mjs <span class="at">--recipe-json</span> rlx/artifacts/scenarios-e2e-20260907/stilts-v1.json <span class="at">--run</span> rlx/runs/studio/stilts/stilts-reproduction-YYYYMMDD-HHMMSS <span class="at">--output</span> rlx/artifacts/scenarios-e2e-20260907/stilts-reproduction-YYYYMMDD-HHMMSS-audit <span class="at">--base-url</span> http://127.0.0.1:63317 <span class="at">--playwright-package</span> <span class="st">&quot;</span><span class="va">${PLAYWRIGHT_PACKAGE</span><span class="op">:-</span>/Users/ghu/community/package.json<span class="va">}</span><span class="st">&quot;</span></span></code></pre></div>
+<p>The audit command exits nonzero when the strict skill gate fails.
+That nonzero exit is expected evidence for a failed attempt, not
+permission to rewrite the result as successful.</p>
+<p>This historical command uses the retained artifact recipe
+<code>rlx/artifacts/scenarios-e2e-20260907/stilts-v1.json</code> because
+it does not match the tracked selected <code>recipes/stilts.json</code>.
+It is not a fresh-checkout reproduction unless that historical artifact
+recipe is separately retained.</p>
+<h2 id="10-stilt-training-failure-and-elu-diagnosis">10. Stilt training
+failure and ELU diagnosis</h2>
+<p>The retained <code>stilts-v1</code> API record establishes the
+observed failure: PPO aborted at 1,980,416 of 4,001,792 transitions
+because critic-layer gradients became non-finite. The logged
+observations, actions, old log probabilities, old values, advantages,
+and returns were finite, and no final checkpoint or ONNX artifact was
+produced.</p>
+<p>A separate installed-MLX activation probe supplies a plausible
+mechanism. The stock <code>mlx.nn.elu</code> produced finite forward
+outputs for large positive inputs 90 and 1000 but non-finite gradients.
+This is consistent with the critic-only gradient failure because actor
+and critic use the same hidden activation structure while receiving
+different objectives and gradient paths. It is <strong>not proof of the
+exact failing minibatch</strong>, which was not saved.</p>
+<p>The local model now uses a stable ELU expression:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>where(x <span class="op">&gt;=</span> <span class="dv">0</span>, x, exp(<span class="bu">min</span>(x, <span class="dv">0</span>)) <span class="op">-</span> <span class="dv">1</span>)</span></code></pre></div>
+<p>This keeps the same 512-256-128 hidden-layer topology, checkpoint
+tensor layout, and ELU forward behavior used by exported ONNX graphs.
+The PPO finite-value guards remain fail-closed: a non-finite loss,
+gradient, or model parameter still raises; bad updates are not silently
+skipped.</p>
+<table>
+<thead>
+<tr>
+<th>Probe field</th>
+<th>Captured value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Inputs</td>
+<td>[-1.0, 0.0, 1.0, 90.0, 1000.0]</td>
+</tr>
+<tr>
+<td>Outputs</td>
+<td>[-0.6321205496788025, 0.0, 1.0, 90.0, 1000.0]</td>
+</tr>
+<tr>
+<td>Gradients</td>
+<td>[0.3678794503211975, 1.0, 1.0, null, null]</td>
+</tr>
+<tr>
+<td>Finite outputs</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Finite gradients</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Implementation</td>
+<td>installed mlx.nn.elu: where(x &gt; 0, x, alpha * (exp(x) - 1))</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Validation artifact</th>
+<th>Result</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Activation test before fix</td>
+<td>3 failed because <code>stable_elu</code> did not yet exist</td>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/activation-before.log">activation-before.log</a></td>
+</tr>
+<tr>
+<td>Activation test after fix</td>
+<td>3 passed: eager/compiled large-input gradient boundary and forward
+parity</td>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/activation-after.log">activation-after.log</a></td>
+</tr>
+<tr>
+<td>Installed MLX probe</td>
+<td>finite forward, non-finite gradients at large positive inputs</td>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/activation-probe.json">activation-probe.json</a></td>
+</tr>
+</tbody>
+</table>
+<p>Source hashes:</p>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>Bytes</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/activation-probe.json">activation-probe.json</a></td>
+<td>375</td>
+<td><code>0074fd2183fd765c729d5746162adc302e62bd84dd0755149d0dd682830fbbe5</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/activation-before.log">activation-before.log</a></td>
+<td>2,068</td>
+<td><code>0dab9d24d3d427ed44db37ea020c3680b9cac27c1c77ed79883208389d0b04f2</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/activation-after.log">activation-after.log</a></td>
+<td>98</td>
+<td><code>fc99c56adf2cb5702a4564ceead9e104cf6db01c3cd1a15756b5c9630e644ce6</code></td>
+</tr>
+<tr>
+<td><a
+href="../../rlx/artifacts/scenarios-e2e-20260907/activation_probe.py">activation_probe.py</a></td>
+<td>769</td>
+<td><code>c1a52763100be1cdf44f16da9def46a54964fc10c1445999d78d38066c9bd03c</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="11-tracked-reproduction-recipes">11. Tracked reproduction
+recipes</h2>
+<p>These copies are tracked with the report so a fresh checkout does not
+depend on the gitignored evidence directory:</p>
+<ul>
+<li><a href="recipes/running.json">Running</a></li>
+<li><a href="recipes/stilts.json">Stilt Walking</a></li>
+<li><a href="recipes/swing.json">Swing</a></li>
+</ul>
+<h2 id="12-final-conclusion">12. Final conclusion</h2>
+<p><strong>Report result: FAIL / INCOMPLETE.</strong></p>
+<p>The evidence package is not fully verified. Outstanding selected
+scenarios: Running (training active), Stilt Walking (not run), Swing
+(not run). Regenerate this report after their audit and video-validation
+artifacts exist; the generator will update the verdict from the files
+rather than from expectations.</p>
+</body>
+</html>

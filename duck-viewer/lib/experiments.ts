@@ -111,6 +111,7 @@ const REWARDS: Record<ExperimentId, RewardDefinition> = {
       { key: "keep_pace", label: "Match speed", defaultWeight: 4, description: "Match the commanded body-frame velocity." },
       { key: "track_turn", label: "Match turn rate", defaultWeight: 2, description: "Match the commanded yaw rate." },
       { key: "air_time", label: "Running flight", defaultWeight: 3, description: "Reward feet spending a useful duration in the air." },
+      { key: "flight", label: "Both-feet flight", defaultWeight: 0, description: "Optional bounded reward for both feet off the ground, gated by upright posture and command-directed body speed; disabled by default." },
       { key: "stay_upright", label: "Stay upright", defaultWeight: 2, description: "Keep the body upright while permitting running lean." },
       { key: "pose", label: "Running pose", defaultWeight: 1, description: "Track a speed-appropriate leg posture." },
       { key: "head_up", label: "Head posture", defaultWeight: 3.5, description: "Keep the head aligned with its command." },
@@ -270,7 +271,7 @@ export const EXPERIMENTS: readonly ExperimentDefinition[] = [
     defaultRunName: "running-studio",
     fullTimesteps: 4_000_000,
     fullEnvs: 16,
-    maxEpisodeSeconds: 10,
+    maxEpisodeSeconds: 12,
     ppo: {
       learningRate: 0.0003,
       gamma: 0.99,

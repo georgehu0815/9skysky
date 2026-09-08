@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import math
+from copy import deepcopy
 from collections import defaultdict
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
@@ -19,6 +20,7 @@ from rlx.environments.microduck_recipes import (
     make_recipe_env,
     make_single_recipe_env,
     recipe_metrics,
+    validate_locomotion_forward_command,
     validate_reward_weights,
     validate_stilt_options,
 )
@@ -152,6 +154,7 @@ def _environment(args: argparse.Namespace, *, normalize: bool):
         weight_overrides=_recipe_weight_overrides(args),
         dance_clip=getattr(args, "dance_clip", None),
         dance_pose_sigma=getattr(args, "dance_pose_sigma", None),
+        locomotion_forward_command=args.locomotion_forward_command,
         stilt_height_cm=args.stilt_height_cm,
         stilt_blend=args.stilt_blend,
         stilt_mass_kg=args.stilt_mass_kg,
@@ -278,11 +281,30 @@ def _recipe_options(args: argparse.Namespace) -> dict[str, Any]:
             "stilt_blend": blend,
             "stilt_mass_kg": mass,
         }
+    if (
+        args.recipe in {"running", "stilts"}
+        and args.locomotion_forward_command is not None
+    ):
+        options["locomotion_forward_command"] = args.locomotion_forward_command
     return options
 
 
-def _metadata(args: argparse.Namespace, steps: int) -> dict[str, Any]:
+def _initialization_provenance(source: Path, metadata: dict[str, Any]) -> dict[str, Any]:
+    source = source.expanduser().resolve(strict=True)
+    hashes = _source_hashes(source, "checkpoint")
     return {
+        "kind": "checkpoint",
+        "source_checkpoint": str(source),
+        "source_sha256": hashes[str(source)],
+        "source_sidecar_sha256": hashes[str(source.with_suffix(source.suffix + ".json"))],
+        "loaded_metadata": deepcopy(metadata),
+    }
+
+
+def _metadata(
+    args: argparse.Namespace, steps: int, *, initialization: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    metadata = {
         "recipe": args.recipe,
         "steps": steps,
         "seed": args.seed,
@@ -291,6 +313,7 @@ def _metadata(args: argparse.Namespace, steps: int) -> dict[str, Any]:
         "backend": args.backend,
         "actuator": args.actuator,
         "reward_weights": _recipe_weight_overrides(args),
+        "freeze_observation_normalization": getattr(args, "freeze_observation_normalization", False),
         "recipe_options": _recipe_options(args),
         "randomization": {
             "domain_rand": args.domain_rand,
@@ -316,9 +339,17 @@ def _metadata(args: argparse.Namespace, steps: int) -> dict[str, Any]:
             "normalize_rewards": getattr(args, "normalize_rewards", args.recipe == "swing"),
         },
     }
+    if initialization is not None:
+        metadata["initialization"] = deepcopy(initialization)
+        if "teacher_assisted" in initialization["loaded_metadata"]:
+            metadata["teacher_assisted"] = initialization["loaded_metadata"]["teacher_assisted"]
+    return metadata
 
 
 def train(args: argparse.Namespace) -> dict[str, object]:
+    freeze_observations = getattr(args, "freeze_observation_normalization", False)
+    if freeze_observations and args.init_from is None:
+        raise ValueError("--freeze-observation-normalization requires --init-from")
     paths = artifact_paths(
         args.recipe,
         output_dir=args.output_dir,
@@ -328,6 +359,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
     paths.directory.mkdir(parents=True, exist_ok=True)
     env = _environment(args, normalize=True)
     try:
+        env.freeze_observation_normalization = freeze_observations
         import mlx.core as mx
         import mlx.optimizers as optim
         import numpy as np
@@ -357,12 +389,17 @@ def train(args: argparse.Namespace) -> dict[str, object]:
             max_grad_norm=args.max_grad_norm,
         )
         resumed_steps = 0
+        initialization = None
         if args.init_from is not None:
             loaded = load_checkpoint(args.init_from.expanduser())
+            initialization = _initialization_provenance(args.init_from, loaded["metadata"])
             network = loaded["model"]
             env.observation_rms.mean = loaded["mean"].astype(np.float64)
             env.observation_rms.var = loaded["variance"].astype(np.float64)
             env.observation_rms.count = loaded["count"]
+            if freeze_observations:
+                env.epsilon = loaded["epsilon"]
+                env.clip = loaded["clip"]
             if loaded["return_mean"] is not None:
                 env.return_rms.mean = np.asarray(
                     loaded["return_mean"], dtype=np.float64
@@ -406,7 +443,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
                 env.observation_rms.var, env.observation_rms.count,
                 return_mean=env.return_rms.mean, return_variance=env.return_rms.var,
                 return_count=env.return_rms.count, epsilon=env.epsilon, clip=env.clip,
-                metadata=_metadata(args, resumed_steps + step),
+                metadata=_metadata(args, resumed_steps + step, initialization=initialization),
             )
             if not initial:
                 next_checkpoint = (step // checkpoint_interval + 1) * checkpoint_interval
@@ -435,7 +472,7 @@ def train(args: argparse.Namespace) -> dict[str, object]:
             return_count=env.return_rms.count,
             epsilon=env.epsilon,
             clip=env.clip,
-            metadata=_metadata(args, resumed_steps + algorithm.step),
+            metadata=_metadata(args, resumed_steps + algorithm.step, initialization=initialization),
         )
     finally:
         env.close()
@@ -544,6 +581,7 @@ def _finite_json(value: Any) -> Any:
 def evaluate(args: argparse.Namespace) -> dict[str, object]:
     import numpy as np
     from rlx.environments.dance_evaluation import DanceEvaluation
+    from rlx.environments.locomotion_evaluation import LocomotionEvaluation
     from rlx.environments.swing_evaluation import SwingEvaluation, SwingEvaluationPlan
 
     source, source_type = _source_paths(args)
@@ -567,6 +605,12 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
         args.num_envs,
         dance_steps,
     ) if args.recipe == "dance" else None
+    locomotion_steps = {"running": 600, "stilts": 500}.get(args.recipe)
+    locomotion = (
+        LocomotionEvaluation(args.recipe, args.num_envs, locomotion_steps)
+        if locomotion_steps is not None
+        else None
+    )
     evaluation = {
         "mode": args.evaluation_mode, "seed": args.seed, "num_envs": args.num_envs,
         "steps_per_env": args.eval_steps,
@@ -580,6 +624,9 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
         },
         "swing_criteria": plan.to_dict() if plan is not None else None,
         "dance_criteria": {**dance.criteria.to_dict(), "required_steps": dance_steps} if dance is not None else None,
+        "locomotion_criteria": (
+            locomotion.criteria.to_dict() if locomotion is not None else None
+        ),
     }
     env = _environment(args, normalize=False)
     metrics: dict[str, list[float]] = defaultdict(list)
@@ -622,9 +669,21 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
                     dance.observe(env_index, item.get("dance_state", {}),
                                   terminated=bool(terminated_values[env_index]),
                                   truncated=bool(truncated_values[env_index]))
+                if locomotion is not None:
+                    locomotion.observe(
+                        env_index,
+                        measured,
+                        bool(terminated_values[env_index]),
+                        bool(truncated_values[env_index]),
+                    )
                 for name, value in measured.items():
-                    if math.isfinite(float(value)):
-                        metrics[name].append(float(value))
+                    try:
+                        numeric_value = float(value)
+                    except (TypeError, ValueError):
+                        finite = False
+                        continue
+                    if math.isfinite(numeric_value):
+                        metrics[name].append(numeric_value)
                     else:
                         finite = False
             episode_mask = np.asarray(info["_episode"], dtype=bool)
@@ -672,6 +731,9 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
         pipeline_passed = finite and not failures
         swing_assessment = swing.report() if swing is not None else None
         dance_assessment = dance.report() if dance is not None else None
+        locomotion_assessment = (
+            locomotion.report() if locomotion is not None else None
+        )
         skill_status = "not_assessed"
         if dance_assessment is not None and args.evaluation_mode == "skill":
             skill_status = "passed" if pipeline_passed and dance_assessment["passed"] else "failed"
@@ -688,6 +750,13 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
             if args.evaluation_mode == "skill":
                 skill_status = "passed" if pipeline_passed and swing_assessment["passed"] else "failed"
                 failures.extend(swing_assessment["failures"])
+        if locomotion_assessment is not None and args.evaluation_mode == "skill":
+            skill_status = (
+                "passed"
+                if pipeline_passed and locomotion_assessment["passed"]
+                else "failed"
+            )
+            failures.extend(locomotion_assessment["failures"])
         return _finite_json({
             "command": "eval",
             "evaluation_mode": args.evaluation_mode,
@@ -698,6 +767,7 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
             "skill_status": skill_status,
             "swing_assessment": swing_assessment,
             "dance_assessment": dance_assessment,
+            "locomotion_assessment": locomotion_assessment,
             "recipe": args.recipe,
             "source": str(source),
             "source_type": source_type,
@@ -801,6 +871,7 @@ def render(args: argparse.Namespace) -> dict[str, object]:
         weight_overrides=_recipe_weight_overrides(args),
         dance_clip=getattr(args, "dance_clip", None),
         dance_pose_sigma=getattr(args, "dance_pose_sigma", None),
+        locomotion_forward_command=args.locomotion_forward_command,
         stilt_height_cm=args.stilt_height_cm,
         stilt_blend=args.stilt_blend,
         stilt_mass_kg=args.stilt_mass_kg,
@@ -947,6 +1018,12 @@ def _common(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--dance-clip", type=Path)
     parser.add_argument("--dance-pose-sigma", type=_positive_float)
     parser.add_argument(
+        "--locomotion-forward-command",
+        metavar="M_S",
+        type=_positive_float,
+        help="pin running/stilts to a forward vx command in metres per second",
+    )
+    parser.add_argument(
         "--domain-rand", action=argparse.BooleanOptionalAction, default=True
     )
     parser.add_argument(
@@ -994,10 +1071,17 @@ def _validate_args(parser: argparse.ArgumentParser, args: argparse.Namespace) ->
             parser.error(f"--dance-clip does not exist: {args.dance_clip}")
     if args.dance_pose_sigma is not None and args.recipe != "dance":
         parser.error("--dance-pose-sigma requires --recipe dance")
+    if (
+        args.locomotion_forward_command is not None
+        and args.recipe not in {"running", "stilts"}
+    ):
+        parser.error(
+            "--locomotion-forward-command requires --recipe running or stilts"
+        )
     if args.command == "train" and args.checkpoint_interval < 0:
         parser.error("--checkpoint-interval must be non-negative (0 disables periodic snapshots)")
     if args.command == "eval":
-        if args.recipe in {"dance", "swing"} and args.backend == "fork":
+        if args.recipe in RECIPES and args.backend == "fork":
             parser.error(f"{args.recipe.title()} evaluation needs control-step physical metrics; fork returns terminal metrics only; use --backend dummy or --backend subproc")
         if args.min_episodes < 0:
             parser.error("--min-episodes must be non-negative")
@@ -1010,6 +1094,8 @@ def _validate_args(parser: argparse.ArgumentParser, args: argparse.Namespace) ->
         ):
             parser.error("Swing skill evaluation must start still; use --evaluation-mode pipeline for assisted-start diagnostics")
     if args.command == "train":
+        if args.freeze_observation_normalization and args.init_from is None:
+            parser.error("--freeze-observation-normalization requires --init-from")
         batch_size = args.num_envs * args.num_steps
         if args.num_minibatches > batch_size:
             parser.error("--num-minibatches cannot exceed num-envs * num-steps")
@@ -1027,6 +1113,9 @@ def _validate_args(parser: argparse.ArgumentParser, args: argparse.Namespace) ->
         parser.error("--swing-initial-rate-rad-s cannot exceed 1")
     try:
         _recipe_weight_overrides(args)
+        validate_locomotion_forward_command(
+            args.recipe, args.locomotion_forward_command
+        )
         if args.recipe == "stilts":
             validate_stilt_options(
                 args.stilt_height_cm,
@@ -1045,6 +1134,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     _common(train_parser)
     train_parser.add_argument("--checkpoint", type=Path)
     train_parser.add_argument("--init-from", type=Path)
+    train_parser.add_argument(
+        "--freeze-observation-normalization",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="keep the loaded observation normalizer fixed; requires --init-from",
+    )
     train_parser.add_argument("--checkpoint-interval", type=int, default=100_000)
     train_parser.add_argument("--initial-std", type=_positive_float)
     train_parser.add_argument("--normalize-rewards", action=argparse.BooleanOptionalAction, default=None)
@@ -1084,7 +1179,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     _policy_source(eval_parser)
     eval_parser.add_argument("--eval-steps", type=_positive_int)
     eval_parser.add_argument("--evaluation-mode", choices=("pipeline", "skill"), default="skill",
-                             help="pipeline checks execution only; Swing skill requires full per-episode physical criteria")
+                             help="pipeline checks execution only; skill mode applies full per-episode physical criteria")
     eval_parser.add_argument("--swing-min-span-deg", type=_positive_float, default=150.0,
                              help="minimum symmetric bidirectional span (twice the smaller side's peak)")
     eval_parser.add_argument("--min-mean-return", type=float)
@@ -1137,7 +1232,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
             if getattr(args, name) is None:
                 setattr(args, name, defaults[name])
     if args.command == "eval" and args.eval_steps is None:
-        args.eval_steps = 1200 if args.recipe == "swing" else 500
+        args.eval_steps = {"swing": 1200, "running": 600}.get(args.recipe, 500)
     _validate_args(parser, args)
     return args
 

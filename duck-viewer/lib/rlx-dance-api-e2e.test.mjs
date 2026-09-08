@@ -11,6 +11,18 @@ import {
   parseArgs,
 } from "../scripts/rlx-dance-api-e2e.mjs";
 
+test("HTTP driver creates report parents even for an early recipe failure", async () => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), "rlx-report-parent-"));
+  const report = path.join(directory, "new", "nested", "report.json");
+  try {
+    await assert.rejects(main(["--execute", "--recipe-json", path.join(directory, "missing.json"), "--report", report]), /ENOENT/);
+    const saved = JSON.parse(await readFile(report, "utf8"));
+    assert.match(saved.failure.message, /ENOENT/);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
 test("Dance HTTP driver merges recipe JSON with explicit CLI precedence", () => {
   const options = parseArgs([
     "--execute",

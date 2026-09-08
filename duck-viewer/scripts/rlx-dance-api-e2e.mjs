@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const DEFAULT_BASE_URL = "http://127.0.0.1:63317";
@@ -49,12 +50,11 @@ export function parseArgs(argv) {
       process.exit(0);
     } else if (value === "--base-url") options.baseUrl = requiredValue(argv, ++index, value);
     else if (value === "--experiment") {
-      options.experimentId = experimentId(
+      options.experimentId = validatedExperimentId(
         requiredValue(argv, ++index, value),
         value
       );
-    }
-    else if (value === "--run") options.runName = requiredValue(argv, ++index, value);
+    } else if (value === "--run") options.runName = requiredValue(argv, ++index, value);
     else if (value === "--profile") options.profile = requiredValue(argv, ++index, value);
     else if (value === "--recipe-json") options.recipePath = requiredValue(argv, ++index, value);
     else if (value === "--timeout-seconds") {
@@ -91,7 +91,7 @@ function requiredValue(argv, index, option) {
   return value;
 }
 
-function experimentId(value, option) {
+function validatedExperimentId(value, option) {
   if (!EXPERIMENT_IDS.includes(value)) {
     throw new Error(
       `${option} must be one of: ${EXPERIMENT_IDS.join(", ")}.`
@@ -106,7 +106,7 @@ export function mergeRecipe(recipe, options) {
   }
   const recipeExperimentId = recipe.experimentId == null
     ? null
-    : experimentId(recipe.experimentId, "--recipe-json experimentId");
+    : validatedExperimentId(recipe.experimentId, "--recipe-json experimentId");
   const selectedExperimentId =
     options.experimentId ?? recipeExperimentId ?? DEFAULT_EXPERIMENT_ID;
   return {
@@ -269,7 +269,7 @@ async function waitForCompletion(options, action, recipe) {
     const active = state.activeJob;
     const ownsActiveJob =
       active?.experimentId === recipe.experimentId &&
-      active?.runName === state.runName;
+      active?.runName === recipe.runName;
     if (state.phase === "running" || ownsActiveJob) {
       const progress = state.trainingTotal > 0
         ? ` ${state.trainingSteps}/${state.trainingTotal}`
@@ -398,6 +398,7 @@ export async function main(argv = process.argv.slice(2)) {
     }
     if (options.reportPath) {
       try {
+        await mkdir(dirname(options.reportPath), { recursive: true });
         await writeFile(
           options.reportPath,
           `${JSON.stringify(report, null, 2)}\n`
