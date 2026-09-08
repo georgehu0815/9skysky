@@ -616,6 +616,24 @@
   letter-spacing: .8px;
 }
 
+.previewFrame .previewStill {
+  display: none;
+}
+
+.experimentResult > small.previewRunName {
+  display: block;
+}
+
+.previewEmpty {
+  display: grid;
+  height: 100%;
+  place-items: center;
+  padding: 12px;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+}
+
 .experimentResult > strong {
   color: #dce6ee;
   font-size: 10px;
@@ -624,6 +642,7 @@
 
 .experimentResult {
   display: flex;
+  overflow-wrap: anywhere;
   flex: 1;
   flex-direction: column;
 }
@@ -2800,6 +2819,10 @@
 
   .previewFrame video {
     display: none;
+  }
+
+  .previewFrame .previewStill {
+    display: block;
   }
 }
 

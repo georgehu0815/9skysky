@@ -269,6 +269,8 @@ try {
       const nextRun = await freshFullRunName(page, smokeRun);
       assert.equal(result.requests.length, 0, "Selecting Default full must not POST.");
       assert.equal(await page.getByLabel("Dance reference clip", { exact: true }).inputValue(), clip.path);
+      await page.getByRole("button", { name: /Advanced PPO and environment settings/ }).click();
+      assert.equal(await page.getByRole("checkbox", { name: "Continue current checkpoint", exact: true }).count(), 1);
       result.freshRunName = nextRun;
     })
   );

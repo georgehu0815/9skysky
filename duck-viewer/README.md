@@ -136,6 +136,32 @@ lab restarts.
 
 ## Studio RLX API checks
 
+The four previews under **Choose what the duck should learn** play real saved
+training rollouts, not the bundled reference GIFs. Each scenario selects the
+newest trained checkpoint with a passing skill evaluation and matching video
+provenance. Re-evaluating an older checkpoint does not make it the newest trained
+run. The displayed run name, Full video and Evaluation links identify the same
+run; reduced-motion users see its contact sheet. Without verified evidence the
+card says **No verified rollout yet**, rather than substituting an untrained
+animation. The catalog refreshes on page load and local job phase changes.
+`node scripts/verify-trained-previews.mjs` checks all four real videos in the
+browser and covers missing evidence and newer rejected-run selection.
+
+After Pipeline smoke completes, select **Default full**, then click **Start RLX**.
+Selecting a profile prepares settings; it does not start training. If the current
+run already exists, the preset selects an unused profile-suffixed name (for
+example `dance-studio-full`, then `dance-studio-full-2`) and disables continuation,
+preserving the Smoke checkpoint. **New run** prepares another fresh name without
+changing your other settings. To deliberately resume, load the existing run and
+enable **Continue current checkpoint** in Advanced settings; this control is
+available for all four scenarios. Launch errors appear beside Start RLX and take
+precedence over an older completion message. The API still rejects accidental
+checkpoint overwrites.
+
+`node scripts/verify-smoke-to-full.mjs` runs browser regressions for profile
+selection, fresh run names, pending/running feedback, and visible conflict errors.
+Its launch requests are mocked; it never starts a million-step training run.
+
 `npm test` runs isolated Node tests for RLX commands, run-owned telemetry and evaluation state, cancelled-process callbacks, and UI verdict projection. The tests use the installed TypeScript compiler and mocked subprocess/artifact I/O; they do not train policies or modify run artifacts. `npm run build` verifies the Next.js application.
 
 Studio's Smoke profile evaluates only the pipeline (`--evaluation-mode pipeline`, four control steps). Full selects `--evaluation-mode skill`; Swing uses 1,200 control steps (24 seconds). The editable `swingMinSpanDeg` recipe field defaults to 150° symmetric total span, requiring at least 75° in each direction, complete episodes, valid geometry, and tensioned strings. Evaluation starts still; training assistance settings do not become evaluation assistance.

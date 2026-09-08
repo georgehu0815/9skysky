@@ -19,6 +19,7 @@ import {
 } from "@/lib/experiments";
 import { evaluationVerdict } from "@/lib/evaluation";
 import { evidenceLabel, skillEvidence } from "@/lib/studio-evidence";
+import { availableProfileRunName, latestVerifiedRun, type SavedRun } from "@/lib/studio-run";
 import type { RlxRecipe } from "@/lib/rlx-job";
 import type { RlxTrainingHistory } from "@/lib/rlx-history";
 import { AnimPanel } from "./AnimPanel";
@@ -31,14 +32,6 @@ type Operation = "train" | "eval" | "render" | "export";
 type Phase = "idle" | "running" | "succeeded" | "failed" | "cancelled";
 
 type Recipe = RlxRecipe;
-
-interface SavedRun {
-  experimentId: ExperimentId;
-  runName: string;
-  taskPassed: boolean;
-  skillAssessed: boolean;
-  video: boolean;
-}
 
 interface JobState {
   renderVerified?: boolean;
@@ -372,6 +365,7 @@ export default function Studio() {
   const visualReviewed = reviewedEvidence === reviewIdentity;
   function setVisualReviewed(reviewed: boolean) { setReviewedEvidence(reviewed ? reviewIdentity : null); }
   const [notice, setNotice] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [pendingAction, setPendingAction] = useState<Operation | "cancel" | null>(null);
   const [now, setNow] = useState(Date.now());
@@ -582,7 +576,7 @@ export default function Studio() {
   const deployReady =
     job.artifacts.onnx && taskPassed && job.renderVerified && job.artifacts.renderSheet && visualReviewed;
   const reward = chartPoints.at(-1)?.reward ?? null;
-  const activeJob = job.activeJob;
+  const activeJob = receivedJob.activeJob;
   const anotherRunActive = Boolean(
     activeJob &&
       (activeJob.experimentId !== recipe.experimentId ||
@@ -596,7 +590,7 @@ export default function Studio() {
         : anotherRunActive
           ? "RLX busy"
           : "Start RLX";
-  const recipeActionStatus =
+  const recipeActionStatus = actionError ?? (
     pendingAction === "train"
       ? `Sending ${recipe.profile === "smoke" ? "pipeline smoke" : "full training"} request for ${recipe.runName}...`
       : anotherRunActive && activeJob
@@ -609,7 +603,7 @@ export default function Studio() {
             ? `Training failed for ${job.runName}. Open View logs for the exact error.`
             : job.phase === "cancelled" && job.operation === "train"
               ? `Training was stopped for ${job.runName}.`
-            : notice;
+            : notice);
   const rewardHistoryText = [
     `step\t${rewardIsNormalized ? "normalized_rollout_reward" : "rollout_reward"}`,
     ...chartPoints.map((point) => `${point.step}\t${point.reward}`),
@@ -619,6 +613,7 @@ export default function Studio() {
   const recipeCommand = `POST /api/rlx\n${JSON.stringify({ action: "train", recipe }, null, 2)}`;
 
   async function runAction(action: Operation | "cancel", recipeOverride?: Recipe) {
+    setActionError(null);
     setBusy(true);
     setPendingAction(action);
     let activeRecipe = recipeOverride ?? recipe;
@@ -695,7 +690,9 @@ export default function Studio() {
         setNotice(`${actionLabel} started. Status will refresh automatically.`);
       }
     } catch (error) {
-      setNotice(error instanceof Error ? error.message : "The action failed.");
+      const message = error instanceof Error ? error.message : "The action failed.";
+      setActionError(message);
+      setNotice(message);
     } finally {
       setPendingAction(null);
       setBusy(false);
@@ -703,6 +700,7 @@ export default function Studio() {
   }
 
   function selectExperiment(experimentId: ExperimentId) {
+    setActionError(null);
     setSelectedExperimentId(experimentId);
     setRecipe(recipeDefaults(experimentId));
     setVisualReviewed(false);
@@ -710,6 +708,7 @@ export default function Studio() {
   }
 
   async function loadSavedRun(experimentId: ExperimentId, runName: string) {
+    setActionError(null);
     setBusy(true);
     try {
       const response = await fetch(`/api/rlx?experiment=${experimentId}&run=${encodeURIComponent(runName)}`, { cache: "no-store" });
@@ -742,20 +741,46 @@ export default function Studio() {
     window.open(selectedExperiment.video, "_blank", "noopener,noreferrer");
   }
 
-  function trainRecommendedRecipe() {
-    const fullRecipe: Recipe = {
+  function recipeForProfile(profile: Recipe["profile"]): Recipe {
+    const reserved = savedRuns.filter((run) => run.experimentId === recipe.experimentId).map((run) => run.runName);
+    if (job.artifacts.checkpoint) reserved.push(recipe.runName);
+    return {
       ...recipe,
-      profile: "full",
-      ...fullHorizon(recipe.experimentId, selectedDanceDuration),
-      totalTimesteps: Math.max(
-        recipe.totalTimesteps,
-        selectedExperiment.fullTimesteps
-      ),
+      profile,
+      runName: availableProfileRunName(recipe.runName, profile, reserved),
+      ...(profile === "full" ? fullHorizon(recipe.experimentId, selectedDanceDuration) : {
+        numSteps: 2, numMinibatches: 1, maxEpisodeS: 1, evalSteps: 4,
+      }),
+      totalTimesteps: profile === "full" ? selectedExperiment.fullTimesteps : 4,
+      numEnvs: profile === "full" ? selectedExperiment.fullEnvs : 2,
+      resumeFromCheckpoint: false,
+      domainRand: profile === "full",
+      obsNoise: profile === "full",
+      actionDelay: profile === "full",
+      randomYaw: profile === "full",
+    };
+  }
+
+  function selectTrainingProfile(profile: Recipe["profile"]) {
+    const next = recipeForProfile(profile);
+    setRecipe(next);
+    setActionError(null);
+    setNotice(`${profile === "full" ? "Full training" : "Pipeline smoke"} selected for ${next.runName}. ${next.runName !== recipe.runName ? `Saved run ${recipe.runName} is preserved. ` : ""}Click Start RLX to begin.`);
+  }
+
+  function prepareFreshRun() {
+    const reserved = savedRuns.filter((run) => run.experimentId === recipe.experimentId).map((run) => run.runName);
+    const runName = availableProfileRunName(recipe.runName, recipe.profile, [...reserved, recipe.runName]);
+    setRecipe({ ...recipe, runName, resumeFromCheckpoint: false });
+    setActionError(null);
+    setNotice(`New run ${runName} is ready. Previous checkpoints are preserved. Click Start RLX to begin.`);
+  }
+
+  function trainRecommendedRecipe() {
+    const fullRecipe = {
+      ...recipeForProfile("full"),
+      totalTimesteps: Math.max(recipe.totalTimesteps, selectedExperiment.fullTimesteps),
       numEnvs: Math.max(recipe.numEnvs, selectedExperiment.fullEnvs),
-      domainRand: true,
-      obsNoise: true,
-      actionDelay: true,
-      randomYaw: true,
     };
     setRecipe(fullRecipe);
     void runAction("train", fullRecipe);
@@ -960,7 +985,7 @@ export default function Studio() {
               <p className={styles.eyebrow}>MACOS RLX RECIPES</p>
               <h2 id="experiment-catalog-title">Choose what the duck should learn</h2>
             </div>
-            <span>Reference previews are published simulation evidence.</span>
+            <span>Latest successful trained rollouts · simulation only.</span>
           </div>
           <div className={styles.experimentTable} role="radiogroup" aria-label="Training experiments">
             <div className={styles.experimentHeader} aria-hidden="true">
@@ -968,6 +993,9 @@ export default function Studio() {
             </div>
             {EXPERIMENTS.map((experiment) => {
               const selected = experiment.id === selectedExperimentId;
+              const previewRun = latestVerifiedRun(savedRuns, experiment.id);
+              const runQuery = previewRun ? new URLSearchParams({ experiment: experiment.id, run: previewRun.runName }).toString() : null;
+              const videoHref = previewRun ? `/api/rlx/artifact?${runQuery}&kind=video&inline=1&v=${encodeURIComponent(previewRun.renderEvidenceId!)}` : null;
               return (
                 <div
                   role="radio"
@@ -1004,41 +1032,49 @@ export default function Studio() {
                     <small>{experiment.goal}</small>
                   </span>
                   <span className={styles.previewFrame}>
-                    {experiment.preview.endsWith(".mp4") ? (
-                      <video
-                        src={experiment.preview}
-                        poster={experiment.poster}
-                        autoPlay={selected}
-                        muted
-                        loop
-                        playsInline
-                      />
+                    {previewRun && videoHref ? (
+                      <>
+                        <video
+                          key={videoHref}
+                          src={videoHref}
+                          aria-label={`${experiment.shortTitle} trained rollout: ${previewRun.runName}`}
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                        />
+                        <picture className={styles.previewStill}><img src={`/api/rlx/artifact?${runQuery}&kind=sheet&v=${encodeURIComponent(previewRun.renderEvidenceId!)}`} alt={`${experiment.shortTitle} trained rollout contact sheet`} /></picture>
+                      </>
                     ) : (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={experiment.preview} alt="" />
+                      <span className={styles.previewEmpty}>No verified rollout yet</span>
                     )}
-                    <b>REFERENCE</b>
+                    {previewRun && <b>TRAINED · PASSED</b>}
                   </span>
                   <span className={styles.experimentResult}>
-                    <strong>{experiment.result}</strong>
-                    <small>{experiment.task}</small>
+                    <strong>{previewRun ? "Latest successful trained policy" : "Verified training evidence unavailable"}</strong>
+                    {previewRun && <small className={styles.previewRunName}>{previewRun.runName}</small>}
+                    <small>{previewRun ? "Matched evaluation and rollout · simulation only" : experiment.task}</small>
                     <span className={styles.referenceLinks}>
-                      <a
-                        href={experiment.video}
-                        target="_blank"
-                        rel="noreferrer"
-                        onClick={(event) => event.stopPropagation()}
-                      >
-                        Full video ↗
-                      </a>
-                      <a
-                        href={`/experiments/${experiment.id}/evaluation.json`}
-                        target="_blank"
-                        rel="noreferrer"
-                        onClick={(event) => event.stopPropagation()}
-                      >
-                        Evaluation ↗
-                      </a>
+                      {previewRun && videoHref && (
+                        <>
+                          <a
+                            href={videoHref}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            Full video ↗
+                          </a>
+                          <a
+                            href={`/api/rlx?${runQuery}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            Evaluation ↗
+                          </a>
+                        </>
+                      )}
                       <a
                         href={`/guides/microduck-studio-experiments-guide.pdf#${experiment.guideAnchor}`}
                         target="_blank"
@@ -1111,7 +1147,7 @@ export default function Studio() {
                 <button
                   className={`${styles.button} ${styles.primary}`}
                   onClick={trainRecommendedRecipe}
-                  disabled={busy || job.phase === "running"}
+                  disabled={busy || job.phase === "running" || Boolean(activeJob)}
                 >
                   <Icon>✦</Icon> Train {selectedExperiment.shortTitle.toLowerCase()}
                 </button>
@@ -1119,7 +1155,7 @@ export default function Studio() {
                 <button
                   className={`${styles.button} ${styles.primary}`}
                   onClick={() => runAction("eval")}
-                  disabled={busy || job.phase === "running"}
+                  disabled={busy || job.phase === "running" || Boolean(activeJob)}
                 >
                   <Icon>✓</Icon> Evaluate policy
                 </button>
@@ -1127,7 +1163,7 @@ export default function Studio() {
                 <button
                   className={`${styles.button} ${styles.primary}`}
                   onClick={() => runAction("render")}
-                  disabled={busy || job.phase === "running"}
+                  disabled={busy || job.phase === "running" || Boolean(activeJob)}
                 >
                   <Icon>◫</Icon> Render rollout
                 </button>
@@ -1450,12 +1486,13 @@ export default function Studio() {
                 <span>Run name</span>
                 <input
                   value={recipe.runName}
-                  onChange={(event) => setRecipe((current) => ({ ...current, runName: event.target.value }))}
+                  onChange={(event) => { setActionError(null); setRecipe((current) => ({ ...current, runName: event.target.value })); }}
                   pattern="[A-Za-z0-9_-]+"
                   maxLength={48}
                   required
                 />
               </label>
+              <button type="button" className={styles.button} onClick={prepareFreshRun} disabled={busy || Boolean(activeJob)}>New run</button>
               <label className={styles.field}>
                 <span>Saved runs</span>
                 <select aria-label="Saved runs" value="" disabled={busy} onChange={(event) => { if (event.target.value) void loadSavedRun(recipe.experimentId, event.target.value); }}>
@@ -1489,20 +1526,8 @@ export default function Studio() {
                 <button
                   type="button"
                   className={recipe.profile === "smoke" ? styles.selected : ""}
-                  onClick={() => setRecipe((current) => ({
-                    ...current,
-                    profile: "smoke",
-                    totalTimesteps: 4,
-                    numEnvs: 2,
-                    numSteps: 2,
-                    numMinibatches: 1,
-                    maxEpisodeS: 1,
-                    evalSteps: 4,
-                    domainRand: false,
-                    obsNoise: false,
-                    actionDelay: false,
-                    randomYaw: false,
-                  }))}
+                  onClick={() => selectTrainingProfile("smoke")}
+                  disabled={busy || Boolean(activeJob)}
                 >
                   Pipeline smoke<small>4 steps · wiring only</small>
                 </button>
@@ -1517,21 +1542,13 @@ export default function Studio() {
                       ? styles.selected
                       : ""
                   }
-                  onClick={() => setRecipe((current) => ({
-                    ...current,
-                    profile: "full",
-                    ...fullHorizon(current.experimentId, selectedDanceDuration),
-                    totalTimesteps: selectedExperiment.fullTimesteps,
-                    numEnvs: selectedExperiment.fullEnvs,
-                    domainRand: true,
-                    obsNoise: true,
-                    actionDelay: true,
-                    randomYaw: true,
-                  }))}
+                  onClick={() => selectTrainingProfile("full")}
+                  disabled={busy || Boolean(activeJob)}
                 >
                   Default full<small>{formatNumber(selectedExperiment.fullTimesteps)} steps · randomized</small>
                 </button>
               </div>
+              <p className={styles.evidenceNote}>Choose a profile first, then click Start RLX. Profile presets prepare fresh training and preserve existing checkpoints under their original run names.</p>
               {recipe.experimentId === "swing" && (
                 <section className={styles.swingPlan} aria-labelledby="swing-plan-title">
                   <div className={styles.swingPlanHead}>
@@ -1645,7 +1662,7 @@ export default function Studio() {
                     ] as const).map(([key, label, minimum, maximum, step]) => <label className={styles.field} key={key}><span>{label}</span><input type="number" min={minimum} max={maximum} step={step} value={recipe[key]} onChange={(event) => setRecipe((current) => ({ ...current, [key]: Number(event.target.value) }))} /></label>)}
                     <Toggle label="Normalize rewards" checked={recipe.normalizeRewards} onChange={(checked) => setRecipe((current) => ({ ...current, normalizeRewards: checked }))} />
                     <Toggle label="Freeze observation normalization" checked={recipe.freezeObservationNormalization} onChange={(checked) => setRecipe((current) => ({ ...current, freezeObservationNormalization: checked }))} />
-                    {recipe.experimentId !== "swing" && <Toggle label="Continue current checkpoint" checked={recipe.resumeFromCheckpoint} onChange={(checked) => setRecipe((current) => ({ ...current, resumeFromCheckpoint: checked }))} />}
+                    <Toggle label="Continue current checkpoint" checked={recipe.resumeFromCheckpoint} onChange={(checked) => setRecipe((current) => ({ ...current, resumeFromCheckpoint: checked }))} />
                     {recipe.experimentId === "dance" && <label className={styles.field}><span>Dance pose sigma (blank uses default)</span><input type="number" min="0.001" step="0.01" value={recipe.dancePoseSigma ?? ""} onChange={(event) => setRecipe((current) => ({ ...current, dancePoseSigma: event.target.value === "" ? null : Number(event.target.value) }))} /></label>}
                     {(recipe.experimentId === "running" || recipe.experimentId === "stilts") && <label className={styles.field}><span>Fixed forward command (m/s; blank samples commands)</span><input type="number" min="0.01" max="1.5" step="0.01" value={recipe.locomotionForwardCommand ?? ""} onChange={(event) => setRecipe((current) => ({ ...current, locomotionForwardCommand: event.target.value === "" ? null : Number(event.target.value) }))} /></label>}
                     <label className={styles.field}><span>Total timesteps</span><input type="number" min="4" max="40000000" value={recipe.totalTimesteps} onChange={(event) => setRecipe((current) => ({ ...current, totalTimesteps: Number(event.target.value) }))} /></label>
@@ -1673,7 +1690,6 @@ export default function Studio() {
                         <label className={styles.field}><span>Initial rate assistance (rad/s)</span><input type="number" min="0" max="1" step="0.01" value={recipe.swingInitialRateRadS} onChange={(event) => setRecipe((current) => ({ ...current, swingInitialRateRadS: Number(event.target.value) }))} /></label>
                         <label className={styles.field}><span>Skill target: symmetric total span (degrees)</span><input type="number" min="1" max="180" step="1" value={recipe.swingMinSpanDeg} onChange={(event) => setRecipe((current) => ({ ...current, swingMinSpanDeg: Number(event.target.value) }))} /></label>
                         <Toggle label="Planar discovery actions" checked={recipe.swingPlanarActions} onChange={(checked) => setRecipe((current) => ({ ...current, swingPlanarActions: checked }))} />
-                        <Toggle label="Continue current checkpoint" checked={recipe.resumeFromCheckpoint} onChange={(checked) => setRecipe((current) => ({ ...current, resumeFromCheckpoint: checked }))} />
                       </>
                     )}
                   </div>
@@ -1756,15 +1772,15 @@ export default function Studio() {
               <p
                 id="rlx-action-status"
                 className={`${styles.recipeActionStatus} ${
-                  job.phase === "failed" && job.operation === "train"
+                  actionError || (job.phase === "failed" && job.operation === "train")
                     ? styles.recipeActionError
                     : ""
                 }`}
-                role="status"
+                role={actionError ? "alert" : "status"}
                 aria-live="polite"
               >
                 <i
-                  className={
+                  className={actionError ? styles.statusError :
                     pendingAction === "train" || job.phase === "running"
                       ? styles.statusWorking
                       : job.phase === "failed"
@@ -1788,7 +1804,7 @@ export default function Studio() {
                 <p>Smoke checks the pipeline (4 steps); full evaluates the skill. Swing requires all 1,200 steps (24 s).</p>
                 {evaluation && <p>Saved evaluation scope: {verdict.scope ?? "unknown (legacy report)"}{verdict.swingMinSpanDeg == null ? "" : ` · target ${verdict.swingMinSpanDeg}° total / ${verdict.swingMinSpanDeg / 2}° each side`}. Current recipe edits do not change saved results.</p>}
               </div>
-              <button className={styles.textButton} onClick={() => runAction("eval")} disabled={busy || job.phase === "running" || !job.artifacts.checkpoint}>
+              <button className={styles.textButton} onClick={() => runAction("eval")} disabled={busy || job.phase === "running" || Boolean(activeJob) || !job.artifacts.checkpoint}>
                 Run evaluation ↗
               </button>
             </div>
@@ -1847,11 +1863,11 @@ export default function Studio() {
                 </tbody>
               </table>
               <div className={styles.evaluationActions}>
-                <button className={styles.button} onClick={() => runAction("render")} disabled={busy || job.phase === "running" || !job.artifacts.checkpoint}>
+                <button className={styles.button} onClick={() => runAction("render")} disabled={busy || job.phase === "running" || Boolean(activeJob) || !job.artifacts.checkpoint}>
                   <Icon>◫</Icon> Render rollout
                 </button>
                 {!job.artifacts.onnx && job.artifacts.checkpoint && (
-                  <button className={styles.button} onClick={() => runAction("export")} disabled={busy || job.phase === "running"}>
+                  <button className={styles.button} onClick={() => runAction("export")} disabled={busy || job.phase === "running" || Boolean(activeJob)}>
                     <Icon>↓</Icon> Export ONNX
                   </button>
                 )}

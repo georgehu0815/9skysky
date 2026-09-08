@@ -18,15 +18,20 @@ export async function GET() {
           if (sanitizeRunName(entry.name) !== entry.name) return null;
           const directory = path.join(root, entry.name);
           if (await realpath(directory) !== directory) return null;
-          const modified = await stat(path.join(directory, "evaluation.json"));
+          const modified = await stat(path.join(directory, "evaluation.json"))
+            .catch(() => stat(artifactPath(experiment.id, entry.name, "checkpoint")));
+          const trained = await stat(artifactPath(experiment.id, entry.name, "checkpoint")).catch(() => null);
           const state = await snapshot(experiment.id, entry.name);
           return {
             experimentId: experiment.id,
             runName: entry.name,
             modifiedAt: modified.mtime.toISOString(),
+            trainedAt: trained?.mtime.toISOString() ?? null,
             ...evaluationVerdict(state.evaluation, experiment.id),
             video: state.artifacts.renderVideo,
             checkpoint: state.artifacts.checkpoint,
+            renderVerified: state.renderVerified,
+            renderEvidenceId: state.renderEvidenceId,
           };
         } catch {
           return null;
