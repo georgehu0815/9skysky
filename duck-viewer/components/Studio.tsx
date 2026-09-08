@@ -73,6 +73,7 @@ interface JobState {
   result: Record<string, unknown> | null;
   evaluation: Record<string, unknown> | null;
   rewardHistory: RewardPoint[];
+  normalizeRewards: boolean;
   trainingSteps: number;
   trainingTotal: number;
   artifacts: {
@@ -139,6 +140,7 @@ const EMPTY_JOB: JobState = {
   result: null,
   evaluation: null,
   rewardHistory: [],
+  normalizeRewards: false,
   trainingSteps: 0,
   trainingTotal: 0,
   artifacts: {
@@ -461,6 +463,10 @@ export default function Studio() {
   const chart = rewardChart(chartPoints, trainingTotal);
   const hasTrainingTelemetry =
     rlxTrainingActive || labTrainingActive || chartPoints.length > 0;
+  const rewardIsNormalized = useRlxTelemetry && job.normalizeRewards;
+  const rewardHistoryLabel = rewardIsNormalized
+    ? "Normalized rollout reward history"
+    : "Rollout reward history";
   const evaluation = job.evaluation;
   const recipeMetric = recipeMetricNumber(evaluation, selectedExperiment);
   const verdict = evaluationVerdict(evaluation, selectedExperimentId);
@@ -524,7 +530,7 @@ export default function Studio() {
               ? `Training was stopped for ${job.runName}.`
             : notice;
   const rewardHistoryText = [
-    "step\treward",
+    `step\t${rewardIsNormalized ? "normalized_rollout_reward" : "rollout_reward"}`,
     ...chartPoints.map((point) => `${point.step}\t${point.reward}`),
   ].join("\n");
   const activePolicies = policies.filter((policy) => policy.group === "runs").length;
@@ -1154,9 +1160,15 @@ export default function Studio() {
               </div>
               <div className={styles.metricGrid}>
                 <div>
-                  <span>Training reward</span>
+                  <span>{rewardIsNormalized ? "Normalized training reward" : "Training reward"}</span>
                   <strong>{formatReward(reward)}</strong>
-                  <small>{reward == null ? "Waiting for the first rollout" : "Latest normalized rollout mean"}</small>
+                  <small>
+                    {reward == null
+                      ? "Waiting for the first rollout"
+                      : rewardIsNormalized
+                        ? "Latest normalized rollout-buffer mean"
+                        : "Latest rollout mean"}
+                  </small>
                 </div>
                 <div>
                   <span>Evaluation score</span>
@@ -1201,7 +1213,7 @@ export default function Studio() {
               </div>
               <div className={styles.chartHead}>
                 <div className={styles.chartTitle}>
-                  <strong>Reward history</strong>
+                  <strong>{rewardHistoryLabel}</strong>
                   <button
                     type="button"
                     className={styles.historyIndicator}
@@ -1213,14 +1225,19 @@ export default function Studio() {
                     <b>{chartPoints.length}</b>
                   </button>
                 </div>
-                <span><i />Training reward only · evaluate exported ONNX separately</span>
+                <span>
+                  <i />
+                  {rewardIsNormalized
+                    ? "Normalized PPO rollout curve · evaluate exported ONNX separately"
+                    : "PPO rollout curve · evaluate exported ONNX separately"}
+                </span>
               </div>
               <svg
                 className={styles.chart}
                 viewBox="0 0 420 128"
                 preserveAspectRatio="none"
                 role="img"
-                aria-label="Training reward history"
+                aria-label={rewardHistoryLabel}
                 data-reward-points={chartPoints.length}
               >
                 <g className={styles.gridLines}>
@@ -1769,10 +1786,10 @@ export default function Studio() {
           <header className={styles.rewardHistoryHeader}>
             <div>
               <p className={styles.eyebrow}>TRAINING TELEMETRY</p>
-              <h2 id="reward-history-title">Reward history</h2>
+              <h2 id="reward-history-title">{rewardHistoryLabel}</h2>
               <p>
                 {chartPoints.length
-                  ? `${chartPoints.length} available rollout samples for ${recipe.runName}.`
+                  ? `${chartPoints.length} available ${rewardIsNormalized ? "normalized " : ""}rollout samples for ${recipe.runName}.`
                   : `No rollout samples are available for ${recipe.runName} yet.`}
               </p>
             </div>
@@ -1803,7 +1820,7 @@ export default function Studio() {
                 <tr>
                   <th>#</th>
                   <th>Training step</th>
-                  <th>Mean rollout reward</th>
+                  <th>{rewardIsNormalized ? "Normalized mean rollout reward" : "Mean rollout reward"}</th>
                 </tr>
               </thead>
               <tbody>

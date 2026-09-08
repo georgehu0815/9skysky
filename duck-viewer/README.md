@@ -142,6 +142,49 @@ Studio's Smoke profile evaluates only the pipeline (`--evaluation-mode pipeline`
 
 The API saves the Python report, including its source hash, actual evaluation settings, pipeline and skill verdicts, alongside `evaluation_request` containing the submitted normalized recipe, evaluation mode, horizon, and Swing target. The UI displays the saved scope and target and uses evaluator verdicts; finite output or a pipeline pass never establishes Swing skill. Export requires a checkpoint and sends the export parser's required recipe plus checkpoint/output arguments, without environment flags. Switching runs clears in-memory evidence; evaluating or rendering the same run preserves its training history. Cancelled or superseded process callbacks cannot publish results into a newer job.
 
+Dance imitation uses the same API sequence, with a 500-step Full evaluation and a 120-second render. A Dance report marked `skill_status: "not_assessed"` remains unaccepted even when its finite rollout passes; the evaluator must publish an explicit Dance skill verdict before the UI can treat it as learned choreography. The opt-in HTTP driver below launches real jobs, polls each operation, verifies the resulting API state, and can save one JSON evidence report. It refuses to launch anything unless `--execute` is present.
+
+```bash
+# Start Studio separately, then run only when the training/evidence owner is ready.
+npm run e2e:rlx:dance -- \
+  --execute \
+  --base-url http://127.0.0.1:63317 \
+  --recipe-json /tmp/dance-full-recipe.json \
+  --report /tmp/dance-api-e2e-report.json
+
+# Reuse an existing checkpoint and run only eval -> render -> export.
+npm run e2e:rlx:dance -- --execute --skip-train --run dance-api-e2e
+```
+
+The recipe JSON is merged with `{ "experimentId": "dance" }`; explicit
+`--run` and `--profile` arguments override the file. Supported API overrides
+include `danceClip`, `maxEpisodeS`, `numSteps`, `numMinibatches`, `evalSteps`,
+`renderSeconds`, `dancePoseSigma`, `initialStd`, `normalizeRewards`, and
+`checkpointInterval`.
+`danceClip` must name an existing file under the workspace `dance-clip/`
+directory or `rlx/artifacts/`. `dancePoseSigma` is Dance-only and, when
+provided, must be a finite number greater than zero. The last three controls
+are train-only.
+
+```json
+{
+  "runName": "dance-full-01",
+  "profile": "full",
+  "danceClip": "dance-clip/derived/dance.json",
+  "totalTimesteps": 1000000,
+  "numEnvs": 16,
+  "numSteps": 64,
+  "numMinibatches": 8,
+  "maxEpisodeS": 12,
+  "evalSteps": 1200,
+  "renderSeconds": 120,
+  "dancePoseSigma": 0.2,
+  "initialStd": 0.3,
+  "normalizeRewards": true,
+  "checkpointInterval": 100000
+}
+```
+
 ## Notes for future work
 
 - The scene payload is ~20 MB raw (gzipped over the wire, one-time). If it ever

@@ -1,4 +1,5 @@
 import importlib.util
+import inspect
 import json
 import subprocess
 import sys
@@ -8,17 +9,60 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+import rlx.environments.microduck_recipes as recipe_module
 from rlx.environments.microduck_recipes import (
     RECIPES,
     default_stilt_mass_kg,
     get_recipe,
+    make_recipe_env,
     make_single_recipe_env,
+    recipe_metrics,
     validate_reward_weights,
     validate_stilt_options,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "examples" / "ppo_microduck_studio.py"
+
+
+def write_v3_dance_clip(path: Path) -> Path:
+    path.write_text(
+        json.dumps(
+            {
+                "version": 3,
+                "name": "Custom v3 dance",
+                "duration": 0.04,
+                "loop": True,
+                "keys": [
+                    {
+                        "t": 0.0,
+                        "joints": [0.0] * 14,
+                        "rootPitch": 0.0,
+                        "rootYaw": 0.2,
+                        "rootRoll": -0.1,
+                        "rootPosition": [0.0, 0.0, 0.12],
+                    },
+                    {
+                        "t": 0.02,
+                        "joints": [0.1] * 14,
+                        "rootPitch": 0.05,
+                        "rootYaw": 0.3,
+                        "rootRoll": -0.2,
+                        "rootPosition": [0.01, 0.0, 0.13],
+                    },
+                    {
+                        "t": 0.04,
+                        "joints": [0.0] * 14,
+                        "rootPitch": 0.0,
+                        "rootYaw": 0.2,
+                        "rootRoll": -0.1,
+                        "rootPosition": [0.0, 0.0, 0.12],
+                    },
+                ],
+            }
+        )
+    )
+    return path
 
 
 def load_studio_example():
@@ -63,6 +107,249 @@ def test_reward_weight_validation_is_recipe_specific_and_finite():
         validate_reward_weights("dance", {"pose_match": -1})
     with pytest.raises(ValueError, match="finite and non-negative"):
         validate_reward_weights("running", {"keep_pace": float("nan")})
+
+
+def test_dance_recipe_loads_explicit_v3_clip_path_without_fallback(tmp_path):
+    clip_path = write_v3_dance_clip(tmp_path / "custom.clip.json")
+    env = make_single_recipe_env(
+        "dance",
+        dance_clip=str(clip_path),
+        seed=3,
+        domain_rand=False,
+        obs_noise=False,
+        action_delay=False,
+        random_yaw=False,
+        max_episode_s=0.1,
+    )
+    try:
+        assert env.unwrapped.clip.name == "Custom v3 dance"
+        assert env.unwrapped.clip.steps == 2
+        np.testing.assert_allclose(env.unwrapped.clip.at(1)[0], 0.1)
+    finally:
+        env.close()
+
+
+def test_dance_recipe_keeps_bundled_120bpm_clip_by_default():
+    env = make_single_recipe_env(
+        "dance",
+        seed=3,
+        domain_rand=False,
+        obs_noise=False,
+        action_delay=False,
+        random_yaw=False,
+        max_episode_s=0.1,
+    )
+    try:
+        assert env.unwrapped.clip.name == "dance-120bpm"
+    finally:
+        env.close()
+
+
+def test_dance_recipe_rejects_missing_custom_clip_instead_of_using_default(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        make_single_recipe_env("dance", dance_clip=tmp_path / "missing.clip.json")
+
+
+def test_dance_clip_argument_is_rejected_for_other_recipes(tmp_path):
+    clip_path = write_v3_dance_clip(tmp_path / "custom.clip.json")
+    with pytest.raises(ValueError, match="only valid for the dance recipe"):
+        make_single_recipe_env("running", dance_clip=clip_path)
+    with pytest.raises(ValueError, match="only valid for the dance recipe"):
+        make_recipe_env("running", dance_clip=clip_path)
+
+
+def test_dance_pose_sigma_factory_defaults_are_opt_in():
+    assert (
+        inspect.signature(make_single_recipe_env)
+        .parameters["dance_pose_sigma"]
+        .default
+        is None
+    )
+    assert (
+        inspect.signature(make_recipe_env).parameters["dance_pose_sigma"].default
+        is None
+    )
+
+
+@pytest.mark.parametrize(
+    "invalid_sigma",
+    [0.0, -0.1, float("nan"), float("inf"), float("-inf")],
+)
+def test_dance_pose_sigma_must_be_finite_and_positive(invalid_sigma):
+    with pytest.raises(ValueError, match="finite and positive"):
+        make_single_recipe_env("dance", dance_pose_sigma=invalid_sigma)
+    with pytest.raises(ValueError, match="finite and positive"):
+        make_recipe_env("dance", dance_pose_sigma=invalid_sigma)
+
+
+@pytest.mark.parametrize("recipe", ["running", "stilts", "swing"])
+def test_dance_pose_sigma_is_rejected_for_other_recipes(recipe):
+    with pytest.raises(ValueError, match="only valid for the dance recipe"):
+        make_single_recipe_env(recipe, dance_pose_sigma=0.15)
+    with pytest.raises(ValueError, match="only valid for the dance recipe"):
+        make_recipe_env(recipe, dance_pose_sigma=0.15)
+
+
+def test_per_joint_dance_pose_match_formula_bounds_and_dynamic_ranking():
+    references = np.array(
+        [
+            [-0.3, -0.15, 0.0, 0.15, 0.3],
+            [-0.15, 0.0, 0.15, 0.3, -0.3],
+            [0.0, 0.15, 0.3, -0.3, -0.15],
+            [0.15, 0.3, -0.3, -0.15, 0.0],
+        ],
+        dtype=float,
+    )
+
+    class FakeClip:
+        def at(self, step):
+            return references[step], 0.0
+
+    env = SimpleNamespace(clip=FakeClip(), step_count=0)
+    sigma = 0.15
+    tracked_scores = []
+    constant_scores = []
+    constant_pose = references.mean(axis=0)
+    for step, target in enumerate(references):
+        env.step_count = step
+        env._joint_qpos = lambda target=target: target.copy()
+        tracked_scores.append(
+            recipe_module._per_joint_dance_pose_match(env, sigma=sigma)
+        )
+        env._joint_qpos = lambda: constant_pose.copy()
+        constant_scores.append(
+            recipe_module._per_joint_dance_pose_match(env, sigma=sigma)
+        )
+
+    assert tracked_scores == pytest.approx([1.0] * len(references))
+    assert all(0.0 <= score <= 1.0 for score in constant_scores)
+    assert np.mean(tracked_scores) > np.mean(constant_scores)
+
+    env.step_count = 0
+    current = references[0] + np.array([0.0, sigma, -sigma, 2 * sigma, -2 * sigma])
+    env._joint_qpos = lambda: current
+    expected = np.mean(
+        np.exp(-np.square((current - references[0]) / sigma))
+    )
+    assert recipe_module._per_joint_dance_pose_match(
+        env, sigma=sigma
+    ) == pytest.approx(expected)
+
+
+def test_dance_pose_sigma_substitution_is_instance_local_and_preserves_term_row():
+    env_kwargs = {
+        "seed": 3,
+        "domain_rand": False,
+        "obs_noise": False,
+        "action_delay": False,
+        "random_yaw": False,
+        "max_episode_s": 0.1,
+    }
+    default_env = make_single_recipe_env("dance", **env_kwargs)
+    custom_env = make_single_recipe_env(
+        "dance", dance_pose_sigma=0.15, **env_kwargs
+    )
+    fresh_default_env = make_single_recipe_env("dance", **env_kwargs)
+    try:
+        default_env.reset(seed=3)
+        custom_env.reset(seed=3)
+        fresh_default_env.reset(seed=3)
+
+        default_row = next(
+            row for row in default_env.unwrapped._term_rows if row[0] == "pose_match"
+        )
+        custom_row = next(
+            row for row in custom_env.unwrapped._term_rows if row[0] == "pose_match"
+        )
+        fresh_default_row = next(
+            row
+            for row in fresh_default_env.unwrapped._term_rows
+            if row[0] == "pose_match"
+        )
+
+        assert custom_row[:3] == default_row[:3]
+        assert fresh_default_row[3] is default_row[3]
+        assert custom_row[3] is not default_row[3]
+
+        target, _ = default_env.unwrapped.clip.at(default_env.unwrapped.step_count)
+        current = default_env.unwrapped._joint_qpos()
+        squared_error_sum = float(np.square(current - target).sum())
+        expected_default = 0.5 * np.exp(
+            -squared_error_sum / 6.0**2
+        ) + 0.5 * np.exp(-squared_error_sum / 2.0**2)
+        assert default_row[3](default_env.unwrapped) == pytest.approx(
+            expected_default
+        )
+
+        custom_target, _ = custom_env.unwrapped.clip.at(
+            custom_env.unwrapped.step_count
+        )
+        custom_current = custom_env.unwrapped._joint_qpos()
+        expected_custom = np.mean(
+            np.exp(-np.square((custom_current - custom_target) / 0.15))
+        )
+        assert custom_row[3](custom_env.unwrapped) == pytest.approx(expected_custom)
+        _, custom_terms = custom_env.unwrapped._compute_reward()
+        assert custom_terms[custom_row[1]] == pytest.approx(
+            custom_row[2] * expected_custom
+        )
+    finally:
+        default_env.close()
+        custom_env.close()
+        fresh_default_env.close()
+
+
+def test_vector_dance_recipe_uses_explicit_v3_clip_path(tmp_path):
+    clip_path = write_v3_dance_clip(tmp_path / "vector.clip.json")
+    env = make_recipe_env(
+        "dance",
+        num_envs=1,
+        backend="dummy",
+        dance_clip=clip_path,
+        dance_pose_sigma=0.2,
+        seed=5,
+        domain_rand=False,
+        obs_noise=False,
+        action_delay=False,
+        random_yaw=False,
+        max_episode_s=0.1,
+    )
+    try:
+        dance_env = env.envs.envs[0].unwrapped
+        assert dance_env.clip.name == "Custom v3 dance"
+        pose_row = next(row for row in dance_env._term_rows if row[0] == "pose_match")
+        assert pose_row[3].keywords == {"sigma": 0.2}
+    finally:
+        env.close()
+
+
+def test_dance_recipe_metrics_include_pose_and_dynamic_tracking_errors():
+    class FakeClip:
+        steps = 4
+        duration = 0.08
+
+        def at(self, step):
+            return np.full(14, step * 0.02), 0.0
+
+    env = SimpleNamespace(
+        clip=FakeClip(),
+        step_count=2,
+        _joint_qpos=lambda: np.full(14, 0.03),
+        _joint_vel=lambda: np.full(14, 0.75),
+        _projected_gravity=lambda: np.array([0.0, 0.0, -0.8]),
+        _trunk_xpos=np.array([0.0, 0.0, 0.22]),
+    )
+
+    metrics = recipe_metrics(env, "dance")
+
+    assert metrics == pytest.approx(
+        {
+            "upright": 0.8,
+            "height_m": 0.22,
+            "pose_rmse_rad": 0.01,
+            "pose_velocity_rmse_rad_s": 0.25,
+        }
+    )
 
 
 def test_recipe_artifact_names_and_argument_defaults(tmp_path):

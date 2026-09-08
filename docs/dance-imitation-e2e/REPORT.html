@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Microduck Dance Imitation — End-to-End Evidence</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="print.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Microduck Dance Imitation — End-to-End Evidence</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#microduck-dance-imitation-end-to-end-evidence"
+id="toc-microduck-dance-imitation-end-to-end-evidence">Microduck Dance
+Imitation: End-to-End Evidence</a>
+<ul>
+<li><a href="#1-executive-result" id="toc-1-executive-result">1.
+Executive result</a></li>
+<li><a href="#2-existing-system-and-implementation-changes"
+id="toc-2-existing-system-and-implementation-changes">2. Existing system
+and implementation changes</a></li>
+<li><a href="#3-reference-and-successful-training-recipe"
+id="toc-3-reference-and-successful-training-recipe">3. Reference and
+successful training recipe</a></li>
+<li><a href="#4-experiment-history-failures-were-not-hidden"
+id="toc-4-experiment-history-failures-were-not-hidden">4. Experiment
+history: failures were not hidden</a></li>
+<li><a href="#5-acceptance-criteria-and-deterministic-results"
+id="toc-5-acceptance-criteria-and-deterministic-results">5. Acceptance
+criteria and deterministic results</a></li>
+<li><a href="#6-reward-and-loss-evidence"
+id="toc-6-reward-and-loss-evidence">6. Reward and loss evidence</a></li>
+<li><a href="#7-video-and-api-verification"
+id="toc-7-video-and-api-verification">7. Video and API
+verification</a></li>
+<li><a href="#8-why-this-is-genuine-ppo-learning"
+id="toc-8-why-this-is-genuine-ppo-learning">8. Why this is genuine PPO
+learning</a></li>
+<li><a href="#9-regression-results-and-remaining-limits"
+id="toc-9-regression-results-and-remaining-limits">9. Regression results
+and remaining limits</a></li>
+<li><a href="#10-reproduce-the-test" id="toc-10-reproduce-the-test">10.
+Reproduce the test</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="microduck-dance-imitation-end-to-end-evidence">Microduck Dance
+Imitation: End-to-End Evidence</h1>
+<p><strong>Run date:</strong> September 7, 2026<br />
+<strong>Final run:</strong>
+<code>dance-e2e-20260907-low-noise</code><br />
+<strong>Result:</strong> PASS for the defined, simulation-only
+dance-imitation test.</p>
+<h2 id="1-executive-result">1. Executive result</h2>
+<p>The existing Studio API and RLX PPO implementation now have a
+reproducible dance-imitation test covering <strong>real training →
+deterministic ONNX evaluation → rendering → export</strong>, with loss
+telemetry, negative controls, and explicit skill acceptance.</p>
+<p>The final policy was trained <strong>from random
+initialization</strong>, without behavior cloning, a teacher policy,
+joint-target feed-forward, physical assistance, or a warm-start
+checkpoint. PPO performed <strong>4,001,792 environment
+transitions</strong>, <strong>1,954 rollout/update cycles</strong>, and
+<strong>31,264 optimizer minibatches</strong>. The trained actor
+imitates the selected joint choreography while remaining upright.</p>
+<table>
+<thead>
+<tr>
+<th>Evidence</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full Studio API workflow</td>
+<td>Train, evaluation, render, and export all succeeded</td>
+</tr>
+<tr>
+<td>API skill evaluation</td>
+<td><strong>16/16</strong> eight-second episodes passed</td>
+</tr>
+<tr>
+<td>Separate held-out ONNX audit</td>
+<td><strong>5/5</strong> eight-second episodes passed, seeds
+101–105</td>
+</tr>
+<tr>
+<td>Held-out pose error</td>
+<td><strong>0.08438 rad</strong> mean joint RMSE, approximately
+4.8°</td>
+</tr>
+<tr>
+<td>Held-out dynamic tracking gain</td>
+<td><strong>38.39%</strong> mean improvement over the best constant
+reference-mean pose</td>
+</tr>
+<tr>
+<td>Held-out leg tracking gain</td>
+<td><strong>52.52%</strong> mean improvement over the corresponding
+static leg baseline</td>
+</tr>
+<tr>
+<td>Upright coverage</td>
+<td><strong>100%</strong> of the primary held-out samples met the
+upright threshold</td>
+</tr>
+<tr>
+<td>Extended test</td>
+<td><strong>3/3</strong> sixteen-second episodes passed, seeds
+201–203</td>
+</tr>
+<tr>
+<td>ONNX/native parity</td>
+<td>Maximum absolute action difference <strong>3.58 × 10⁻⁷</strong></td>
+</tr>
+<tr>
+<td>MP4 delivery</td>
+<td>Decoding, frame count, duration, HTTP download, byte ranges, browser
+playback, and seeking verified</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Scope:</strong> This is an <strong>eight-second
+excerpt</strong> of the supplied 60.923-second Bachata JSON clip. The
+sixteen-second test repeats that excerpt twice; it does not perform the
+first sixteen seconds of the original choreography. This is a successful
+local simulation prototype, not validation of the full source clip or
+authorization to deploy on hardware.</p>
+</blockquote>
+<h3 id="open-the-evidence">Open the evidence</h3>
+<ul>
+<li><a
+href="../../rlx/artifacts/dance-e2e-20260907/final-audit/extended-render/ep0.mp4">Final
+policy: sixteen uninterrupted seconds</a></li>
+<li><a
+href="../../rlx/artifacts/dance-e2e-20260907/final-audit/comparison.mp4">Reference
+versus PPO versus zero-action control: eight seconds</a></li>
+<li><a
+href="../../rlx/artifacts/dance-e2e-20260907/final-audit/api-video.mp4">Byte-verified
+API-delivered MP4</a></li>
+<li><a
+href="../../rlx/artifacts/dance-e2e-20260907/final-audit/audit.json">Detailed
+audit JSON</a></li>
+<li><a
+href="../../rlx/artifacts/dance-e2e-20260907/api-low-noise-e2e.json">Complete
+API workflow record</a></li>
+</ul>
+<p><img
+src="../../rlx/artifacts/dance-e2e-20260907/final-audit/comparison_sheet.png"
+alt="Reference, learned policy, and zero-action control contact sheet" /></p>
+<p>The reference pane is a <strong>kinematic illustration only</strong>.
+The PPO and null panes replay states recorded from physical MuJoCo
+rollouts. Reference joint targets were not applied to the learned-policy
+simulation. The null pane explicitly holds its last frame after
+termination; it is not presented as a surviving eight-second
+rollout.</p>
+<h2 id="2-existing-system-and-implementation-changes">2. Existing system
+and implementation changes</h2>
+<p>The implementation reuses the architecture behind
+<code>rlx/examples/ppo_microduck_dance.py</code>, but runs the Studio
+entry point, <code>rlx/examples/ppo_microduck_studio.py</code>, because
+that is what <code>duck-viewer/app/api/rlx</code> invokes. No
+replacement training framework or new dependency was introduced.</p>
+<pre class="text"><code>User&#39;s Bachata JSON
+  → hashed, unscaled eight-second excerpt
+  → POST /api/rlx: train
+  → CPU MuJoCo workers + MLX PPO on Apple Metal
+  → checkpoint, normalizers, snapshots, JSONL telemetry, ONNX
+  → POST /api/rlx: eval
+  → complete-episode dance skill assessment
+  → POST /api/rlx: render → MP4 + contact sheet
+  → POST /api/rlx: export
+  → independent ONNX/control audit + browser/video verification</code></pre>
+<h3 id="problems-found-and-addressed">Problems found and addressed</h3>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Original problem</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reference selection</td>
+<td>Studio factories hard-coded <code>dance-120bpm</code></td>
+<td>Optional <code>dance_clip</code>/<code>--dance-clip</code>, strict
+path loading, and reference SHA-256 provenance</td>
+</tr>
+<tr>
+<td>Skill verdict</td>
+<td>Finite dance evaluation did not establish choreography
+imitation</td>
+<td>A per-episode dance assessment; pipeline and skill verdicts remain
+separate</td>
+</tr>
+<tr>
+<td>UI verdict</td>
+<td>A generic successful evaluation could be mistaken for dance
+skill</td>
+<td>Dance requires explicit <code>skill_status: passed</code></td>
+</tr>
+<tr>
+<td>Pose reward</td>
+<td>The existing broad pose kernel paid nearly its maximum for a
+stationary compromise</td>
+<td>Opt-in, per-joint pose precision through
+<code>dance_pose_sigma</code>; the default remains unchanged</td>
+</tr>
+<tr>
+<td>PPO telemetry</td>
+<td>Studio did not persist the full optimizer metrics needed for loss
+plots</td>
+<td>Actual minibatch policy/value/total losses, entropy, KL, clipping,
+explained variance, and JSONL journals</td>
+</tr>
+<tr>
+<td>Reward semantics</td>
+<td>Normalized rollout reward could be confused with raw reward</td>
+<td>Raw episode returns/lengths are recorded separately; the UI labels
+normalized training reward</td>
+</tr>
+<tr>
+<td>Reproducibility</td>
+<td>Limited API access to the experiment's required controls</td>
+<td>Explicit clip, horizon, rollout size, minibatches, initial standard
+deviation, reward normalization, and snapshot settings</td>
+</tr>
+<tr>
+<td>Failed experiments</td>
+<td>A failed skill evaluation could stop the test before collecting
+video</td>
+<td>The HTTP driver preserves partial reports and continues
+render/export for failed skill evaluations, then exits nonzero</td>
+</tr>
+</tbody>
+</table>
+<p>The PPO objective, Gaussian action contract, timeout bootstrapping,
+and observation layout were not replaced. The telemetry change preserves
+the existing public <code>update_step</code> return contract and is
+covered by parameter-parity tests with and without observation of
+training metrics.</p>
+<h3 id="main-changed-files">Main changed files</h3>
+<ul>
+<li><code>rlx/examples/ppo_microduck_studio.py</code>: CLI plumbing,
+metadata, journals, checkpoints, and dance evaluation integration.</li>
+<li><code>rlx/rlx/environments/microduck_recipes.py</code>: custom
+clips, physical metrics/state, optional precise pose reward.</li>
+<li><code>rlx/rlx/environments/dance_evaluation.py</code>: strict
+acceptance criteria and per-episode accounting.</li>
+<li><code>rlx/rlx/algorithms/ppo.py</code>: actual minibatch telemetry,
+without changing the optimization objective.</li>
+<li><code>rlx/scripts/dance_e2e.py</code>: reference preparation,
+provenance, reproducible recipe generation.</li>
+<li><code>rlx/scripts/audit_dance.py</code>: controls, trajectories,
+ONNX checks, plots, and comparative video.</li>
+<li><code>duck-viewer/lib/rlx-job.ts</code>,
+<code>lib/evaluation.ts</code>, and <code>components/Studio.tsx</code>:
+API controls and honest result/reward projection.</li>
+<li><code>duck-viewer/scripts/rlx-dance-api-e2e.mjs</code>: real HTTP
+workflow with timeout, artifact assertions, and failure reporting.</li>
+<li>Corresponding Python and Node regression tests, plus this report and
+its PDF build script.</li>
+</ul>
+<p>Unrelated workspace changes, including the existing notebook/lockfile
+changes and observed clip deletions, were not restored or incorporated
+into this work.</p>
+<h2 id="3-reference-and-successful-training-recipe">3. Reference and
+successful training recipe</h2>
+<h3 id="reference-provenance">Reference provenance</h3>
+<p>Source: <code>dance-clip/bachata_microduck_v2.clip.json</code>.</p>
+<p>The first eight seconds are retained without joint-amplitude scaling
+or re-authoring. The endpoint is interpolated on the existing 50 Hz
+control grid. The original looping flag is retained. The prepared
+reference contains 400 control-rate target poses.</p>
+<p>The existing loader uses the fourteen joint values in the established
+joint order and <code>rootPitch</code>. It ignores the source's
+<code>rootYaw</code>, <code>rootRoll</code>, <code>rootPosition</code>,
+and contact annotations. Therefore, the test demonstrates
+<strong>joint-pose choreography with physical balance</strong>, not
+exact reproduction of an authored world trajectory, root orientation, or
+foot-contact sequence.</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Original Bachata JSON</td>
+<td><code>306164a79a0edb494c856cda09c9f0b4a36546fcf85bb53f940ed0dc697f6a12</code></td>
+</tr>
+<tr>
+<td>Eight-second reference</td>
+<td><code>108bf9e56b374b36d2d86c0698bace538ac5d1db0b57d4669d94d4c739190eac</code></td>
+</tr>
+<tr>
+<td>Final ONNX</td>
+<td><code>32c27fe239285f1be624b01f77eaa7a411262852c89d51404ae8398ac94bdbd9</code></td>
+</tr>
+</tbody>
+</table>
+<p>The exact input recipe is saved as
+<code>rlx/artifacts/dance-e2e-20260907/recipe-low-noise.json</code>. The
+normalized request, including all default reward weights, is retained in
+<code>api-low-noise-e2e.json</code>.</p>
+<h3 id="parameters">Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Final value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training seed</td>
+<td>7</td>
+</tr>
+<tr>
+<td>Transitions</td>
+<td>4,001,792; no resume</td>
+</tr>
+<tr>
+<td>Environment workers / backend</td>
+<td>16 / <code>fork</code></td>
+</tr>
+<tr>
+<td>Rollout length / batch</td>
+<td>128 control steps per worker / 2,048 transitions</td>
+</tr>
+<tr>
+<td>Minibatches / epochs</td>
+<td>4 / 4</td>
+</tr>
+<tr>
+<td>Actor and critic</td>
+<td>Separate 512–256–128 ELU MLPs</td>
+</tr>
+<tr>
+<td>Observation / action interface</td>
+<td>61 / 14; unchanged</td>
+</tr>
+<tr>
+<td>Learning rate</td>
+<td>0.0001</td>
+</tr>
+<tr>
+<td>Discount / GAE lambda</td>
+<td>0.99 / 0.95</td>
+</tr>
+<tr>
+<td>PPO clip coefficient</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td>Value coefficient / value clipping</td>
+<td>1.0 / enabled</td>
+</tr>
+<tr>
+<td>Maximum gradient norm</td>
+<td>0.5</td>
+</tr>
+<tr>
+<td>Initial action standard deviation</td>
+<td>0.1 rad</td>
+</tr>
+<tr>
+<td>Entropy bonus coefficient</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Observation normalization</td>
+<td>Enabled during training; frozen and baked into ONNX</td>
+</tr>
+<tr>
+<td>Reward normalization</td>
+<td>Running discounted-return normalization during training only</td>
+</tr>
+<tr>
+<td>Episode / control frequency</td>
+<td>8 seconds / 50 Hz</td>
+</tr>
+<tr>
+<td>Actuator</td>
+<td>Existing XML servo model</td>
+</tr>
+<tr>
+<td>Domain randomization, observation noise, action delay, random
+yaw</td>
+<td>Disabled for this local prototype</td>
+</tr>
+<tr>
+<td>Snapshot interval</td>
+<td>Approximately every 200,000 transitions, at rollout boundaries</td>
+</tr>
+</tbody>
+</table>
+<p>The environment's normal seeded reset perturbations remain; disabling
+domain randomization does not make all reset states identical.</p>
+<p>The pose term is:</p>
+<pre class="text"><code>pose_match = mean_j exp(-((actual_joint_j - reference_joint_j) / 0.2)^2)
+weighted_pose_reward = 40 × pose_match</code></pre>
+<p>Other active weights remain: rotation matching 4, on-feet 5, no-slip
+penalty 0.5, no-spin penalty 0.3, gentle-head-contact penalty 1,
+soft-landing penalty 0.75, joint-limit penalty 1, and energy penalty
+0.0005. Forward travel is disabled. The inherited <code>stick_it</code>
+weight is 5, but that term is inactive for a looping clip. Penalty signs
+are unchanged.</p>
+<h3 id="runtime">Runtime</h3>
+<p>Training used an <strong>Apple M4 Pro with 64 GiB RAM</strong>, macOS
+15.7.9, CPU MuJoCo simulation, and MLX/Metal neural-network updates. No
+CUDA GPU was used.</p>
+<p>The exact API training environment reported Python
+<strong>3.12.10</strong>, MLX <strong>0.32.2</strong>, MuJoCo
+<strong>3.10.0</strong>, NumPy <strong>2.5.2</strong>, ONNX
+<strong>1.22.0</strong>, ONNX Runtime <strong>1.29.0</strong>,
+Matplotlib <strong>3.11.1</strong>, and Gymnasium
+<strong>1.3.0</strong>. The separate audit interpreter was Python
+<strong>3.12.7</strong>, with the same listed library versions. Both
+runtime records are saved.</p>
+<p>The API training job ran from <strong>2026-09-07 23:17:29 UTC to
+23:27:05 UTC</strong>, approximately <strong>9 minutes 37
+seconds</strong>. Instrumented collection totaled 354.85 seconds and
+updates 191.59 seconds; observer/checkpoint/startup overhead is excluded
+from those phase totals. Other diagnostic jobs overlapped, so this is an
+observed run time, <strong>not an isolated performance
+benchmark</strong>.</p>
+<h2 id="4-experiment-history-failures-were-not-hidden">4. Experiment
+history: failures were not hidden</h2>
+<table>
+<thead>
+<tr>
+<th>Experiment</th>
+<th>Scope and training</th>
+<th>Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initial smoke</td>
+<td>4,096 transitions</td>
+<td>Training/checkpoint/export pipeline worked; no skill claim</td>
+</tr>
+<tr>
+<td>Broad inherited pose kernel</td>
+<td>8 seconds, initial std 0.3, 2,000,896 transitions</td>
+<td>Stable standing, but failed dynamic and leg tracking</td>
+</tr>
+<tr>
+<td>Per-joint sigma 0.2</td>
+<td>Same 8-second scope/std, 2,000,896 transitions</td>
+<td>Better pose accuracy; still failed dynamic tracking</td>
+</tr>
+<tr>
+<td>Lower exploration, longer budget</td>
+<td>8 seconds, sigma 0.2, std 0.1, 4,001,792 transitions</td>
+<td><strong>Final successful API and held-out result</strong></td>
+</tr>
+<tr>
+<td>Short-sequence diagnostic</td>
+<td>First 4 seconds, sigma 0.2, std 0.1, 1,001,472 transitions</td>
+<td>Passed five held-out four-second trials; not the final
+deliverable</td>
+</tr>
+<tr>
+<td>Precision diagnostic</td>
+<td>8 seconds, sigma 0.1, std 0.3, 501,760 transitions</td>
+<td>Failed dynamic tracking; not selected</td>
+</tr>
+</tbody>
+</table>
+<p>The shorter diagnostic also showed that passing a short episode does
+not automatically establish sustained looping: its twelve-second
+extension failed overall. The final eight-second policy was tested
+separately and passed its sixteen-second extension.</p>
+<p>A direct-reference joint-controller diagnostic fell after
+<strong>0.98 seconds</strong>. This controller was not used for training
+or the final policy. It illustrates why copying joint angles alone does
+not establish physical dance execution; PPO must also learn
+stabilization.</p>
+<p>The experiment sequence does <strong>not</strong> prove that any
+single hyperparameter change was individually necessary. In particular,
+there was no four-million-step std-0.3 control. It establishes that the
+final combination works and that two million steps of the earlier
+recipes were insufficient. The successful policy learned substantial
+choreography late in training, rather than merely producing a larger
+early reward.</p>
+<h2 id="5-acceptance-criteria-and-deterministic-results">5. Acceptance
+criteria and deterministic results</h2>
+<p>Criteria were established before the successful run and were not
+relaxed to obtain a pass. A skill evaluation requires all evaluated
+episodes to meet all conditions:</p>
+<ol type="1">
+<li>Complete the configured horizon, covering at least the entire
+reference clip, with no fall/termination.</li>
+<li>Supply finite, complete, contiguous control-rate physical state
+measurements.</li>
+<li>Upright score at least 0.9 for at least 95% of steps.</li>
+<li>Overall fourteen-joint pose RMSE at most 0.15 rad.</li>
+<li>Dynamic tracking gain at least 20%, measured without fitted lag,
+smoothing, or time realignment.</li>
+<li>At least two meaningfully moving leg joints in the reference, with
+positive leg tracking gain.</li>
+</ol>
+<p>Moving joints have reference standard deviation at least 0.03 rad.
+For those joints:</p>
+<pre class="text"><code>dynamic_gain = 1 - actual_tracking_RMSE / constant_reference_mean_RMSE</code></pre>
+<p>The denominator uses each joint's mean reference pose across the
+evaluated episode. Thus, merely holding an approximately correct pose
+cannot establish a dance pass. Metrics are computed per episode;
+different resets cannot be pooled into an artificial complete
+performance.</p>
+<h3 id="five-held-out-eight-second-onnx-trials">Five held-out
+eight-second ONNX trials</h3>
+<table>
+<thead>
+<tr>
+<th>Seed</th>
+<th style="text-align: right;">Pose RMSE, rad</th>
+<th style="text-align: right;">Dynamic gain</th>
+<th style="text-align: right;">Leg gain</th>
+<th style="text-align: right;">Upright coverage</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>101</td>
+<td style="text-align: right;">0.08123</td>
+<td style="text-align: right;">40.77%</td>
+<td style="text-align: right;">54.70%</td>
+<td style="text-align: right;">100%</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>102</td>
+<td style="text-align: right;">0.08275</td>
+<td style="text-align: right;">39.76%</td>
+<td style="text-align: right;">54.74%</td>
+<td style="text-align: right;">100%</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>103</td>
+<td style="text-align: right;">0.09827</td>
+<td style="text-align: right;">28.05%</td>
+<td style="text-align: right;">45.74%</td>
+<td style="text-align: right;">100%</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>104</td>
+<td style="text-align: right;">0.08148</td>
+<td style="text-align: right;">40.50%</td>
+<td style="text-align: right;">54.59%</td>
+<td style="text-align: right;">100%</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>105</td>
+<td style="text-align: right;">0.07816</td>
+<td style="text-align: right;">42.86%</td>
+<td style="text-align: right;">52.85%</td>
+<td style="text-align: right;">100%</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td><strong>Mean</strong></td>
+<td style="text-align: right;"><strong>0.08438</strong></td>
+<td style="text-align: right;"><strong>38.39%</strong></td>
+<td style="text-align: right;"><strong>52.52%</strong></td>
+<td style="text-align: right;"><strong>100%</strong></td>
+<td><strong>5/5</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The final API evaluation also passed all sixteen eight-second lanes.
+Its mean pose RMSE was 0.08512 rad, dynamic gain 37.81%, and leg gain
+50.08%.</p>
+<h3 id="negative-controls-and-export-checks">Negative controls and
+export checks</h3>
+<table>
+<thead>
+<tr>
+<th>Control/check</th>
+<th>Finding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zero-action controller, seeds 101–105</td>
+<td>0/5 passes; falls after 43–49 steps, or 0.86–0.98 seconds</td>
+</tr>
+<tr>
+<td>Untrained network, seed 101</td>
+<td>Fails after 37 steps, or 0.74 seconds</td>
+</tr>
+<tr>
+<td>Final network with phase slots 59–60 frozen</td>
+<td>0/5 passes; survives, but dynamic gain is negative in every
+trial</td>
+</tr>
+<tr>
+<td>Model parameter change</td>
+<td>L2 difference 12.247 versus initial model tensors, excluding
+normalizer tensors</td>
+</tr>
+<tr>
+<td>ONNX interface</td>
+<td>Dynamic batch × 61 input; dynamic batch × 14 output; ONNX checker
+passes</td>
+</tr>
+<tr>
+<td>Native/ONNX action parity</td>
+<td>Maximum error 3.58 × 10⁻⁷ on the recorded held-out observations;
+tolerance 10⁻⁴</td>
+</tr>
+</tbody>
+</table>
+<p>Low error over an early-falling control's short prefix must not be
+compared as though that control completed the full choreography. This is
+why completion, motion, and balance criteria are mandatory alongside
+pose error.</p>
+<h3 id="sixteen-second-extension">Sixteen-second extension</h3>
+<p>The final policy passed three additional uninterrupted two-cycle
+rollouts, seeds 201–203, with 800 control steps each. Pose RMSE was
+0.08336, 0.09118, and 0.09015 rad; dynamic gains were 39.09%, 33.29%,
+and 34.07%. This supports two repetitions of the learned excerpt, not
+unlimited-duration robustness or learning unseen portions of the
+original source.</p>
+<p><img
+src="../../rlx/artifacts/dance-e2e-20260907/final-audit/joint-tracking.png"
+alt="Actual joint tracking against the reference and zero-action control" /></p>
+<p>Visual review confirms phase-related head motion and alternating leg
+flexion/sway. Tracking is approximate: some hip-roll offsets, timing
+lag, and head-yaw amplitude overshoot remain visible. The result is not
+claimed to be pixel-perfect or an exact motion-capture
+reconstruction.</p>
+<h2 id="6-reward-and-loss-evidence">6. Reward and loss evidence</h2>
+<p><img
+src="../../rlx/artifacts/dance-e2e-20260907/final-audit/reward-learning.png"
+alt="Raw and normalized reward, deterministic checkpoint evaluation, and pose accuracy" /></p>
+<p>The reward figure deliberately distinguishes three quantities:</p>
+<ul>
+<li><strong>Raw stochastic training episode return:</strong> the score
+of the exploration-noisy policy; all 12,300 completed training episodes
+are retained in JSONL. Short failed episodes remain visible as downward
+spikes.</li>
+<li><strong>Normalized rollout-buffer reward:</strong> reward after
+running-return normalization. Its early decrease mainly reflects a
+changing normalization scale; it is not evidence that skill became
+worse.</li>
+<li><strong>Raw deterministic checkpoint return:</strong> the frozen
+policy's physical evaluation. At seed 101, return rose from about 1,413
+for the early-falling initial model to 17,654 for the final complete
+performance.</li>
+</ul>
+<p>After initial balance learning, the policy remained near a standing
+compromise for a long interval. A real setback is visible around 2.4
+million transitions. Dynamic gain then improved from approximately −2%
+at 2.0 million to 17% at 3.2 million and 36% at 3.6 million. The full
+run was allowed to finish; the final artifact is not a cherry-picked
+intermediate checkpoint.</p>
+<p>Rewards from the broad-kernel and precise-kernel experiments are
+<strong>not directly comparable</strong>, because their scoring
+functions differ. Physical tracking metrics and explicit skill verdicts
+are the meaningful cross-experiment comparison.</p>
+<p><img
+src="../../rlx/artifacts/dance-e2e-20260907/final-audit/ppo-losses.png"
+alt="Actual PPO minibatch loss, entropy, KL, and clipping history" /></p>
+<p>The loss values come from the same minibatch objective evaluations
+used for optimization, not a reconstructed loss or an inverted reward
+curve. This implementation uses the existing clipped policy objective
+and clipped Huber critic objective.</p>
+<p>The first update has a large approximate KL, <strong>7.76</strong>,
+and clip fraction <strong>0.905</strong>. These are retained, not
+removed from the plots. They show an aggressive startup; this recipe is
+empirically successful, not claimed to be optimally tuned. No non-finite
+update was observed.</p>
+<p>Across the final 100 updates, mean policy loss was −0.01673, value
+loss 0.00301, total loss −0.01372, approximate KL 0.05317, clip fraction
+0.4306, and explained variance 0.8951. Loss and KL need not decrease
+monotonically in on-policy PPO because the sampled distribution and
+value targets keep changing. Negative Gaussian <strong>differential
+entropy</strong> is also valid; it does not indicate invalid
+probabilities.</p>
+<p><img
+src="../../rlx/artifacts/dance-e2e-20260907/final-audit/ppo-stability.png"
+alt="PPO detail after the first 100,000 transitions" /></p>
+<p>The post-startup view is explicitly a zoom; the full-history figure
+retains all startup spikes. Substantial clipping remains a tuning
+opportunity even though the skill and finite-value checks pass.</p>
+<h2 id="7-video-and-api-verification">7. Video and API verification</h2>
+<p>The full HTTP test saved each accepted normalized request and
+completed job state. A failed skill verdict cannot become a successful
+test merely because export or rendering later succeeds.</p>
+<p>Verified eight-second videos:</p>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>Encoding / dimensions</th>
+<th style="text-align: right;">Frames</th>
+<th style="text-align: right;">Duration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API policy render</td>
+<td>H.264, 640 × 360, 25 fps</td>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">8.000 s</td>
+</tr>
+<tr>
+<td>Reference/PPO/null comparison</td>
+<td>H.264, 1440 × 412, 25 fps</td>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">8.000 s</td>
+</tr>
+<tr>
+<td>Extended two-cycle policy render</td>
+<td>H.264, 640 × 360, 25 fps</td>
+<td style="text-align: right;">400</td>
+<td style="text-align: right;">16.000 s</td>
+</tr>
+</tbody>
+</table>
+<p>For the API-delivered video, the verification script checked:</p>
+<ul>
+<li>HTTP 200 with <code>video/mp4</code>.</li>
+<li>Downloaded bytes exactly equal the generated local MP4.</li>
+<li>HTTP 206 for <code>Range: bytes=0-1023</code>, with matching
+bytes.</li>
+<li>Chromium loaded the metadata, played beyond one second, sought to
+four seconds, and reported no video error.</li>
+<li><code>ffprobe</code> decoded the expected frame count, duration,
+frame rate, and codec.</li>
+</ul>
+<p>The API render records <strong>zero resets</strong> and the exact
+same ONNX SHA-256 used for evaluation. The separate sixteen-second
+render uses seed 201, which passed the sixteen-second physical
+evaluation. Its render record and contact sheet are saved alongside the
+video.</p>
+<p><img
+src="../../rlx/artifacts/dance-e2e-20260907/final-audit/browser-video.png"
+alt="Actual API-served video after browser playback and seeking" /></p>
+<h2 id="8-why-this-is-genuine-ppo-learning">8. Why this is genuine PPO
+learning</h2>
+<p>The strongest evidence is not the reward increase alone:</p>
+<ol type="1">
+<li><strong>The initial model fails.</strong> The final model differs in
+its learned tensors and completes the same physical task.</li>
+<li><strong>The null controller fails.</strong> The performance is not
+supplied by a stable spawn, passive mechanics, or gravity.</li>
+<li><strong>Removing time information breaks imitation.</strong> The
+same final actor with a frozen phase still balances, but fails dynamic
+tracking. It has learned a timing-dependent control policy, not just a
+static pose.</li>
+<li><strong>Leg tracking improves as well as head tracking.</strong> The
+leg-only acceptance prevents a head gesture from masking unmoving
+legs.</li>
+<li><strong>The deterministic exported actor works.</strong> Its results
+are not dependent on exploration noise, and ONNX/native parity is
+directly checked.</li>
+<li><strong>The picture agrees with the numbers.</strong> Saved physical
+trajectories show alternating leg motion and head motion correlated with
+the authored targets; videos and contact sheets were inspected.</li>
+</ol>
+<p>The existing phase signal makes the target observable without
+changing the 61-dimensional contract. The more discriminating pose
+reward distinguishes precise tracking from a broad standing
+approximation. Reward normalization keeps critic target magnitudes
+manageable; the lower exploration scale supports precise actions. A
+sufficient training budget then lets PPO move beyond early stabilization
+to the timed choreography.</p>
+<p>Those last explanations are mechanism-based interpretations supported
+by the observed training sequence, not a complete causal ablation of
+every parameter. The demonstrated claim is narrower and stronger:
+<strong>this exact recorded recipe learns this defined choreography in
+simulation and passes the stated tests</strong>.</p>
+<h2 id="9-regression-results-and-remaining-limits">9. Regression results
+and remaining limits</h2>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local RLX suite, excluding separate mjlab test tree</td>
+<td><strong>258 passed, 2 skipped</strong></td>
+</tr>
+<tr>
+<td>Node/API tests</td>
+<td><strong>37 passed</strong></td>
+</tr>
+<tr>
+<td>Viewer ESLint</td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>Next.js production build and TypeScript check</td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>Ruff correctness rules <code>E9,F</code> on changed Python
+files</td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>Diff whitespace check</td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>Broader <code>microduck_local</code> suite</td>
+<td><strong>384 passed, 1 skipped, 12 failed</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The broader suite is <strong>not fully green</strong>. Its twelve
+failures are in unmodified code: eleven golden rollout/torque
+fingerprint checks and one head-versus-leg symmetry drift check. Their
+root cause was not isolated in this task. Goldens were not regenerated,
+tolerances were not relaxed, and these failures are not represented as
+passes. Full logs are preserved in the evidence directory.</p>
+<p>Other limits:</p>
+<ul>
+<li>One training seed and one final recipe are demonstrated; different
+evaluation seeds do not establish training-seed robustness.</li>
+<li>The final task is the eight-second excerpt, not the entire
+60.923-second source or arbitrary dance clips.</li>
+<li>Root translation/yaw/roll and contact annotations are not imitation
+objectives in this existing loader.</li>
+<li>The local XML actuator model, disabled domain randomization, and
+small evaluation sample do not establish sim-to-real safety.</li>
+<li>Continued long-duration operation, disturbances, BAM actuator
+transfer, and official GPU-stack retraining remain separate work.</li>
+<li>The HTTP/JSON recipe is the authoritative reproduction path; the
+existing UI does not expose every newly supported advanced API setting
+as a form control.</li>
+<li>Training/artifact directories are gitignored and remain local.
+Preserve them with the report if moving the evidence to another
+computer.</li>
+</ul>
+<h2 id="10-reproduce-the-test">10. Reproduce the test</h2>
+<p>Run from the workspace root on the configured Apple Silicon
+environment. Start the existing viewer with
+<code>cd duck-viewer &amp;&amp; npm run dev</code> if it is not already
+running. Its default local port is 63317. Do not start a second Next.js
+dev server for the same directory; the attempted separate-port server
+was rejected by Next's directory lock, so the successful test reused the
+existing idle server.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Prepare the same unscaled eight-second reference and successful recipe.</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">rlx/.venv-microduck/bin/python</span> rlx/scripts/dance_e2e.py <span class="dt">\</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--source</span> dance-clip/bachata_microduck_v2.clip.json <span class="dt">\</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--output</span> rlx/artifacts/dance-reproduction <span class="dt">\</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seconds</span> 8 <span class="at">--train-steps</span> 4001792 <span class="dt">\</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">--run-name</span> dance-e2e-reproduction</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Execute real train → eval → render → export through the Studio API.</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> duck-viewer/scripts/rlx-dance-api-e2e.mjs <span class="dt">\</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">--execute</span> <span class="at">--base-url</span> http://127.0.0.1:63317 <span class="dt">\</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">--recipe-json</span> rlx/artifacts/dance-reproduction/recipe.json <span class="dt">\</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">--report</span> rlx/artifacts/dance-reproduction/api-e2e.json</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Independently evaluate ONNX, controls, losses, and physical video.</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="ex">rlx/.venv-microduck/bin/python</span> rlx/scripts/audit_dance.py <span class="dt">\</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">--run</span> rlx/runs/studio/dance/dance-e2e-reproduction <span class="dt">\</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">--recipe</span> rlx/artifacts/dance-reproduction/recipe.json <span class="dt">\</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">--output</span> rlx/artifacts/dance-reproduction/audit <span class="dt">\</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">--seeds</span> 101 102 103 104 105 <span class="at">--history-stride</span> 2 <span class="at">--render</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Regression checks.</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="ex">rlx/.venv-microduck/bin/python</span> <span class="at">-m</span> pytest <span class="dt">\</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  rlx/tests <span class="at">--ignore</span><span class="op">=</span>rlx/tests/mjlab_microduck <span class="at">-q</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="bu">cd</span> duck-viewer <span class="kw">&amp;&amp;</span> <span class="ex">npm</span> test <span class="kw">&amp;&amp;</span> <span class="ex">npm</span> run lint <span class="kw">&amp;&amp;</span> <span class="ex">npm</span> run build<span class="kw">)</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Rebuild this report&#39;s PDF from its Markdown and local evidence images.</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> docs/dance-imitation-e2e/build-report.sh</span></code></pre></div>
+<p>The driver requires explicit <code>--execute</code>, has bounded
+operation timeouts, preserves failure evidence, and exits nonzero when
+full dance skill fails. The independent audit also exits nonzero if
+skill, finite optimizer metrics, transition coverage, model change, ONNX
+contract, or parity checks fail. A smoke run establishes the pipeline
+only, never the dance skill.</p>
+<h3 id="evidence-directory-map">Evidence directory map</h3>
+<p>Root: <code>rlx/artifacts/dance-e2e-20260907/</code>.</p>
+<ul>
+<li><code>reference-provenance.json</code>,
+<code>reference.clip.json</code>: source identity and trained
+target.</li>
+<li><code>recipe-low-noise.json</code>,
+<code>api-low-noise-e2e.json</code>: exact final API recipe and workflow
+results.</li>
+<li><code>runtime.json</code>, <code>training-runtime.json</code>: audit
+and training environments.</li>
+<li><code>baseline-audit/</code>, <code>tracking-audit/</code>:
+preserved failed-policy controls, trajectories, and plots.</li>
+<li><code>four-second/</code>, <code>precision-evaluation.json</code>:
+diagnostic experiments, not the final model.</li>
+<li><code>final-audit/audit.json</code>: held-out results, controls,
+checkpoint learning history, optimizer accounting, and export
+checks.</li>
+<li><code>final-audit/*-seed*.npz</code>: raw observations, actions,
+rewards, joint targets, actual joint positions, qpos, upright scores,
+and heights.</li>
+<li><code>final-audit/reward-learning.png</code>,
+<code>ppo-losses.png</code>, <code>ppo-stability.png</code>,
+<code>joint-tracking.png</code>: actual-data charts.</li>
+<li><code>final-audit/video-validation.json</code>,
+<code>browser-video.png</code>: API media delivery and playback
+evidence.</li>
+<li><code>final-audit/extended-16s.json</code>,
+<code>render-16s.json</code>, <code>extended-render/</code>: independent
+two-cycle evaluation and video.</li>
+<li><code>rlx-tests.log</code>, <code>node-tests.log</code>,
+<code>node-lint.log</code>, <code>node-build.log</code>,
+<code>microduck-contract-tests.log</code>: verification logs.</li>
+</ul>
+<p>Final model and full telemetry:
+<code>rlx/runs/studio/dance/dance-e2e-20260907-low-noise/</code>,
+including <code>dance.safetensors</code>, its JSON sidecar,
+<code>dance.onnx</code>, <code>training-metrics.jsonl</code>,
+<code>checkpoints/</code>, and the original API-rendered MP4/contact
+sheet.</p>
+</body>
+</html>

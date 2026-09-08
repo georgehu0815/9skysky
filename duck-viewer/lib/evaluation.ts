@@ -6,8 +6,14 @@ export function evaluationVerdict(
   experimentId: ExperimentId
 ) {
   const scope = report?.evaluation_mode;
+  const explicitSkillStatus =
+    report?.skill_status === "passed" || report?.skill_status === "failed";
+  const requiresExplicitSkillStatus =
+    experimentId === "swing" || experimentId === "dance";
   const skillAssessed = scope === "skill" &&
-    (experimentId !== "swing" || report?.skill_status === "passed" || report?.skill_status === "failed");
+    (requiresExplicitSkillStatus
+      ? explicitSkillStatus
+      : true);
   const settings = report?.evaluation as Record<string, unknown> | undefined;
   const criteria = settings?.swing_criteria as Record<string, unknown> | undefined;
   const target = criteria?.min_bidirectional_span_deg;
@@ -17,6 +23,6 @@ export function evaluationVerdict(
     pipelinePassed: report?.pipeline_passed === true,
     skillAssessed,
     taskPassed: skillAssessed && report?.passed === true &&
-      (experimentId !== "swing" || report?.skill_status === "passed"),
+      (!requiresExplicitSkillStatus || report?.skill_status === "passed"),
   };
 }

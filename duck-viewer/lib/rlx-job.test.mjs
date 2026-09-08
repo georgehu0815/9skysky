@@ -35,6 +35,8 @@ function fixture() {
     "@/lib/experiments": experiments,
     "node:fs": {
       existsSync: (file) => file.endsWith("examples/ppo_microduck_dance.py") || files.has(file),
+      realpathSync: (file) => file,
+      statSync: (file) => ({ isFile: () => files.has(file) }),
     },
     "node:fs/promises": {
       readFile: async (file) => {
@@ -62,17 +64,28 @@ function fixture() {
   });
   const artifact = (runName, kind = "checkpoint", experimentId = "swing") =>
     api.artifactPath(experimentId, runName, kind);
+  const clip = (name = "custom.json", location = "dance-clip") =>
+    location === "rlx-artifacts"
+      ? path.resolve(process.cwd(), "../rlx/artifacts", name)
+      : path.resolve(process.cwd(), "../dance-clip", name);
   return {
-    api, files, children, artifact, reads,
+    api, files, children, artifact, clip, reads,
     add: (runName, kind = "checkpoint", experimentId = "swing") => files.set(artifact(runName, kind, experimentId), "artifact"),
+    addClip: (name, location) => {
+      const file = clip(name, location);
+      files.set(file, "{}");
+      return file;
+    },
     deferWrites: (implementation) => { writeImplementation = implementation; },
   };
 }
 const input = (runName = "test-a", extra = {}) => ({ experimentId: "swing", runName, ...extra });
 const arg = (child, flag) => child.args[child.args.indexOf(flag) + 1];
-function sourceReport(f, runName = "test-a", sourceType = "policy") {
-  const source = f.artifact(runName, sourceType === "policy" ? "onnx" : "checkpoint");
-  const files = sourceType === "policy" ? [source] : [source, f.artifact(runName, "metadata")];
+function sourceReport(f, runName = "test-a", sourceType = "policy", experimentId = "swing") {
+  const source = f.artifact(runName, sourceType === "policy" ? "onnx" : "checkpoint", experimentId);
+  const files = sourceType === "policy"
+    ? [source]
+    : [source, f.artifact(runName, "metadata", experimentId)];
   const hashes = Object.fromEntries(files.map((file) => [file, createHash("sha256").update(f.files.get(file)).digest("hex")]));
   return {
     source_type: sourceType, source_sha256: hashes[source], source_files_sha256: hashes,
@@ -136,6 +149,203 @@ test("non-Swing evaluation declares scope without Swing-specific criteria", () =
   assert.equal(f.children[0].args.includes("--swing-min-span-deg"), false);
 });
 
+test("Dance API flow preserves its PPO, evaluation, render, and export contract", async () => {
+  const f = fixture();
+  const danceClip = f.addClip("derived/dance.json");
+  const recipeInput = input("dance-e2e", {
+    experimentId: "dance",
+    profile: "full",
+    totalTimesteps: 1_000,
+    numEnvs: 8,
+    numSteps: 32,
+    numMinibatches: 8,
+    maxEpisodeS: 12,
+    evalSteps: 900,
+    renderSeconds: 150,
+    initialStd: 0.3,
+    normalizeRewards: true,
+    checkpointInterval: 512,
+    danceClip,
+    dancePoseSigma: 0.2,
+  });
+
+  const recipe = f.api.startJob("train", recipeInput);
+  const train = f.children[0];
+  assert.equal(recipe.totalTimesteps, 1_024);
+  assert.equal(recipe.danceClip, danceClip);
+  assert.equal(arg(train, "--recipe"), "dance");
+  assert.equal(arg(train, "--num-steps"), "32");
+  assert.equal(arg(train, "--num-minibatches"), "8");
+  assert.equal(arg(train, "--num-envs"), "8");
+  assert.equal(arg(train, "--max-episode-s"), "12");
+  assert.equal(arg(train, "--dance-clip"), danceClip);
+  assert.equal(arg(train, "--dance-pose-sigma"), "0.2");
+  assert.equal(arg(train, "--initial-std"), "0.3");
+  assert.equal(arg(train, "--checkpoint-interval"), "512");
+  assert.equal(train.args.includes("--normalize-rewards"), true);
+  assert.equal(train.args.includes("--no-normalize-rewards"), false);
+  assert.equal((await f.api.snapshot()).normalizeRewards, true);
+  assert.equal(arg(train, "--checkpoint"), f.artifact("dance-e2e", "checkpoint", "dance"));
+  assert.equal(arg(train, "--onnx-output"), f.artifact("dance-e2e", "onnx", "dance"));
+  assert.equal(train.args.includes("--swing-initial-angle-deg"), false);
+  finish(train);
+
+  f.add("dance-e2e", "checkpoint", "dance");
+  f.add("dance-e2e", "metadata", "dance");
+  f.api.startJob("eval", recipeInput);
+  const evaluate = f.children[1];
+  assert.equal(arg(evaluate, "--evaluation-mode"), "skill");
+  assert.equal(arg(evaluate, "--eval-steps"), "900");
+  assert.equal(arg(evaluate, "--max-episode-s"), "12");
+  assert.equal(arg(evaluate, "--dance-clip"), danceClip);
+  assert.equal(arg(evaluate, "--dance-pose-sigma"), "0.2");
+  assert.equal(evaluate.args.includes("--initial-std"), false);
+  assert.equal(evaluate.args.includes("--normalize-rewards"), false);
+  assert.equal(evaluate.args.includes("--checkpoint-interval"), false);
+  assert.equal(arg(evaluate, "--checkpoint"), f.artifact("dance-e2e", "checkpoint", "dance"));
+  assert.equal(evaluate.args.includes("--swing-min-span-deg"), false);
+  finish(evaluate, {
+    ...sourceReport(f, "dance-e2e", "checkpoint", "dance"),
+    skill_status: "not_assessed",
+  });
+  const evaluated = await f.api.snapshot();
+  assert.equal(evaluated.evaluation.evaluation_request.evaluation_mode, "skill");
+  assert.equal(evaluated.evaluation.evaluation_request.eval_steps, 900);
+  assert.equal(evaluated.evaluation.evaluation_request.recipe.danceClip, danceClip);
+
+  f.api.startJob("render", recipeInput);
+  const render = f.children[2];
+  assert.equal(arg(render, "--render-seconds"), "150");
+  assert.equal(arg(render, "--max-episode-s"), "12");
+  assert.equal(arg(render, "--dance-clip"), danceClip);
+  assert.equal(arg(render, "--dance-pose-sigma"), "0.2");
+  assert.equal(render.args.includes("--initial-std"), false);
+  assert.equal(render.args.includes("--normalize-rewards"), false);
+  assert.equal(render.args.includes("--checkpoint-interval"), false);
+  assert.equal(arg(render, "--episodes"), "1");
+  assert.equal(arg(render, "--output"), path.dirname(f.artifact("dance-e2e", "sheet", "dance")));
+  finish(render, { rendered: true });
+
+  f.api.startJob("export", recipeInput);
+  const exportJob = f.children[3];
+  assert.deepEqual(Array.from(exportJob.args.slice(exportJob.args.indexOf("export") + 1)), [
+    "--recipe", "dance",
+    "--checkpoint", f.artifact("dance-e2e", "checkpoint", "dance"),
+    "--output", f.artifact("dance-e2e", "onnx", "dance"),
+  ]);
+  assert.equal(exportJob.args.includes("--dance-clip"), false);
+  assert.equal(exportJob.args.includes("--dance-pose-sigma"), false);
+  assert.equal(exportJob.args.includes("--initial-std"), false);
+  assert.equal(exportJob.args.includes("--normalize-rewards"), false);
+  assert.equal(exportJob.args.includes("--checkpoint-interval"), false);
+});
+
+test("policy exploration and reward normalization defaults remain recipe-specific", () => {
+  const f = fixture();
+  const dance = f.api.normalizeRecipe({ experimentId: "dance" });
+  const swing = f.api.normalizeRecipe({ experimentId: "swing" });
+  const running = f.api.normalizeRecipe({ experimentId: "running" });
+  assert.equal(dance.initialStd, Math.exp(-0.5));
+  assert.equal(dance.normalizeRewards, false);
+  assert.equal(swing.initialStd, 0.1);
+  assert.equal(swing.normalizeRewards, true);
+  assert.equal(running.initialStd, Math.exp(-0.5));
+  assert.equal(running.normalizeRewards, false);
+  assert.equal(dance.checkpointInterval, 100_000);
+  assert.equal(dance.dancePoseSigma, null);
+});
+
+test("Dance clip paths are explicit, existing, and confined to owned roots", () => {
+  const f = fixture();
+  const workspaceClip = f.addClip("authored.json");
+  const artifactClip = f.addClip("derived.json", "rlx-artifacts");
+  assert.equal(
+    f.api.normalizeRecipe({ experimentId: "dance", danceClip: workspaceClip }).danceClip,
+    workspaceClip
+  );
+  assert.equal(
+    f.api.normalizeRecipe({ experimentId: "dance", danceClip: "artifacts/derived.json" }).danceClip,
+    artifactClip
+  );
+  assert.throws(
+    () => f.api.normalizeRecipe({ experimentId: "dance", danceClip: 42 }),
+    /file path string/
+  );
+  assert.throws(
+    () => f.api.normalizeRecipe({ experimentId: "dance", danceClip: "" }),
+    /cannot be empty/
+  );
+  assert.throws(
+    () => f.api.normalizeRecipe({ experimentId: "dance", danceClip: "/tmp/outside.json" }),
+    /must be under/
+  );
+  assert.throws(
+    () => f.api.normalizeRecipe({ experimentId: "dance", danceClip: "dance-clip/missing.json" }),
+    /does not exist/
+  );
+  assert.throws(
+    () => f.api.normalizeRecipe({ experimentId: "running", danceClip: workspaceClip }),
+    /only be used with the dance experiment/
+  );
+});
+
+test("Dance pose sigma is optional, positive, finite, and Dance-only", () => {
+  const f = fixture();
+  assert.equal(
+    f.api.normalizeRecipe({
+      experimentId: "dance",
+      dancePoseSigma: 0.2,
+    }).dancePoseSigma,
+    0.2
+  );
+  for (const dancePoseSigma of [0, -0.1, Number.NaN, Number.POSITIVE_INFINITY, "0.2"]) {
+    assert.throws(
+      () => f.api.normalizeRecipe({ experimentId: "dance", dancePoseSigma }),
+      /finite number greater than 0/
+    );
+  }
+  assert.throws(
+    () => f.api.normalizeRecipe({ experimentId: "swing", dancePoseSigma: 0.2 }),
+    /only be used with the dance experiment/
+  );
+});
+
+test("new rollout overrides reject invalid or incompatible values", () => {
+  const f = fixture();
+  assert.throws(
+    () => f.api.normalizeRecipe(input("a", { numSteps: "32" })),
+    /Rollout steps must be an integer/
+  );
+  assert.throws(
+    () => f.api.normalizeRecipe(input("a", { numEnvs: 3, numSteps: 5, numMinibatches: 4 })),
+    /Minibatches must divide/
+  );
+  assert.throws(
+    () => f.api.normalizeRecipe(input("a", { maxEpisodeS: Number.NaN })),
+    /Maximum episode seconds/
+  );
+  assert.throws(
+    () => f.api.normalizeRecipe(input("a", { evalSteps: 1.5 })),
+    /Evaluation steps must be an integer/
+  );
+  assert.throws(
+    () => f.api.normalizeRecipe(input("a", { renderSeconds: 0 })),
+    /Render seconds/
+  );
+  assert.throws(
+    () => f.api.normalizeRecipe(input("a", { initialStd: 0 })),
+    /Initial policy standard deviation/
+  );
+  assert.throws(
+    () => f.api.normalizeRecipe(input("a", { normalizeRewards: "yes" })),
+    /Reward normalization must be a boolean/
+  );
+  assert.throws(
+    () => f.api.normalizeRecipe(input("a", { checkpointInterval: -1 })),
+    /Checkpoint interval/
+  );
+});
+
 test("render accepts ONNX-only runs while artifact-free runs cannot evaluate or render", () => {
   const f = fixture();
   assert.throws(() => f.api.startJob("eval", input()), /checkpoint before continuing/);
@@ -165,6 +375,9 @@ test("training keeps its PPO arguments and never receives evaluation-only flags"
   const child = f.children[0];
   assert.equal(arg(child, "--num-steps"), "2");
   assert.equal(arg(child, "--onnx-output"), f.artifact("test-a", "onnx"));
+  assert.equal(arg(child, "--initial-std"), "0.1");
+  assert.equal(arg(child, "--checkpoint-interval"), "100000");
+  assert.equal(child.args.includes("--normalize-rewards"), true);
   assert.equal(child.args.includes("--evaluation-mode"), false);
   assert.equal(child.args.includes("--swing-min-span-deg"), false);
   assert.throws(() => f.api.startJob("train", input("test-b")), /already running/);
@@ -386,6 +599,9 @@ test("UI requires authoritative scoped skill verdict, not finite output or large
   assert.equal(evaluationVerdict(skill, "swing").taskPassed, false);
   assert.equal(evaluationVerdict({ ...skill, skill_status: "passed" }, "swing").taskPassed, true);
   assert.equal(evaluationVerdict({ ...skill, skill_status: "passed", passed: false }, "swing").taskPassed, false);
-  assert.equal(evaluationVerdict({ ...skill, skill_status: "not_assessed" }, "dance").taskPassed, true);
+  assert.equal(evaluationVerdict({ ...skill, skill_status: "not_assessed" }, "dance").taskPassed, false);
+  assert.equal(evaluationVerdict({ ...skill, skill_status: "failed" }, "dance").taskPassed, false);
+  assert.equal(evaluationVerdict({ ...skill, skill_status: "passed" }, "dance").taskPassed, true);
+  assert.equal(evaluationVerdict({ ...skill, skill_status: "not_assessed" }, "running").taskPassed, true);
   assert.equal(evaluationVerdict({ ...skill, evaluation: { swing_criteria: { min_bidirectional_span_deg: 150 } } }, "swing").swingMinSpanDeg, 150);
 });

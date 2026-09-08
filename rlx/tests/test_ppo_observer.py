@@ -89,15 +89,23 @@ def assert_trees_equal(first, second):
 
 def run_training(observed):
     agent = make_agent()
-    events, callbacks, losses = [], [], []
+    events, callbacks, losses, minibatch_metrics = [], [], [], []
     compiled_update_step = agent.update_step
+    compiled_metric_update_step = agent._update_step_with_metrics
 
     def record_loss(*args):
         result = compiled_update_step(*args)
         losses.append(result[0])
         return result
 
+    def record_metrics(*args):
+        result = compiled_metric_update_step(*args)
+        losses.append(result[0])
+        minibatch_metrics.append((result[:10], args[-1].size))
+        return result
+
     agent.update_step = record_loss
+    agent._update_step_with_metrics = record_metrics
     callback = lambda info, step: callbacks.append((info["episode"]["tick"], step))
     observer = events.append if observed else None
     assert agent.train(7, callback, observer=observer) is None
@@ -113,6 +121,11 @@ def run_training(observed):
         next_mlx_random=np.asarray(mx.random.uniform(shape=(5,))).copy(),
         resets=agent.env.resets, transitions=agent.env.transitions,
         callbacks=callbacks, events=events, losses=[float(loss.item()) for loss in losses],
+        minibatch_metrics=[
+            ([float(value.item()) for value in metrics], sample_count)
+            for metrics, sample_count in minibatch_metrics
+        ],
+        config=agent.config,
     )
 
 
@@ -154,12 +167,53 @@ def test_observer_preserves_parameters_optimizer_rng_resets_and_callbacks(monkey
         if event["phase"] == "collection":
             assert set(event) == {"phase", "steps", "seconds"}
         else:
-            assert set(event) == {"phase", "steps", "seconds", "optimizer_steps", "mean_loss"}
+            metric_keys = (
+                "mean_loss",
+                "policy_loss",
+                "value_loss",
+                "entropy",
+                "approximate_kl",
+                "clip_fraction",
+                "explained_variance",
+            )
+            assert set(event) == {
+                "phase", "steps", "seconds", "optimizer_steps", *metric_keys
+            }
             # Six one-sample minibatches per epoch, not the requested four.
             assert event["optimizer_steps"] == 12 and type(event["optimizer_steps"]) is int
-            assert type(event["mean_loss"]) is float and np.isfinite(event["mean_loss"])
-            actual = observed.losses[(index // 2) * 12:(index // 2 + 1) * 12]
-            assert event["mean_loss"] == sum(actual) / len(actual)
+            for key in metric_keys:
+                assert type(event[key]) is float and np.isfinite(event[key])
+            start = (index // 2) * 12
+            actual = observed.minibatch_metrics[start:start + 12]
+            for metric_index, key in enumerate(metric_keys[:-1]):
+                expected = sum(row[0][metric_index] for row in actual) / len(actual)
+                assert event[key] == expected
+            sample_count = sum(row[1] for row in actual)
+            return_sum = sum(row[0][6] for row in actual)
+            return_square_sum = sum(row[0][7] for row in actual)
+            error_sum = sum(row[0][8] for row in actual)
+            error_square_sum = sum(row[0][9] for row in actual)
+            return_variance = (
+                return_square_sum / sample_count
+                - (return_sum / sample_count) ** 2
+            )
+            error_variance = (
+                error_square_sum / sample_count
+                - (error_sum / sample_count) ** 2
+            )
+            expected_explained_variance = (
+                1 - error_variance / return_variance
+                if return_variance > 1e-8
+                else 0.0
+            )
+            assert event["explained_variance"] == expected_explained_variance
+            np.testing.assert_allclose(
+                event["mean_loss"],
+                event["policy_loss"]
+                - observed.config.entropy_coefficient * event["entropy"]
+                + observed.config.value_coefficient * event["value_loss"],
+                rtol=1e-6,
+            )
 
 
 def test_phase_clock_includes_reset_and_gae_but_excludes_observers(monkeypatch):
@@ -248,7 +302,7 @@ def test_observer_exceptions_propagate_and_stop_training(phase):
 def test_partial_update_never_emits_success(failure_kind):
     agent = make_agent()
     events = []
-    update_step = agent.update_step
+    update_step = agent._update_step_with_metrics
     calls = 0
 
     def fail_third_minibatch(*args):
@@ -258,10 +312,14 @@ def test_partial_update_never_emits_success(failure_kind):
             raise RuntimeError("partial update")
         result = list(update_step(*args))
         if calls == 3:
-            result[{"loss": 1, "gradients": 2, "model parameters": 3}[failure_kind]] = mx.array(False)
+            result[{
+                "loss": 10,
+                "gradients": 11,
+                "model parameters": 12,
+            }[failure_kind]] = mx.array(False)
         return tuple(result)
 
-    agent.update_step = fail_third_minibatch
+    agent._update_step_with_metrics = fail_third_minibatch
     with pytest.raises(RuntimeError, match="partial update|non-finite"):
         agent.train(100, observer=events.append)
     assert calls == 3 and agent.step == 6
@@ -290,6 +348,144 @@ def test_empty_update_does_not_report_an_invented_mean():
     assert [event["phase"] for event in events] == ["collection"]
     agent = make_agent(update_epochs=0)
     assert agent.train(1) is None
+
+
+def test_metric_update_reports_actual_minibatch_objective_components():
+    agent = make_agent(num_envs=2, num_steps=2, num_minibatches=1, update_epochs=1)
+    observations = mx.array([
+        [0.2, -0.1],
+        [0.4, 0.3],
+        [-0.5, 0.2],
+        [0.1, 0.6],
+    ])
+    actions = mx.array([[0.0], [0.5], [-0.25], [0.75]])
+    distribution, new_values = agent.network(observations)
+    new_log_probabilities = distribution.log_prob(actions)
+    old_log_probabilities = new_log_probabilities + mx.array(
+        [0.0, 0.4, -0.5, 0.1]
+    )
+    old_values = new_values.squeeze(-1) + mx.array([0.05, -0.1, 0.2, -0.15])
+    advantages = mx.array([1.0, -0.5, 0.25, -1.5])
+    returns = mx.array([0.4, -0.2, 0.8, 0.1])
+    mx.eval(new_log_probabilities, new_values, distribution.entropy())
+
+    log_ratio = np.clip(
+        np.asarray(new_log_probabilities - old_log_probabilities),
+        ppo_module.LOG_RATIO_MIN,
+        ppo_module.LOG_RATIO_MAX,
+    )
+    ratio = np.exp(log_ratio)
+    normalized_advantages = np.asarray(advantages)
+    normalized_advantages = (
+        normalized_advantages - normalized_advantages.mean()
+    ) / (normalized_advantages.std() + 1e-8)
+    expected_policy_loss = np.maximum(
+        -normalized_advantages * ratio,
+        -normalized_advantages * np.clip(
+            ratio,
+            1 - agent.config.clip_coefficient,
+            1 + agent.config.clip_coefficient,
+        ),
+    ).mean()
+    predicted_values = np.asarray(new_values.squeeze(-1))
+    expected_returns = np.asarray(returns)
+
+    def huber_error(predictions):
+        absolute_errors = np.abs(predictions - expected_returns)
+        quadratic = np.minimum(absolute_errors, ppo_module.VALUE_LOSS_DELTA)
+        return 0.5 * np.square(quadratic) + ppo_module.VALUE_LOSS_DELTA * (
+            absolute_errors - quadratic
+        )
+
+    clipped_values = np.asarray(old_values) + np.clip(
+        predicted_values - np.asarray(old_values),
+        -agent.config.clip_coefficient,
+        agent.config.clip_coefficient,
+    )
+    expected_value_loss = np.maximum(
+        huber_error(predicted_values),
+        huber_error(clipped_values),
+    ).mean()
+    expected_entropy = float(np.asarray(distribution.entropy()).mean())
+    expected_kl = ((ratio - 1) - log_ratio).mean()
+    expected_clip_fraction = (
+        np.abs(ratio - 1) > agent.config.clip_coefficient
+    ).mean()
+    result = agent._update_step_with_metrics(
+        observations,
+        actions,
+        old_log_probabilities,
+        old_values,
+        advantages,
+        returns,
+    )
+    mx.eval(*result, agent.network.state, agent.optimizer.state)
+    actual = np.array([float(value.item()) for value in result[:6]])
+    expected_loss = (
+        expected_policy_loss
+        - agent.config.entropy_coefficient * expected_entropy
+        + agent.config.value_coefficient * expected_value_loss
+    )
+    np.testing.assert_allclose(
+        actual,
+        [
+            expected_loss,
+            expected_policy_loss,
+            expected_value_loss,
+            expected_entropy,
+            expected_kl,
+            expected_clip_fraction,
+        ],
+        rtol=1e-5,
+        atol=1e-6,
+    )
+
+
+def test_metric_update_preserves_legacy_update_step_contract_and_state():
+    legacy = make_agent(num_envs=2, num_steps=2, num_minibatches=1, update_epochs=1)
+    observed = make_agent(num_envs=2, num_steps=2, num_minibatches=1, update_epochs=1)
+    observations = mx.array(np.full((4, 2), 0.25, dtype=np.float32))
+    actions = mx.array([[0.0], [0.25], [-0.5], [0.75]], dtype=mx.float32)
+    distribution, values = legacy.network(observations)
+    old_log_probabilities = distribution.log_prob(actions) + mx.array(
+        [0.0, 0.2, -0.3, 0.4]
+    )
+    advantages = mx.array([1.0, -1.0, 0.5, -0.5], dtype=mx.float32)
+    returns = mx.array([0.5, -0.25, 0.75, -0.5], dtype=mx.float32)
+    args = (
+        observations,
+        actions,
+        old_log_probabilities,
+        values.squeeze(-1),
+        advantages,
+        returns,
+    )
+
+    legacy_result = legacy.update_step(*args)
+    metric_result = observed._update_step_with_metrics(*args)
+    mx.eval(
+        *legacy_result,
+        *metric_result,
+        legacy.network.state,
+        legacy.optimizer.state,
+        observed.network.state,
+        observed.optimizer.state,
+    )
+
+    assert len(legacy_result) == 4
+    assert len(metric_result) == 13
+    np.testing.assert_array_equal(
+        np.asarray(legacy_result[0]),
+        np.asarray(metric_result[0]),
+    )
+    assert_trees_equal(
+        snapshot_tree(legacy.network.parameters()),
+        snapshot_tree(observed.network.parameters()),
+    )
+    assert_trees_equal(
+        snapshot_tree(legacy.optimizer.state),
+        snapshot_tree(observed.optimizer.state),
+    )
 
 
 def test_extreme_finite_policy_ratio_keeps_loss_and_gradients_finite():

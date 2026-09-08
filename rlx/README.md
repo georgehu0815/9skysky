@@ -55,6 +55,8 @@ algorithm.train(total_timesteps, callback, observer=phase_events.append)
 
 Counts and times are **per event**, not cumulative. `steps` is the number of environment transitions in that collection (also attached to its update), including any full-rollout overshoot of the requested target. `optimizer_steps` counts actual completed minibatch updates; `mean_loss` is the arithmetic mean of their already-materialized weighted total objectives (policy loss minus weighted entropy plus weighted value loss), not a separate policy-only loss. `update(advantages, returns, *, collect_metrics=False)` retains its default `None` return; opting in returns `optimizer_steps` and `mean_loss`. Metrics require at least one optimizer step and raise `ValueError` for an empty update rather than inventing a loss.
 
+Update events also include actual minibatch `policy_loss`, `value_loss`, `entropy`, `approximate_kl`, `clip_fraction`, and explained variance reconstructed from the minibatch value-error moments. Studio persists these events in `training-metrics.jsonl`, adds cumulative `env_steps`, and records raw completed-episode returns separately from normalized rollout-buffer rewards.
+
 Collection wall time starts before buffer reset and ends after the rollout loop, including existing episode callbacks. Update wall time starts after the collection observer returns, before last-value and GAE construction, and ends after the update finishes. It includes GAE and deferred critic work; neither interval isolates CPU/GPU execution or transfer costs. Initial environment reset and observer notification time are excluded. Telemetry adds no MLX evaluation barriers and reads losses only after the existing update evaluation.
 
 Observer exceptions propagate, and failed or partial phases emit no completion event. Observers must not mutate training state or consume training RNGs. With `observer=None`, no phase timing or metric gathering occurs, and reset, sampling, normalization, optimizer, and callback behavior are unchanged. [Real-MLX observer tests](tests/test_ppo_observer.py) compare complete parameters, optimizer state, RNG continuation, resets, and callback traces with telemetry on and off.
@@ -144,6 +146,14 @@ The output directory receives an MP4 video and a captioned PNG contact sheet
 for each episode, such as `ep0.mp4` and `ep0_sheet.png`. Use the explicit
 export command when you need a persistent ONNX policy for deployment or
 separate evaluation.
+
+### End-to-end Studio dance test
+
+For a user-supplied clip rather than the fixed demo, use `examples/ppo_microduck_studio.py` with `--recipe dance --dance-clip PATH`. Optional `--dance-pose-sigma` selects a more precise per-joint pose reward without changing the inherited default. Training supports `--initial-std`, `--normalize-rewards`, and periodic `--checkpoint-interval` snapshots.
+
+Dance skill evaluation requires full-reference coverage, balance, low pose error, dynamic tracking improvement over a static pose, and moving-leg tracking. A finite rollout alone cannot pass. `scripts/dance_e2e.py` prepares a reproducible reference/recipe; the viewer's `scripts/rlx-dance-api-e2e.mjs` drives real HTTP training/evaluation/render/export; `scripts/audit_dance.py` independently verifies controls, ONNX, losses, and videos.
+
+The [detailed end-to-end report](../docs/dance-imitation-e2e/REPORT.md) and [PDF](../docs/dance-imitation-e2e/REPORT.pdf) record a successful eight-second Bachata excerpt, five held-out seeds, two-cycle evaluation, failed experiments, and remaining regression gaps. This is local simulation evidence, not full-source or hardware certification.
 
 ## Evaluate the native Studio Swing recipe
 

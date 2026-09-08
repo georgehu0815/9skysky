@@ -51,6 +51,11 @@ class PPO:
         self._assert_finite("model parameters", self.network.parameters())
         state = [self.network.state, self.optimizer.state]
         self.update_step = mx.compile(self.update_step, inputs=state, outputs=state)
+        self._update_step_with_metrics = mx.compile(
+            self._update_step_with_metrics,
+            inputs=state,
+            outputs=state,
+        )
 
     def _constrain_actor_log_std(self):
         constrain = getattr(self.network, "constrain_actor_log_std", None)
@@ -158,7 +163,9 @@ class PPO:
         The episode callback keeps its ``callback(info, step)`` convention.
         Observer dictionaries contain per-phase ``phase``, ``steps`` and wall
         ``seconds``; updates also contain ``optimizer_steps`` and ``mean_loss``
-        (the mean of the actual minibatch weighted total objectives).
+        plus the mean actual-minibatch ``policy_loss``, ``value_loss``,
+        ``entropy``, ``approximate_kl``, ``clip_fraction`` and
+        ``explained_variance``.
         Collection includes buffer reset and rollout; update includes last-value
         evaluation, GAE and deferred critic work. Observer time is excluded;
         these intervals do not isolate device execution or transfer costs.
@@ -259,6 +266,26 @@ class PPO:
         advantages,
         returns,
     ):
+        return self._loss_and_metrics(
+            network,
+            observations,
+            actions,
+            old_log_probabilities,
+            old_values,
+            advantages,
+            returns,
+        )[0]
+
+    def _loss_and_metrics(
+        self,
+        network,
+        observations,
+        actions,
+        old_log_probabilities,
+        old_values,
+        advantages,
+        returns,
+    ):
         distribution, new_values = network(observations)
         new_log_probabilities = distribution.log_prob(actions)
         entropy = distribution.entropy()
@@ -290,6 +317,7 @@ class PPO:
         policy_loss = mx.mean(policy_loss)
 
         new_values = new_values.squeeze(-1)
+
         def value_error_loss(predictions):
             errors = predictions - returns
             absolute_errors = mx.abs(errors)
@@ -313,11 +341,42 @@ class PPO:
 
         entropy_loss = mx.mean(entropy)
 
-        return (
+        loss = (
             policy_loss
             - self.config.entropy_coefficient * entropy_loss
             + self.config.value_coefficient * value_loss
         )
+        approximate_kl = mx.mean((ratio - 1) - log_ratio)
+        clip_fraction = mx.mean(
+            mx.abs(ratio - 1) > self.config.clip_coefficient
+        )
+        value_errors = returns - new_values
+        return (
+            loss,
+            policy_loss,
+            value_loss,
+            entropy_loss,
+            approximate_kl,
+            clip_fraction,
+            mx.sum(returns),
+            mx.sum(mx.square(returns)),
+            mx.sum(value_errors),
+            mx.sum(mx.square(value_errors)),
+        )
+
+    def _apply_update(self, loss, grads):
+        loss_finite = mx.all(mx.isfinite(loss))
+        gradients_finite = self._all_finite(grads)
+        update_finite = mx.logical_and(loss_finite, gradients_finite)
+        grads = tree_map(
+            lambda grad: mx.where(update_finite, grad, mx.zeros_like(grad)),
+            grads,
+        )
+        grads, _ = optim.clip_grad_norm(grads, self.config.max_grad_norm)
+        self.optimizer.update(self.network, grads)
+        self._constrain_actor_log_std()
+        parameters_finite = self._all_finite(self.network.parameters())
+        return loss_finite, gradients_finite, parameters_finite
 
     def update_step(
         self,
@@ -337,18 +396,40 @@ class PPO:
             advantages,
             returns,
         )
-        loss_finite = mx.all(mx.isfinite(loss))
-        gradients_finite = self._all_finite(grads)
-        update_finite = mx.logical_and(loss_finite, gradients_finite)
-        grads = tree_map(
-            lambda grad: mx.where(update_finite, grad, mx.zeros_like(grad)),
-            grads,
+        loss_finite, gradients_finite, parameters_finite = self._apply_update(
+            loss, grads
         )
-        grads, _ = optim.clip_grad_norm(grads, self.config.max_grad_norm)
-        self.optimizer.update(self.network, grads)
-        self._constrain_actor_log_std()
-        parameters_finite = self._all_finite(self.network.parameters())
         return loss, loss_finite, gradients_finite, parameters_finite
+
+    def _update_step_with_metrics(
+        self,
+        observations,
+        actions,
+        old_log_probabilities,
+        old_values,
+        advantages,
+        returns,
+    ):
+        metrics, grads = nn.value_and_grad(
+            self.network, self._loss_and_metrics
+        )(
+            self.network,
+            observations,
+            actions,
+            old_log_probabilities,
+            old_values,
+            advantages,
+            returns,
+        )
+        loss_finite, gradients_finite, parameters_finite = self._apply_update(
+            metrics[0], grads
+        )
+        return (
+            *metrics,
+            loss_finite,
+            gradients_finite,
+            parameters_finite,
+        )
 
     def update(
         self,
@@ -359,14 +440,26 @@ class PPO:
     ):
         """Update minibatches, returning metrics only when requested.
 
-        Metrics count completed optimizer steps and average their already
-        materialized weighted total losses, without additional MLX evaluations.
+        Metrics count completed optimizer steps and average the values produced
+        by their actual minibatch objective evaluations.
         Metrics require at least one optimizer step; exceptions propagate without
         returning partial metrics. The default return value remains ``None``.
         """
         if collect_metrics:
             optimizer_steps = 0
-            total_loss = 0.0
+            totals = {
+                "mean_loss": 0.0,
+                "policy_loss": 0.0,
+                "value_loss": 0.0,
+                "entropy": 0.0,
+                "approximate_kl": 0.0,
+                "clip_fraction": 0.0,
+            }
+            return_sum = 0.0
+            return_square_sum = 0.0
+            value_error_sum = 0.0
+            value_error_square_sum = 0.0
+            metric_samples = 0
         observations = flatten(self.buffer.observations)
         actions = flatten(self.buffer.actions)
         log_probabilities = flatten(self.buffer.log_probs)
@@ -394,8 +487,8 @@ class PPO:
                 minibatch_indices = mx.array(
                     permutation[start : start + minibatch_size]
                 )
-                loss, loss_finite, gradients_finite, parameters_finite = (
-                    self.update_step(
+                if collect_metrics:
+                    result = self._update_step_with_metrics(
                         observations[minibatch_indices],
                         actions[minibatch_indices],
                         log_probabilities[minibatch_indices],
@@ -403,7 +496,21 @@ class PPO:
                         advantages[minibatch_indices],
                         returns[minibatch_indices],
                     )
-                )
+                    metric_values = result[:6]
+                    metric_moments = result[6:10]
+                    loss_finite, gradients_finite, parameters_finite = result[10:]
+                    loss = metric_values[0]
+                else:
+                    loss, loss_finite, gradients_finite, parameters_finite = (
+                        self.update_step(
+                            observations[minibatch_indices],
+                            actions[minibatch_indices],
+                            log_probabilities[minibatch_indices],
+                            values[minibatch_indices],
+                            advantages[minibatch_indices],
+                            returns[minibatch_indices],
+                        )
+                    )
                 mx.eval(
                     loss,
                     loss_finite,
@@ -429,15 +536,38 @@ class PPO:
                     "model parameters", parameters_finite
                 )
                 if collect_metrics:
-                    total_loss += float(loss.item())
+                    for name, value in zip(totals, metric_values):
+                        totals[name] += float(value.item())
+                    return_sum += float(metric_moments[0].item())
+                    return_square_sum += float(metric_moments[1].item())
+                    value_error_sum += float(metric_moments[2].item())
+                    value_error_square_sum += float(metric_moments[3].item())
+                    metric_samples += int(returns[minibatch_indices].size)
                     optimizer_steps += 1
 
         if collect_metrics:
             if optimizer_steps == 0:
                 raise ValueError("PPO update metrics require at least one optimizer step")
+            return_variance = (
+                return_square_sum / metric_samples
+                - (return_sum / metric_samples) ** 2
+            )
+            value_error_variance = (
+                value_error_square_sum / metric_samples
+                - (value_error_sum / metric_samples) ** 2
+            )
+            explained_variance = (
+                1 - value_error_variance / return_variance
+                if return_variance > 1e-8
+                else 0.0
+            )
             return {
                 "optimizer_steps": optimizer_steps,
-                "mean_loss": total_loss / optimizer_steps,
+                **{
+                    name: total / optimizer_steps
+                    for name, total in totals.items()
+                },
+                "explained_variance": explained_variance,
             }
 
     def evaluate(self, num_steps: int, callback: Optional[Callable] = None):

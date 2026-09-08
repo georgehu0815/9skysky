@@ -6,7 +6,7 @@ import importlib
 import math
 import os
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import lru_cache, partial
 from pathlib import Path
 from typing import Any, Callable
 
@@ -133,6 +133,58 @@ def validate_reward_weights(
             raise ValueError(f"reward weight {key!r} must be finite and non-negative")
         normalized[key] = weight
     return normalized
+
+
+def _validate_dance_pose_sigma(
+    recipe: str,
+    dance_pose_sigma: float | None,
+) -> float | None:
+    if dance_pose_sigma is None:
+        return None
+    if recipe != "dance":
+        raise ValueError("dance_pose_sigma is only valid for the dance recipe")
+    sigma = float(dance_pose_sigma)
+    if not math.isfinite(sigma) or sigma <= 0.0:
+        raise ValueError("dance_pose_sigma must be finite and positive")
+    return sigma
+
+
+def _per_joint_dance_pose_match(env: gym.Env, *, sigma: float) -> float:
+    target, _ = env.clip.at(env.step_count)
+    scaled_error = (env._joint_qpos() - target) / sigma
+    return float(np.mean(np.exp(-np.square(scaled_error))))
+
+
+def _replace_dance_pose_match(env: gym.Env, sigma: float) -> None:
+    replacement = partial(_per_joint_dance_pose_match, sigma=sigma)
+    rows = []
+    replaced = False
+    for key, output_key, weight, fn in env._term_rows:
+        if key == "pose_match":
+            fn = replacement
+            replaced = True
+        rows.append((key, output_key, weight, fn))
+    if not replaced:
+        raise RuntimeError("dance recipe is missing its pose_match reward term")
+    env._term_rows = tuple(rows)
+
+
+def _resolve_dance_clip(
+    dance_clip: str | Path | None,
+) -> tuple[str, Path]:
+    if dance_clip is None:
+        return "dance-120bpm", CLIP_DIRECTORY
+
+    path = Path(dance_clip).expanduser().resolve(strict=True)
+    if not path.is_file():
+        raise ValueError(f"dance clip must be a JSON file, got {path}")
+    if path.suffix != ".json":
+        raise ValueError(f"dance clip must end in .json, got {path.name!r}")
+
+    clip_name = path.name[: -len(path.suffix)]
+    motion = importlib.import_module("microduck_local.motion")
+    motion.load_clip(clip_name, path.parent)
+    return clip_name, path.parent
 
 
 def default_stilt_mass_kg(height_cm: float) -> float:
@@ -846,6 +898,14 @@ class _RecipeMetricsWrapper(gym.Wrapper):
         metrics = recipe_metrics(self.env, self.recipe)
         info = dict(info)
         info["recipe_metrics"] = metrics
+        if self.recipe == "dance":
+            target, _ = self.env.clip.at(self.env.step_count)
+            info["dance_state"] = {
+                "phase_step": int(self.env.step_count),
+                "current_joints": self.env._joint_qpos().astype(float).tolist(),
+                "target_joints": target.astype(float).tolist(),
+                **metrics,
+            }
         return observation, reward, terminated, truncated, info
 
 
@@ -861,9 +921,19 @@ def recipe_metrics(env: gym.Env, recipe: str) -> dict[str, float]:
         }
     if recipe == "dance":
         target, _ = env.clip.at(env.step_count)
+        next_target, _ = env.clip.at(env.step_count + 1)
         current = env._joint_qpos()
+        target_velocity = (next_target - target) / (
+            env.clip.duration / env.clip.steps
+        )
+        gravity = env._projected_gravity()
         return {
+            "upright": float(max(0.0, -gravity[2])),
+            "height_m": float(env._trunk_xpos[2]),
             "pose_rmse_rad": float(np.sqrt(np.mean(np.square(current - target)))),
+            "pose_velocity_rmse_rad_s": float(
+                np.sqrt(np.mean(np.square(env._joint_vel() - target_velocity)))
+            ),
         }
     return {}
 
@@ -879,6 +949,8 @@ def make_single_recipe_env(
     random_yaw: bool = True,
     max_episode_s: float | None = None,
     weight_overrides: dict[str, float] | None = None,
+    dance_clip: str | Path | None = None,
+    dance_pose_sigma: float | None = None,
     stilt_height_cm: float = 2.0,
     stilt_blend: float = 0.0,
     stilt_mass_kg: float | None = None,
@@ -888,6 +960,9 @@ def make_single_recipe_env(
     cache_model: bool = False,
 ) -> gym.Env:
     spec = get_recipe(recipe)
+    if dance_clip is not None and recipe != "dance":
+        raise ValueError("dance_clip is only valid for the dance recipe")
+    dance_pose_sigma = _validate_dance_pose_sigma(recipe, dance_pose_sigma)
     weight_overrides = validate_reward_weights(recipe, weight_overrides)
     episode_s = spec.default_episode_s if max_episode_s is None else max_episode_s
     common = {
@@ -907,18 +982,21 @@ def make_single_recipe_env(
             "weight_overrides": dict(weight_overrides or {}),
         }
         if recipe == "dance":
-            kwargs["clip_name"] = "dance-120bpm"
+            clip_name, clip_directory = _resolve_dance_clip(dance_clip)
+            kwargs["clip_name"] = clip_name
             variable = "MICRODUCK_CLIPS_DIR"
             missing = object()
             previous: object | str = os.environ.get(variable, missing)
             try:
-                os.environ[variable] = str(CLIP_DIRECTORY)
+                os.environ[variable] = str(clip_directory)
                 env = behaviors.BehaviorEnv(**kwargs)
             finally:
                 if previous is missing:
                     os.environ.pop(variable, None)
                 else:
                     os.environ[variable] = str(previous)
+            if dance_pose_sigma is not None:
+                _replace_dance_pose_match(env, dance_pose_sigma)
         else:
             env = behaviors.BehaviorEnv(**kwargs)
     else:
@@ -960,6 +1038,8 @@ def make_recipe_env(
     random_yaw: bool = True,
     max_episode_s: float | None = None,
     weight_overrides: dict[str, float] | None = None,
+    dance_clip: str | Path | None = None,
+    dance_pose_sigma: float | None = None,
     stilt_height_cm: float = 2.0,
     stilt_blend: float = 0.0,
     stilt_mass_kg: float | None = None,
@@ -975,6 +1055,12 @@ def make_recipe_env(
     if num_envs < 1:
         raise ValueError(f"num_envs must be positive, got {num_envs}")
     get_recipe(recipe)
+    if dance_clip is not None and recipe != "dance":
+        raise ValueError("dance_clip is only valid for the dance recipe")
+    dance_pose_sigma = _validate_dance_pose_sigma(recipe, dance_pose_sigma)
+    dance_clip_directory = (
+        _resolve_dance_clip(dance_clip)[1] if recipe == "dance" else None
+    )
     vec_env = importlib.import_module("microduck_local.vec_env")
     resolved_backend = vec_env.resolve_backend(backend)
     cache_model = resolved_backend == "fork"
@@ -991,6 +1077,8 @@ def make_recipe_env(
                 random_yaw=random_yaw,
                 max_episode_s=max_episode_s,
                 weight_overrides=weight_overrides,
+                dance_clip=dance_clip,
+                dance_pose_sigma=dance_pose_sigma,
                 stilt_height_cm=stilt_height_cm,
                 stilt_blend=stilt_blend,
                 stilt_mass_kg=stilt_mass_kg,
@@ -1007,7 +1095,7 @@ def make_recipe_env(
     previous: object | str = os.environ.get(variable, missing)
     try:
         if recipe == "dance":
-            os.environ[variable] = str(CLIP_DIRECTORY)
+            os.environ[variable] = str(dance_clip_directory)
         envs = vec_env.make_vec_env(
             [factory(rank) for rank in range(num_envs)],
             backend=resolved_backend,

@@ -1,5 +1,5 @@
 import { spawn, type ChildProcess } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, realpathSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -25,6 +25,16 @@ export interface RlxRecipe {
   profile: "smoke" | "full";
   totalTimesteps: number;
   numEnvs: number;
+  numSteps: number;
+  numMinibatches: number;
+  maxEpisodeS: number;
+  evalSteps: number;
+  renderSeconds: number;
+  danceClip: string | null;
+  dancePoseSigma: number | null;
+  initialStd: number;
+  normalizeRewards: boolean;
+  checkpointInterval: number;
   seed: number;
   learningRate: number;
   gamma: number;
@@ -82,6 +92,7 @@ export interface RlxJobSnapshot {
   result: Record<string, unknown> | null;
   evaluation: Record<string, unknown> | null;
   rewardHistory: RlxRewardPoint[];
+  normalizeRewards: boolean;
   trainingSteps: number;
   trainingTotal: number;
   artifacts: RlxArtifacts;
@@ -100,6 +111,7 @@ interface MutableRlxJob {
   result: Record<string, unknown> | null;
   evaluation: Record<string, unknown> | null;
   rewardHistory: RlxRewardPoint[];
+  normalizeRewards: boolean;
   trainingSteps: number;
   trainingTotal: number;
   stdoutBuffer: string;
@@ -124,6 +136,7 @@ const INITIAL_JOB: MutableRlxJob = {
   result: null,
   evaluation: null,
   rewardHistory: [],
+  normalizeRewards: false,
   trainingSteps: 0,
   trainingTotal: 0,
   stdoutBuffer: "",
@@ -135,6 +148,8 @@ const job = (globalThis.__microduckRlxJob ??= { ...INITIAL_JOB });
 job.generation ??= 0;
 job.experimentId ??= "dance";
 job.rewardHistory ??= [];
+job.normalizeRewards ??=
+  job.child?.spawnargs?.includes("--normalize-rewards") ?? false;
 job.trainingSteps ??= 0;
 job.trainingTotal ??= 0;
 job.stdoutBuffer ??= "";
@@ -289,6 +304,143 @@ function boundedFloat(
   return Math.max(min, Math.min(max, parsed));
 }
 
+function explicitPositiveInt(
+  value: unknown,
+  fallback: number,
+  max: number,
+  label: string
+): number {
+  if (value == null) return fallback;
+  if (
+    typeof value !== "number" ||
+    !Number.isSafeInteger(value) ||
+    value < 1 ||
+    value > max
+  ) {
+    throw new Error(`${label} must be an integer between 1 and ${max}.`);
+  }
+  return value;
+}
+
+function explicitPositiveFloat(
+  value: unknown,
+  fallback: number,
+  max: number,
+  label: string
+): number {
+  if (value == null) return fallback;
+  if (
+    typeof value !== "number" ||
+    !Number.isFinite(value) ||
+    value <= 0 ||
+    value > max
+  ) {
+    throw new Error(`${label} must be a number greater than 0 and at most ${max}.`);
+  }
+  return value;
+}
+
+function explicitNonNegativeInt(
+  value: unknown,
+  fallback: number,
+  max: number,
+  label: string
+): number {
+  if (value == null) return fallback;
+  if (
+    typeof value !== "number" ||
+    !Number.isSafeInteger(value) ||
+    value < 0 ||
+    value > max
+  ) {
+    throw new Error(`${label} must be an integer between 0 and ${max}.`);
+  }
+  return value;
+}
+
+function explicitBoolean(
+  value: unknown,
+  fallback: boolean,
+  label: string
+): boolean {
+  if (value == null) return fallback;
+  if (typeof value !== "boolean") {
+    throw new Error(`${label} must be a boolean.`);
+  }
+  return value;
+}
+
+function isWithin(root: string, candidate: string): boolean {
+  const relative = path.relative(root, candidate);
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+}
+
+function normalizeDanceClip(
+  experimentId: ExperimentId,
+  value: unknown
+): string | null {
+  if (value == null) return null;
+  if (typeof value !== "string") {
+    throw new Error("Dance clip must be a file path string.");
+  }
+  const input = value.trim();
+  if (!input) throw new Error("Dance clip path cannot be empty.");
+  if (experimentId !== "dance") {
+    throw new Error("Dance clips can only be used with the dance experiment.");
+  }
+
+  const root = rlxRoot();
+  const workspaceRoot = path.dirname(root);
+  const allowedRoots = [
+    path.join(workspaceRoot, "dance-clip"),
+    path.join(root, "artifacts"),
+  ];
+  const candidates = path.isAbsolute(input)
+    ? [path.resolve(input)]
+    : [path.resolve(workspaceRoot, input), path.resolve(root, input)];
+  const candidate = candidates.find((item) =>
+    allowedRoots.some((allowedRoot) => isWithin(allowedRoot, item))
+  );
+  if (!candidate) {
+    throw new Error(
+      "Dance clip must be under workspace dance-clip/ or rlx/artifacts/."
+    );
+  }
+  if (!existsSync(candidate)) {
+    throw new Error(`Dance clip does not exist: ${candidate}`);
+  }
+
+  const resolved = realpathSync(candidate);
+  const resolvedRoots = allowedRoots.map((allowedRoot) =>
+    existsSync(/* turbopackIgnore: true */ allowedRoot)
+      ? realpathSync(/* turbopackIgnore: true */ allowedRoot)
+      : allowedRoot
+  );
+  if (!resolvedRoots.some((allowedRoot) => isWithin(allowedRoot, resolved))) {
+    throw new Error(
+      "Dance clip must resolve under workspace dance-clip/ or rlx/artifacts/."
+    );
+  }
+  if (!statSync(resolved).isFile()) {
+    throw new Error(`Dance clip is not a regular file: ${resolved}`);
+  }
+  return resolved;
+}
+
+function normalizeDancePoseSigma(
+  experimentId: ExperimentId,
+  value: unknown
+): number | null {
+  if (value == null) return null;
+  if (experimentId !== "dance") {
+    throw new Error("Dance pose sigma can only be used with the dance experiment.");
+  }
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    throw new Error("Dance pose sigma must be a finite number greater than 0.");
+  }
+  return value;
+}
+
 function normalizeRewardWeights(
   experimentId: ExperimentId,
   value: unknown
@@ -325,13 +477,47 @@ export function normalizeRecipe(input: Partial<RlxRecipe>): RlxRecipe {
     smoke ? 2 : experiment.fullEnvs,
     64
   );
-  const rolloutSteps = smoke ? 2 : experimentId === "swing" ? 64 : 24;
+  const numSteps = explicitPositiveInt(
+    input.numSteps,
+    smoke ? 2 : experimentId === "swing" ? 64 : 24,
+    100_000,
+    "Rollout steps"
+  );
+  const numMinibatches = explicitPositiveInt(
+    input.numMinibatches,
+    smoke ? 1 : 4,
+    100_000,
+    "Minibatches"
+  );
+  const batch = numEnvs * numSteps;
+  if (numMinibatches > batch || batch % numMinibatches !== 0) {
+    throw new Error(
+      "Minibatches must divide numEnvs * numSteps and cannot exceed that batch."
+    );
+  }
+  const maxEpisodeS = explicitPositiveFloat(
+    input.maxEpisodeS,
+    smoke ? 1 : experiment.maxEpisodeSeconds,
+    3_600,
+    "Maximum episode seconds"
+  );
+  const evalSteps = explicitPositiveInt(
+    input.evalSteps,
+    smoke ? 4 : Math.max(500, Math.ceil(maxEpisodeS * 50)),
+    10_000_000,
+    "Evaluation steps"
+  );
+  const renderSeconds = explicitPositiveFloat(
+    input.renderSeconds,
+    experimentId === "dance" ? 120 : maxEpisodeS,
+    3_600,
+    "Render seconds"
+  );
   let totalTimesteps = positiveInt(
     input.totalTimesteps,
     smoke ? 4 : experiment.fullTimesteps,
     40_000_000
   );
-  const batch = numEnvs * rolloutSteps;
   totalTimesteps = Math.max(batch, Math.ceil(totalTimesteps / batch) * batch);
   return {
     experimentId,
@@ -339,6 +525,33 @@ export function normalizeRecipe(input: Partial<RlxRecipe>): RlxRecipe {
     profile,
     totalTimesteps,
     numEnvs,
+    numSteps,
+    numMinibatches,
+    maxEpisodeS,
+    evalSteps,
+    renderSeconds,
+    danceClip: normalizeDanceClip(experimentId, input.danceClip),
+    dancePoseSigma: normalizeDancePoseSigma(
+      experimentId,
+      input.dancePoseSigma
+    ),
+    initialStd: explicitPositiveFloat(
+      input.initialStd,
+      experimentId === "swing" ? 0.1 : Math.exp(-0.5),
+      10,
+      "Initial policy standard deviation"
+    ),
+    normalizeRewards: explicitBoolean(
+      input.normalizeRewards,
+      experimentId === "swing",
+      "Reward normalization"
+    ),
+    checkpointInterval: explicitNonNegativeInt(
+      input.checkpointInterval,
+      100_000,
+      40_000_000,
+      "Checkpoint interval"
+    ),
     seed: positiveInt(input.seed, 1, 2_147_483_647),
     learningRate: boundedFloat(
       input.learningRate,
@@ -437,7 +650,6 @@ function pythonArgs(): string[] {
 }
 
 function commonArgs(recipe: RlxRecipe): string[] {
-  const experiment = getExperiment(recipe.experimentId);
   const args = [
     "--recipe",
     recipe.experimentId,
@@ -446,7 +658,7 @@ function commonArgs(recipe: RlxRecipe): string[] {
     "--seed",
     String(recipe.seed),
     "--max-episode-s",
-    recipe.profile === "smoke" ? "1" : String(experiment.maxEpisodeSeconds),
+    String(recipe.maxEpisodeS),
     recipe.domainRand ? "--domain-rand" : "--no-domain-rand",
     recipe.obsNoise ? "--obs-noise" : "--no-obs-noise",
     recipe.actionDelay ? "--action-delay" : "--no-action-delay",
@@ -454,6 +666,12 @@ function commonArgs(recipe: RlxRecipe): string[] {
     "--weight-overrides",
     JSON.stringify(recipe.rewardWeights),
   ];
+  if (recipe.danceClip) {
+    args.push("--dance-clip", recipe.danceClip);
+  }
+  if (recipe.dancePoseSigma !== null) {
+    args.push("--dance-pose-sigma", String(recipe.dancePoseSigma));
+  }
   if (recipe.experimentId === "stilts") {
     args.push(
       "--stilt-height-cm",
@@ -477,9 +695,7 @@ function commonArgs(recipe: RlxRecipe): string[] {
 function evaluationSettings(recipe: RlxRecipe) {
   return {
     evaluation_mode: recipe.profile === "smoke" ? "pipeline" : "skill",
-    eval_steps: recipe.profile === "smoke"
-      ? 4
-      : Math.max(500, Math.ceil(getExperiment(recipe.experimentId).maxEpisodeSeconds * 50)),
+    eval_steps: recipe.evalSteps,
     ...(recipe.experimentId === "swing"
       ? { swing_min_span_deg: recipe.swingMinSpanDeg }
       : {}),
@@ -507,13 +723,16 @@ function commandFor(operation: RlxOperation, recipe: RlxRecipe): string[] {
       "--total-timesteps",
       String(recipe.totalTimesteps),
       "--num-steps",
-      recipe.profile === "smoke"
-        ? "2"
-        : recipe.experimentId === "swing"
-          ? "64"
-          : "24",
+      String(recipe.numSteps),
       "--num-minibatches",
-      recipe.profile === "smoke" ? "1" : "4",
+      String(recipe.numMinibatches),
+      "--checkpoint-interval",
+      String(recipe.checkpointInterval),
+      "--initial-std",
+      String(recipe.initialStd),
+      recipe.normalizeRewards
+        ? "--normalize-rewards"
+        : "--no-normalize-rewards",
       "--update-epochs",
       recipe.profile === "smoke" ? "1" : String(recipe.updateEpochs),
       "--learning-rate",
@@ -585,9 +804,7 @@ function commandFor(operation: RlxOperation, recipe: RlxRecipe): string[] {
     "--camera",
     "three-quarter",
     "--render-seconds",
-    recipe.experimentId === "dance"
-      ? "120"
-      : String(getExperiment(recipe.experimentId).maxEpisodeSeconds),
+    String(recipe.renderSeconds),
     ...commonArgs(recipe),
   ];
 }
@@ -675,6 +892,7 @@ export async function snapshot(
     result: sameRun ? state.result : null,
     evaluation,
     rewardHistory: sameRun ? state.rewardHistory : [],
+    normalizeRewards: sameRun ? state.normalizeRewards : false,
     trainingSteps: sameRun ? state.trainingSteps : 0,
     trainingTotal: sameRun ? state.trainingTotal : 0,
     artifacts: await artifactState(experimentId, runName),
@@ -738,6 +956,7 @@ export function startJob(
   if (operation === "train") {
     job.evaluation = null;
     job.rewardHistory = [];
+    job.normalizeRewards = recipe.normalizeRewards;
     job.trainingSteps = 0;
     job.trainingTotal = recipe.totalTimesteps;
   } else if (changedRun) {
