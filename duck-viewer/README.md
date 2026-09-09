@@ -112,8 +112,9 @@ the UI deliberately doesn't expose them.)
   never blocks it as an "automatic" download. The panel centers at the top
   but slides right of the duck-lab HUD when that panel is wide (long duck
   names) — the HUD publishes its right edge through the ui.ts store.
-- **🎥 record** (same panel, appears when a duck is selected): one click films
-  the selected duck for you — the camera glides to a ¾ front shot (chosen from
+- **🎥 record** (always visible beside 📷 shot): with no duck selected, one
+  click starts recording the current view. With a duck selected, it films
+  that duck — the camera glides to a ¾ front shot (chosen from
   the duck's heading, then held with a slow cinematic drift; OrbitControls and
   camera keys pause for the take) and MediaRecorder captures the WebGL canvas.
   Footage is automatically clean: DOM labels/panels aren't part of the canvas,
@@ -121,7 +122,10 @@ the UI deliberately doesn't expose them.)
   take to the lab (`POST /captures`), whose bundled ffmpeg writes a
   full-resolution h264 **mp4** and a 480 px palette **gif** into
   `microduck_local/captures/`; the panel then offers ⬇ downloads of both.
-  Takes cap at 60 s. Frames are pushed per RENDERED frame
+  Recording continues until you click ■ stop; there is no one-minute timer.
+  The shot and record/stop controls remain visible while recording and saving.
+  Long takes use browser memory and remain subject to the lab upload-size limit.
+  Frames are pushed per RENDERED frame
   (`captureStream(0)` + `requestFrame()` — automatic capture rides the
   compositor and records almost nothing in a throttled tab), so keep the tab
   visible while recording; a take where the scene never rendered is refused

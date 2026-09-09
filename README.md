@@ -8,8 +8,42 @@ Please give all the credit to the baseline project.
 
 This project also use RL PPO algorithem native supported by  [rlx](https://github.com/noahfarr/rlx).
 
+## Watch all five scenarios
 
+Looping previews from saved MuJoCo simulation rollouts. Click **Watch MP4**
+for the full-resolution video. These are local simulation demonstrations,
+not physical-robot deployment or robustness guarantees.
 
+| Dance imitation | Swing | Running |
+|---|---|---|
+| ![Dance imitation simulation](docs/media/scenarios/dance.gif) | ![Swing simulation](docs/media/scenarios/swing.gif) | ![Running simulation](docs/media/scenarios/running.gif) |
+| [Watch MP4](docs/media/scenarios/dance.mp4) | [Watch MP4](docs/media/scenarios/swing.mp4) | [Watch MP4](docs/media/scenarios/running.mp4) |
+
+| Stilt walking | Backflip — assisted showcase |
+|---|---|
+| ![Stilt walking simulation](docs/media/scenarios/stilts.gif) | ![Backflip with assisted launch, learned landing, and stand handoff](docs/media/scenarios/backflip.gif) |
+| [Watch MP4](docs/media/scenarios/stilts.mp4) | [Watch MP4](docs/media/scenarios/backflip.mp4) |
+
+**Backflip uses a spotter-assisted launch, a learned landing policy, and a
+pretrained standing-policy handoff—not an unassisted whole-flip policy.**
+The Dance preview follows an eight-second choreography excerpt, not the full
+source dance.
+
+<details>
+<summary>Saved runs used for these previews</summary>
+
+- **Dance:** `dance-e2e-20260907-low-noise`
+- **Swing:** `swing-e2e-20260907-v3`
+- **Running:** `running-e2e-20260907-v4`
+- **Stilt walking:** `stilts-e2e-20260907-v3`
+- **Backflip:** `backflip-e2e-20260908-v5`
+
+The MP4 files are copies of each run's saved `render/ep0.mp4`; GIFs show the
+same complete rollout at reduced resolution and frame rate. Copies live in
+`docs/media/scenarios/` so the gallery does not depend on ignored local
+training directories.
+
+</details>
 
 # Microduck Lab 🦆: RL experimentation on your Mac
 
@@ -19,10 +53,6 @@ open-source ~25 cm bipedal robot, **on an ordinary Apple Silicon Mac with no
 CUDA GPU**. Watch every policy walk, learn, and backflip live in your browser.
 
 ![The duck lab viewer: nine ducks running live, mid-backflip and mid-headstand](docs/media/viewer.png)
-
-| Running (locally trained on CPU, BAM actuator physics) | Backflip showcase: spotter-assisted launch, policy landing, stand handoff |
-|---|---|
-| ![running](docs/media/running.gif) | ![backflip](docs/media/backflip.gif) |
 
 The official [microduck_rl](https://github.com/pollen-robotics/microduck_rl)
 stack trains through MuJoCo Warp and needs a CUDA GPU. This project runs on the

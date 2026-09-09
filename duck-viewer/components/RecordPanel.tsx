@@ -33,8 +33,6 @@ const mono = "ui-monospace, SFMono-Regular, Menlo, monospace";
 /** Camera glide before the recorder rolls (matches RecordCamera's damping —
  *  the shot has settled by then, so takes don't open with a swish). */
 const FRAMING_MS = 1200;
-/** Safety cap: a forgotten recorder must not fill the disk. */
-const MAX_TAKE_MS = 60_000;
 
 /** Duck names carry emoji/spaces — reduce to a safe filename stem (mirrors
  *  the server's capture_slug, so shots and takes sort together). */
@@ -161,14 +159,18 @@ export function RecordPanel({
   };
 
   const start = () => {
-    if (!selected) return;
+    if (["framing", "recording", "processing"].includes(getCapture().phase)) return;
     const duckName =
       clientRef.current?.frame?.ducks.find((d) => d.id === selected)?.name ??
-      "duck";
+      "duck-lab";
     captureFraming(selected);
-    timersRef.current.push(
-      window.setTimeout(() => beginRecording(duckName), FRAMING_MS)
-    );
+    if (selected) {
+      timersRef.current.push(
+        window.setTimeout(() => beginRecording(duckName), FRAMING_MS)
+      );
+    } else {
+      beginRecording(duckName);
+    }
   };
 
   const beginRecording = (duckName: string) => {
@@ -216,7 +218,6 @@ export function RecordPanel({
     recRef.current = rec;
     rec.start(250);
     captureRecording();
-    timersRef.current.push(window.setTimeout(stop, MAX_TAKE_MS));
   };
 
   const stop = () => {
@@ -282,21 +283,8 @@ export function RecordPanel({
       pushToast("📷 scene still loading — try again in a moment");
   };
 
-  let content: React.ReactNode;
-  if (cap.phase === "idle") {
-    content = (
-      <>
-        {selected && (
-          <button style={btnStyle} onClick={start} title="film the selected duck — the camera frames it, then mp4 + gif land in captures/">
-            🎥 record
-          </button>
-        )}
-        <button style={btnStyle} onClick={snap} title="download a PNG of the current view (selection ring hidden for the shot)">
-          📷 shot
-        </button>
-      </>
-    );
-  } else if (cap.phase === "framing" || cap.phase === "recording") {
+  let content: React.ReactNode = null;
+  if (cap.phase === "framing" || cap.phase === "recording") {
     const secs =
       cap.recordingSince > 0
         ? Math.floor((Date.now() - cap.recordingSince) / 1000)
@@ -309,9 +297,6 @@ export function RecordPanel({
           <>
             <span style={{ color: "#e07a5f" }}>●</span>
             <span>{secs}s</span>
-            <button style={btnStyle} onClick={stop}>
-              ■ stop
-            </button>
           </>
         )}
         <button style={btnStyle} onClick={cancel} title="discard the take">
@@ -336,7 +321,7 @@ export function RecordPanel({
         </button>
       </>
     );
-  } else {
+  } else if (cap.phase === "error") {
     content = (
       <>
         <span style={{ color: "#e07a5f" }}>
@@ -363,6 +348,19 @@ export function RecordPanel({
   );
   return (
     <div ref={wrapRef} data-policy-ui style={{ ...panelStyle, left }}>
+      <button style={btnStyle} onClick={snap} title="download a PNG of the current view (selection ring hidden for the shot)" aria-label="Take screenshot">
+        📷 shot
+      </button>
+      <button
+        style={{ ...btnStyle, opacity: cap.phase === "processing" ? 0.5 : 1 }}
+        onClick={cap.phase === "recording" ? stop : cap.phase === "framing" ? cancel : start}
+        disabled={cap.phase === "processing"}
+        aria-label={cap.phase === "recording" || cap.phase === "framing" ? "Stop recording" : "Start video recording"}
+        aria-pressed={cap.phase === "recording" || cap.phase === "framing"}
+        title={cap.phase === "recording" ? "stop recording and save mp4 + gif" : cap.phase === "framing" ? "cancel camera framing" : selected ? "record the selected duck until you click stop" : "record the current MuJoCo view until you click stop"}
+      >
+        {cap.phase === "recording" || cap.phase === "framing" ? "■ stop" : "🎥 record"}
+      </button>
       {content}
     </div>
   );
